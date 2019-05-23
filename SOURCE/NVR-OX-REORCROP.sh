@@ -1,9 +1,10 @@
 
 set -e
 
-source NVR-OX-PARSINGFUNC.sh
+source ../AUX/NVR-OX-PARSINGFUNC.sh
 
 type=1  # For FAST: 1 = T1w, 2 = T2w, 3 = PD
+clobber=no # Never let a new execution overrides the stuff
 
 Usage() {
 echo "For later..."
@@ -34,16 +35,6 @@ while [ $# -ge 1 ] ; do
     esac
 done
 
-LOGFILE=log.txt
-run() {
-  echo $@ >> $LOGFILE
-  $@
-}
-
-runt() {
-echo `date` $1 >> $LOGFILE
-echo $1
-}
 
 # Well, this is not very clean, but no matter what the input is the image under
 # the hammer will be called T1
@@ -61,7 +52,7 @@ if [ X$outputname = X ] ; then
 fi
 
 
-runt "Here is the image: $inputimage"
+echo "Here is the image: $inputimage"
 
 if [ -d ${outputname}.REORCROP ] ; then
   if [ $clobber = no ] ; then
@@ -77,7 +68,20 @@ mkdir -p $anatdir
 $FSLDIR/bin/fslmaths ${inputimage} $anatdir/T1
 cd $anatdir
 pwd
+
+LOGFILE=log.txt
+
 echo " " >> $LOGFILE
+
+run() {
+  echo $@ >> $LOGFILE
+  $@
+}
+
+runt() {
+echo `date` $1 >> $LOGFILE
+echo $1
+}
 
 #### FIXING NEGATIVE RANGE
 # required input: ${T1}
