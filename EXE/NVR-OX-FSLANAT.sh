@@ -5,7 +5,10 @@ Time="30:00"
 ImgType=acq-3d
 RunID=1
 
-PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
+#This is pending until the copy dilemma is resolved
+#PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
+
+PathUnProcParent="/data/output/wranglers/mnt/$StudyID"
 PathProcParent="/data/output/habib/processed/$StudyID"
 
 GitHubDataDir="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/${StudyID}"
@@ -46,19 +49,31 @@ do
 		if [ ! -f $Path_UnpImg ]; 
 		then 
 			echo "**** File Does Not Exist ***** "; 
+			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/${StudyID}_EmptyDir.txt
 		else
 
-		GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
-                mkdir -p ${GitHubDataDirSubSes}
+			#============================================
+			# Just for now until the permission is sorted
+			if [ ! -r $PathUnProcParent/$SubID/ ]
+			then 		
+				echo "FUCK"
+				echo `ls -lsh ${PathUnProcParent}/${SubID}` >> ${GitHubDataDir}/${StudyID}_NoReadPermit.txt
+				continue
+			fi
+			#===========================================
 
-		#If it does, make an $FILENAME.anat directory
-		Path_ProImg=$PathProcParent/$SubID/$Ses/anat/${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
+			GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
+                	mkdir -p ${GitHubDataDirSubSes}
 
-		echo $Path_UnpImg
-                echo $Path_ProImg
+			#If it does, make an $FILENAME.anat directory
+			Path_ProImg=$PathProcParent/$SubID/$Ses/anat/${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
 
-		JobName=${StudyID}_${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
-		SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
+			echo $Path_UnpImg
+                	echo $Path_ProImg
+
+			JobName=${StudyID}_${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
+			SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
+			echo "Submitted: $SubmitterFileName"
 
 cat > $SubmitterFileName << EOF
 #!/bin/bash
@@ -77,8 +92,8 @@ echo "======================="
 echo "Unprocessed images will be: $Path_UnpImg"
 echo "Processed images will be:   $Path_ProImg"
 
-
-mkdir -p $Path_ProImg
+# Prior to this point we do *not* have a directory for this sub/ses in the processed directory:
+mkdir -p ${Path_ProImg}
 
 ## fsl_anat code goes here ## ## ## 
 
