@@ -19,7 +19,7 @@ mkdir -p ${GitHubDataDir}/Sessions
 StudySubIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
 # Make sure there aren't another version of this file
 rm -f $StudySubIDFile
-ls -d /data/output/habib/unprocessed/$StudyID/sub-*/ >> $StudySubIDFile
+ls -d $PathUnProcParent/sub-*/ >> $StudySubIDFile
 
 while read SubID
 do
@@ -31,7 +31,7 @@ do
 	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_${ImgType}_Sessions.txt"
 	# Make sure there aren't another version of this file
 	rm -f $StudSubSesIDFile
-	ls -d /data/output/habib/unprocessed/$StudyID/$SubID/*/ >> $StudSubSesIDFile 
+	ls -d $PathUnProcParent/$SubID/*/ >> $StudSubSesIDFile 
 	
         GitHubDataDirSub=$GitHubDataDir/$SubID
         mkdir -p $GitHubDataDirSub
