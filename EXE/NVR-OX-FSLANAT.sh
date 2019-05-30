@@ -7,7 +7,6 @@ RunID=1
 
 #This is pending until the copy dilemma is resolved
 #PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
-
 PathUnProcParent="/data/output/wranglers/mnt/$StudyID"
 PathProcParent="/data/output/habib/processed/$StudyID"
 
@@ -16,16 +15,27 @@ GitHubDataDir="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/${StudyID}"
 mkdir -p ${GitHubDataDir}
 mkdir -p ${GitHubDataDir}/Sessions
 
-StudySubIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
+StudySubIDFile="${GitHubDataDir}/SubDirID_$StudyID.txt"
 # Make sure there aren't another version of this file
 rm -f $StudySubIDFile
 ls -d $PathUnProcParent/sub-*/ >> $StudySubIDFile
+
+# Just to record the SubIDs & their sessions availab:
+StudySubSesIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
+# Make sure there aren't another version of this file
+rm -f ${StudySubSesIDFile}
+
+#Submitter files, just save the path to them for future mass re-producing
+SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_$StudyID.txt"
+rm -f ${SubmitterPath}
 
 while read SubID
 do
 	# Get the SubID from the directory path
 	SubID=`basename $SubID`
 	echo "For Subject: $SubID ========================================"
+
+	echo "S: $SubID" >> $StudySubSesIDFile
 
 	# crawl into the subject directory and find how many sessions are available
 	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_${ImgType}_Sessions.txt"
@@ -42,6 +52,8 @@ do
 		# Get the session ID from the path directory
 		Ses=`basename $Ses`
 
+		echo "R: $Ses" >> $StudySubSesIDFile
+
 		# Reconstruct the directory name
 		Path_UnpImg=$PathUnProcParent/$SubID/$Ses/anat/${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w.nii.gz
 		
@@ -49,17 +61,17 @@ do
 		if [ ! -f $Path_UnpImg ]; 
 		then 
 			echo "**** File Does Not Exist ***** "; 
-			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/${StudyID}_EmptyDir.txt
+			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}.txt
 		else
 
 			#============================================
 			# Just for now until the permission is sorted
-			if [ ! -r $PathUnProcParent/$SubID/ ]
-			then 		
-				echo "FUCK"
-				echo `ls -lsh ${PathUnProcParent}/${SubID}` >> ${GitHubDataDir}/${StudyID}_NoReadPermit.txt
-				continue
-			fi
+			#if [ ! -r $PathUnProcParent/$SubID/ ]
+			#then 		
+			#	echo "!!"
+			#	echo `ls -lsh ${PathUnProcParent}/${SubID}` >> ${GitHubDataDir}/${StudyID}_NoReadPermit.txt
+			#	continue
+			#fi
 			#===========================================
 
 			GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
@@ -73,7 +85,7 @@ do
 
 			JobName=${StudyID}_${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
 			SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
-			echo "Submitted: $SubmitterFileName"
+			echo "${SubmitterFileName}" >> $SubmitterPath
 
 cat > $SubmitterFileName << EOF
 #!/bin/bash
@@ -93,7 +105,7 @@ echo "Unprocessed images will be: $Path_UnpImg"
 echo "Processed images will be:   $Path_ProImg"
 
 # Prior to this point we do *not* have a directory for this sub/ses in the processed directory:
-mkdir -p ${Path_ProImg}
+mkdir -p ${PathProcParent}/${SubID}/${Ses}/anat/
 
 ## fsl_anat code goes here ## ## ## 
 
