@@ -7,7 +7,6 @@ RunID=1
 
 #This is pending until the copy dilemma is resolved
 PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
-#PathUnProcParent="/data/output/wranglers/mnt/$StudyID"
 PathProcParent="/data/output/habib/processed/$StudyID"
 
 GitHubDataDir="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/${StudyID}"
