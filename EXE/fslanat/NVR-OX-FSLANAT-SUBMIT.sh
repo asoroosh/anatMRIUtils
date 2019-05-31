@@ -1,6 +1,10 @@
 StudyID=CFTY720D2201E2
 
-SLURMPaths="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/$StudyID/SLUMR_Submitters_$StudyID.txt"
+# T13D T12D T22D PD2D 
+ImgType=$1
+
+SLURMPaths="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/$StudyID/SLUMR_Submitters_${StudyID}_${ImgType}.txt"
+#SLUMR_Submitters_CFTY720D2201E2_PD2D.txt
 
 echo "=========================="
 echo "The submitted file for study $StudyID are availble via:"
