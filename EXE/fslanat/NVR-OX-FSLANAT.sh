@@ -1,13 +1,33 @@
+#This should later be in a loop around StudyIDs
 StudyID=CFTY720D2201E2
 
 Mem=5G
 Time="30:00"
-ImgType=acq-3d
+
+# One of the following: T13D T12D T22D PD2D
+#ImgType=PD2D
+
+ImgType=$1
+
+echo "Image type::: $ImgType"
+
+#For later use...###########################
+#if [ X$ImgType== X ] ; then
+#	ImgType=T13D
+#fi
+###########################
+
+# It is always 1 for all subjects?!
 RunID=1
 
 #This is pending until the copy dilemma is resolved
 PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
 PathProcParent="/data/output/habib/processed/$StudyID"
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
 
 GitHubDataDir="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/${StudyID}"
 
@@ -25,7 +45,7 @@ StudySubSesIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
 rm -f ${StudySubSesIDFile}
 
 #Submitter files, just save the path to them for future mass re-producing
-SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_$StudyID.txt"
+SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_$StudyID_$ImgType.txt"
 rm -f ${SubmitterPath}
 
 while read SubID
@@ -37,7 +57,7 @@ do
 	echo "S: $SubID" >> $StudySubSesIDFile
 
 	# crawl into the subject directory and find how many sessions are available
-	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_${ImgType}_Sessions.txt"
+	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_Sessions.txt"
 	# Make sure there aren't another version of this file
 	rm -f $StudSubSesIDFile
 	ls -d $PathUnProcParent/$SubID/*/ >> $StudSubSesIDFile 
@@ -53,8 +73,30 @@ do
 
 		echo "R: $Ses" >> $StudySubSesIDFile
 
+		#Image Name
+		if [ $ImgType == T13D ] ; then
+			#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
+                	ImageName=${SubID}_${Ses}_acq-3d_run-${RunID}_T1w
+		elif [ $ImgType == T12D ] ; then 
+			#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
+			ImageName=${SubID}_${Ses}_run-${RunID}_T1w
+		elif [ $ImgType == PD2D ] ; then
+			#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
+			ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_1
+		elif [ $ImgType == T22D ] ; then
+		        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
+                        ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_2
+		else
+			# throw an error and halt here
+			echo "$ImgType is unrecognised"
+		fi
+
+
+		#Remove this later, just for sanity check
+		echo ${ImageName}
+
 		# Reconstruct the directory name
-		Path_UnpImg=$PathUnProcParent/$SubID/$Ses/anat/${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w.nii.gz
+		Path_UnpImg=$PathUnProcParent/$SubID/$Ses/anat/${ImageName}.nii.gz
 		
 		# Check whether the file actually exists
 		if [ ! -f $Path_UnpImg ]; 
@@ -77,12 +119,12 @@ do
                 	mkdir -p ${GitHubDataDirSubSes}
 
 			#If it does, make an $FILENAME.anat directory
-			Path_ProImg=$PathProcParent/$SubID/$Ses/anat/${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
+			Path_ProImg=$PathProcParent/$SubID/$Ses/anat/${ImageName}
 
 			echo $Path_UnpImg
                 	echo $Path_ProImg
 
-			JobName=${StudyID}_${SubID}_${Ses}_${ImgType}_run-${RunID}_T1w
+			JobName=${StudyID}_${ImageName}
 			SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
 			echo "${SubmitterFileName}" >> $SubmitterPath
 
@@ -119,3 +161,7 @@ EOF
 	done<$StudSubSesIDFile
 
 done<$StudySubIDFile
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
