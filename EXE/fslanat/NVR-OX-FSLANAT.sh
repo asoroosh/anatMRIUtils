@@ -1,3 +1,9 @@
+#####################URGENT TO DOs######################################################
+# This is not super efficient to crawl each time -- write an indepent crawler
+# parse the inputs
+# 
+#######################################################################################
+
 #This should later be in a loop around StudyIDs
 StudyID=CFTY720D2201E2
 
@@ -45,7 +51,7 @@ StudySubSesIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
 rm -f ${StudySubSesIDFile}
 
 #Submitter files, just save the path to them for future mass re-producing
-SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_$StudyID_$ImgType.txt"
+SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_${StudyID}_${ImgType}.txt"
 rm -f ${SubmitterPath}
 
 while read SubID
@@ -75,15 +81,22 @@ do
 
 		#Image Name
 		if [ $ImgType == T13D ] ; then
+			FA_ImageType=T1
+			FA_command=''
 			#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
                 	ImageName=${SubID}_${Ses}_acq-3d_run-${RunID}_T1w
-		elif [ $ImgType == T12D ] ; then 
+		elif [ $ImgType == T12D ] ; then
+			FA_ImageType=T1 
 			#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
 			ImageName=${SubID}_${Ses}_run-${RunID}_T1w
 		elif [ $ImgType == PD2D ] ; then
+			FA_ImageType=PD
+			FA_command="--nononlinreg --nosubcortseg"
 			#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
 			ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_1
 		elif [ $ImgType == T22D ] ; then
+			FA_ImageType=T2
+			FA_command="--nononlinreg --nosubcortseg"
 		        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
                         ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_2
 		else
@@ -102,7 +115,7 @@ do
 		if [ ! -f $Path_UnpImg ]; 
 		then 
 			echo "**** File Does Not Exist ***** "; 
-			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}.txt
+			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}_${ImgType}.txt
 		else
 
 			#============================================
@@ -150,7 +163,7 @@ mkdir -p ${PathProcParent}/${SubID}/${Ses}/anat/
 
 ## fsl_anat code goes here ## ## ## 
 
-$FSLDIR/bin/fsl_anat -i $Path_UnpImg -o $Path_ProImg
+$FSLDIR/bin/fsl_anat -i $Path_UnpImg -t ${FA_ImageType} ${FA_command} -o $Path_ProImg
 
 ## ## ## ## ## ## ## ## ## ## ## ##
 
