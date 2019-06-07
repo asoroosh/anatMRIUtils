@@ -292,6 +292,11 @@ while [ $# -ge 1 ] ; do
     esac
 done
 
+
+
+echo "do_bet=${do_bet} -- do_reg=${do_reg} -- do_nonlinreg=${do_nonlinreg}"
+
+
 ### Sanity checking of arguments
 
 if [ X$inputimage = X ] && [ X$anatdir = X ] && [ X"$imagelist" = X ] ; then
@@ -539,20 +544,24 @@ if [ $do_reg = yes ] ; then
 	date; echo "Registering to standard space (linear)"
 	flirtargs="$flirtargs $nosearch"
 	if [ $use_lesionmask = yes ] ; then flirtargs="$flirtargs -inweight lesionmaskinv" ; fi
-	run $FSLDIR/bin/flirt -interp spline -dof 12 -in ${T1}_biascorr -ref $FSLDIR/data/standard/MNI152_${T1}_2mm -dof 12 -omat ${T1}_to_MNI_lin.mat -out ${T1}_to_MNI_lin $flirtargs
+	
+	# This: $FSLDIR/data/standard/MNI152_${T1}_2mm was changed to: $FSLDIR/data/standard/MNI152_T1_2mm to ensure that regardless of the imaging modality -- *everything* is registered to T1_2mm
+	run $FSLDIR/bin/flirt -interp spline -dof 12 -in ${T1}_biascorr -ref $FSLDIR/data/standard/MNI152_T1_2mm -dof 12 -omat ${T1}_to_MNI_lin.mat -out ${T1}_to_MNI_lin $flirtargs
 	
 	if [ $do_nonlinreg = yes ] ; then
 	    date; echo "Registering to standard space (non-linear)"
-	    #refmask=$FSLDIR/data/standard/MNI152_${T1}_2mm_brain_mask_dil1
-	    refmask=MNI152_${T1}_2mm_brain_mask_dil1
+	
+	    # This was changed from MNI152_${T1}_2mm to MNI152_T1_2mm to ensure everything will be registered to T1 images -- although T2/PD never reaches this lines as they won't go through nonlin registration
+	    #refmask=$FSLDIR/data/standard/MNI152_T1_2mm_brain_mask_dil1
+	    refmask=MNI152_T1_2mm_brain_mask_dil1
 	    fnirtargs=""
 	    if [ $use_lesionmask = yes ] ; then fnirtargs="$fnirtargs --inmask=lesionmaskinv" ; fi
-	    run $FSLDIR/bin/fslmaths $FSLDIR/data/standard/MNI152_${T1}_2mm_brain_mask -fillh -dilF $refmask
-	    run $FSLDIR/bin/fnirt --in=${T1}_biascorr --ref=$FSLDIR/data/standard/MNI152_${T1}_2mm --fout=${T1}_to_MNI_nonlin_field --jout=${T1}_to_MNI_nonlin_jac --iout=${T1}_to_MNI_nonlin --logout=${T1}_to_MNI_nonlin.txt --cout=${T1}_to_MNI_nonlin_coeff --config=$FSLDIR/etc/flirtsch/${T1}_2_MNI152_2mm.cnf --aff=${T1}_to_MNI_lin.mat --refmask=$refmask $fnirtargs
+	    run $FSLDIR/bin/fslmaths $FSLDIR/data/standard/MNI152_T1_2mm_brain_mask -fillh -dilF $refmask
+	    run $FSLDIR/bin/fnirt --in=${T1}_biascorr --ref=$FSLDIR/data/standard/MNI152_T1_2mm --fout=${T1}_to_MNI_nonlin_field --jout=${T1}_to_MNI_nonlin_jac --iout=${T1}_to_MNI_nonlin --logout=${T1}_to_MNI_nonlin.txt --cout=${T1}_to_MNI_nonlin_coeff --config=$FSLDIR/etc/flirtsch/${T1}_2_MNI152_2mm.cnf --aff=${T1}_to_MNI_lin.mat --refmask=$refmask $fnirtargs
 	    
 	    date; echo "Performing brain extraction (using FNIRT)"
 	    run $FSLDIR/bin/invwarp --ref=${T1}_biascorr -w ${T1}_to_MNI_nonlin_coeff -o MNI_to_${T1}_nonlin_field
-	    run $FSLDIR/bin/applywarp --interp=nn --in=$FSLDIR/data/standard/MNI152_${T1}_2mm_brain_mask --ref=${T1}_biascorr -w MNI_to_${T1}_nonlin_field -o ${T1}_biascorr_brain_mask
+	    run $FSLDIR/bin/applywarp --interp=nn --in=$FSLDIR/data/standard/MNI152_T1_2mm_brain_mask --ref=${T1}_biascorr -w MNI_to_${T1}_nonlin_field -o ${T1}_biascorr_brain_mask
 	    run $FSLDIR/bin/fslmaths ${T1}_biascorr_brain_mask -fillh ${T1}_biascorr_brain_mask
 	    run $FSLDIR/bin/fslmaths ${T1}_biascorr -mas ${T1}_biascorr_brain_mask ${T1}_biascorr_brain
 	fi
@@ -567,7 +576,6 @@ else
 	run $FSLDIR/bin/fslmaths ${T1}_biascorr_brain -bin ${T1}_biascorr_brain_mask
     fi
 fi
-
 
 #### TISSUE-TYPE SEGMENTATION
 # required input: ${T1}_biascorr ${T1}_biascorr_brain ${T1}_biascorr_brain_mask
@@ -589,7 +597,7 @@ if [ $do_seg = yes ] ; then
     run $FSLDIR/bin/fslmaths ${T1}_biascorr_init -div ${T1}_fast_bias ${T1}_biascorr
     if [ $do_nonlinreg = yes ] ; then
         # regenerate the standard space version with the new bias field correction applied
-	run $FSLDIR/bin/applywarp -i ${T1}_biascorr -w ${T1}_to_MNI_nonlin_field -r $FSLDIR/data/standard/MNI152_${T1}_2mm -o ${T1}_to_MNI_nonlin --interp=spline
+	run $FSLDIR/bin/applywarp -i ${T1}_biascorr -w ${T1}_to_MNI_nonlin_field -r $FSLDIR/data/standard/MNI152_T1_2mm -o ${T1}_to_MNI_nonlin --interp=spline
     fi
 fi
 

@@ -1,6 +1,7 @@
 #####################URGENT TO DOs######################################################
 # This is not super efficient to crawl each time -- write an indepent crawler
-# parse the inputs 
+# parse the inputs
+# 
 #######################################################################################
 
 #This should later be in a loop around StudyIDs
@@ -31,15 +32,26 @@ PathProcParent="/data/output/habib/processed/$StudyID"
 
 ##########################################################################################
 ##########################################################################################
+##########################################################################################
 
-SOURCEPATH="${HOME}/NVROXBOX/SOURCE"
 
-GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
+GitHubDataDir="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/${StudyID}"
+
+mkdir -p ${GitHubDataDir}
+mkdir -p ${GitHubDataDir}/Sessions
 
 StudySubIDFile="${GitHubDataDir}/SubDirID_$StudyID.txt"
+# Make sure there aren't another version of this file
+rm -f $StudySubIDFile
+ls -d $PathUnProcParent/sub-*/ >> $StudySubIDFile
+
+# Just to record the SubIDs & their sessions availab:
+StudySubSesIDFile="${GitHubDataDir}/SubID_$StudyID.txt"
+# Make sure there aren't another version of this file
+rm -f ${StudySubSesIDFile}
 
 #Submitter files, just save the path to them for future mass re-producing
-SubmitterPath="${GitHubDataDir}/SLUMR_FSLANAT_Submitters_${StudyID}_${ImgType}.txt"
+SubmitterPath="${GitHubDataDir}/SLUMR_Submitters_${StudyID}_${ImgType}.txt"
 rm -f ${SubmitterPath}
 
 while read SubID
@@ -48,8 +60,14 @@ do
 	SubID=`basename $SubID`
 	echo "For Subject: $SubID ========================================"
 
+	echo "S: $SubID" >> $StudySubSesIDFile
+
+	# crawl into the subject directory and find how many sessions are available
 	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_Sessions.txt"
-		
+	# Make sure there aren't another version of this file
+	rm -f $StudSubSesIDFile
+	ls -d $PathUnProcParent/$SubID/*/ >> $StudSubSesIDFile 
+	
         GitHubDataDirSub=$GitHubDataDir/$SubID
         mkdir -p $GitHubDataDirSub
 
@@ -58,6 +76,8 @@ do
 	do
 		# Get the session ID from the path directory
 		Ses=`basename $Ses`
+
+		echo "R: $Ses" >> $StudySubSesIDFile
 
 		#Image Name
 		if [ $ImgType == T13D ] ; then
@@ -84,8 +104,7 @@ do
 			echo "$ImgType is unrecognised"
 		fi
 
-# SANITY CHECK ###################################
-#============================================#============================================#================================
+
 		#Remove this later, just for sanity check
 		echo ${ImageName}
 
@@ -96,9 +115,7 @@ do
 		if [ ! -f $Path_UnpImg ]; 
 		then 
 			echo "**** File Does Not Exist ***** "; 
-		#
-		#	
-		#	echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}_${ImgType}.txt
+			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}_${ImgType}.txt
 		else
 
 			#============================================
@@ -110,28 +127,18 @@ do
 			#	continue
 			#fi
 			#===========================================
-#============================================#============================================#================================
 
 			GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
                 	mkdir -p ${GitHubDataDirSubSes}
 
 			#If it does, make an $FILENAME.anat directory
-			Path_ProImg=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}
-
-	                if [ ! -d ${Path_ProImg}.anat ];
-	                then
-				echo "${Path_ProImg} == does not exists, the script will make one."	
-			else
-				echo "${Path_ProImg} already exists, we use --clobber to remove and remake it."
-				FA_command="${FA_command} --clobber"
-			fi
+			Path_ProImg=$PathProcParent/$SubID/$Ses/anat/${ImageName}
 
 			echo $Path_UnpImg
                 	echo $Path_ProImg
 
 			JobName=${StudyID}_${ImageName}
 			SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
-			echo "${SubmitterFileName}"
 			echo "${SubmitterFileName}" >> $SubmitterPath
 
 cat > $SubmitterFileName << EOF
@@ -156,9 +163,7 @@ mkdir -p ${PathProcParent}/${SubID}/${Ses}/anat/
 
 ## fsl_anat code goes here ## ## ## 
 
-# $FSLDIR/bin/fsl_anat 
-
-sh ${SOURCEPATH}/NVR-OX-FSLANAT.sh -i $Path_UnpImg -t ${FA_ImageType} ${FA_command} -o ${Path_ProImg}
+$FSLDIR/bin/fsl_anat -i $Path_UnpImg -t ${FA_ImageType} ${FA_command} -o $Path_ProImg
 
 ## ## ## ## ## ## ## ## ## ## ## ##
 
