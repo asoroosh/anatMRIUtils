@@ -71,12 +71,12 @@ do
 			ImageName=${SubID}_${Ses}_run-${RunID}_T1w
 		elif [ $ImgType == PD2D ] ; then
 			FA_ImageType=PD
-			FA_command="--nononlinreg --nosubcortseg"
+			FA_command="--nononlinreg --nosubcortseg --noseg"
 			#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
 			ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_1
 		elif [ $ImgType == T22D ] ; then
 			FA_ImageType=T2
-			FA_command="--nononlinreg --nosubcortseg"
+			FA_command="--nononlinreg --nosubcortseg --noseg"
 		        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
                         ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_2
 		else
