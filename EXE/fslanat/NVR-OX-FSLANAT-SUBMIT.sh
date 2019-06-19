@@ -3,7 +3,7 @@ StudyID=CFTY720D2201E2
 # T13D T12D T22D PD2D 
 ImgType=$1
 
-SLURMPaths="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/$StudyID/SLUMR_Submitters_${StudyID}_${ImgType}.txt"
+SLURMPaths="/home/bdivdi.local/dfgtyk/NVROXBOX/Data/$StudyID/SLUMR_FSLANAT_Submitters_${StudyID}_${ImgType}.txt"
 #SLUMR_Submitters_CFTY720D2201E2_PD2D.txt
 
 echo "=========================="
