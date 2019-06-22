@@ -1,8 +1,10 @@
 
+# Generate subject level VBM images
+# 
 
 GM_file=$1
-VBM_dir=$2
-templ=$3
+templ=$2
+VBM_dir=$3
 
 echo "Template is here: ${templ}"
 echo "VBM results: ${VBM_dir}"
