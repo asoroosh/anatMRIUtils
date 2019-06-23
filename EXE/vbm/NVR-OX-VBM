@@ -83,7 +83,7 @@ cat > $SubmitterFileName << EOF
 mkdir -p ${VBMOutputDir}
 
 ### ### ### ### ### ###
-ssh ${SRC_DIR}/NVROX-SUBVBM ${GMSEGIMG} ${TMPL} ${VBMOutputDir}
+sh ${SRC_DIR}/NVROX-SUBVBM ${GMSEGIMG} ${TMPL} ${VBMOutputDir}
 ### ### ### ### ### ###
 
 EOF
