@@ -13,6 +13,7 @@ Time="30:00"
 PathProcParent="/data/output/habib/processed/$StudyID"
 
 SRC_DIR="${HOME}/NVROXBOX/SOURCE"
+GMTMPL="${HOME}/NVROXBOX/SOURCE/templates/template_GM.nii.gz"
 
 GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
 StudySubIDFile="${GitHubDataDir}/SubDirID_${StudyID}.txt"
@@ -83,7 +84,7 @@ cat > $SubmitterFileName << EOF
 mkdir -p ${VBMOutputDir}
 
 ### ### ### ### ### ###
-sh ${SRC_DIR}/NVROX-SUBVBM ${GMSEGIMG} ${TMPL} ${VBMOutputDir}
+sh ${SRC_DIR}/NVROX-SUBVBM ${GMSEGIMG} ${GMTMPL} ${VBMOutputDir}
 ### ### ### ### ### ###
 
 EOF
