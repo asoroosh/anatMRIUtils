@@ -13,7 +13,7 @@ Time="30:00"
 PathProcParent="/data/output/habib/processed/$StudyID"
 
 SRC_DIR="${HOME}/NVROXBOX/SOURCE"
-GMATLAS_DIR="${HOME}/NVROXBOX/SOURCE/atlas"
+GMATLAS_DIR="${HOME}/NVROXBOX/SOURCE/atlas/GMatlas"
 
 GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
 StudySubIDFile="${GitHubDataDir}/SubDirID_${StudyID}.txt"
