@@ -21,5 +21,3 @@ mkdir -p ${GMP_dir}
 
 ${FSLDIR}/bin/applywarp -i ${Atlas_dir}/GMatlas -o ${GMP_dir}/GMatlas_to_T1 -r ${FSLANAT_dir}/T1 -w ${FSLANAT_dir}/MNI_to_T1_nonlin_field.nii.gz --interp=nn
 ${FSLDIR}/bin/fslstats -K ${GMP_dir}/GMatlas_to_T1.nii.gz ${FSLANAT_dir}/T1_fast_pve_1.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> $GMPTXTFILENAME
-
-
