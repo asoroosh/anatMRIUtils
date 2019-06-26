@@ -79,12 +79,18 @@ do
                 echo "$ImgType is unrecognised"
         fi
 
+	#Make Sure that both sessions have the images:
+
 	ImageADirName=${PathProcParent}/${SubID}/${SesA}/anat/${ImageNameA}.anat/T1_to_MNI_nonlin.nii.gz
 	ImageBDirName=${PathProcParent}/${SubID}/${SesB}/anat/${ImageNameB}.anat/T1_to_MNI_nonlin.nii.gz
 
+	if [ ! -f ${ImageADirName} ] || [ ! -f ${ImageBDirName} ]; then 
+		echo "=%=%= There is inconsistency between the two sessions in terms of the images"
+		continue
+	fi
+
 	SienaOutputDir=${PathProcParent}/${SubID}/siena/${SienaDirName}.siena
 	SienaXOutputDir=${PathProcParent}/${SubID}/sienax/${SienaDirName}.sienax
-
 
 	GitHubDataDirSubSiena=${GitHubDataDirSub}/siena
 	mkdir -p ${GitHubDataDirSubSiena}	
