@@ -1,0 +1,60 @@
+
+StudyID=CFTY720D2201E2
+RunID=1
+ImgType=$1
+
+GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
+StudySubIDFile="${GitHubDataDir}/SubDirID_${StudyID}.txt"
+
+PathProcParent="/data/output/habib/processed/${StudyID}"
+
+
+IDP_SIENAX_WM="${PathProcParent}/anat/IDP_SIENAX_WM.txt"
+IDP_SIENAX_GM="${PathProcParent}/anat/IDP_SIENAX_GM.txt"
+IDP_SIENAX_BRN="${PathProcParent}/anat/IDP_SIENAX_BRN.txt"
+
+while read $SubID
+do
+	SubID=`basename $SubID`
+	SesIDFILE="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_Sessions.txt"
+
+	while read $SesID
+	do
+		SesID=`basename $SesID`
+		#Check whether the file is there, if not put a NaN and continue
+
+			if [ $ImgType == T13D ] ; then
+					#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
+					ImageName=${SubID}_${SesID}_acq-3d_run-${RunID}_T1w
+				elif [ $ImgType == T12D ] ; then
+					#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
+					ImageName=${SubID}_${SesID}_run-${RunID}_T1w
+				elif [ $ImgType == PD2D ] ; then
+					#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
+					ImageName=${SubID}_${SesID}_run-${RunID}_PDT2_1
+				elif [ $ImgType == T22D ] ; then
+					#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
+					ImageName=${SubID}_${SesID}_run-${RunID}_PDT2_2
+				else
+					# throw an error and halt here
+					echo "$ImgType is unrecognised"
+				fi
+
+		#SIENAX
+		SienaXOutputDir=${PathProcParent}/${SubID}/${SesID}/anat/${ImageName}.sienax
+		if [ ! -d ${SIENAXREP} ]
+			echo "**DOES NOT EXISTS: ${SienaXOutputDir} "
+			echo "NaN" >> $IDP_SIENAX_WM
+			echo "NaN" >> $IDP_SIENAX_GM
+			echo "NaN" >> $IDP_SIENAX_BRN
+		fi
+
+		echo "${SubID} ${StudyID} `cat ${SIENAXREP}/report.sienax | grep GREY | awk '{print $3 "  " $2}'`"  >> $IDP_SIENAX_WM
+		echo "${SubID} ${StudyID} `cat ${SIENAXREP}/report.sienax | grep WHITE | awk '{print $3 "  " $2}'`" >> $IDP_SIENAX_GM
+		echo "${SubID} ${StudyID} `cat ${SIENAXREP}/report.sienax | grep BRAIN | awk '{print $3 "  " $2}'`" >> $IDP_SIENAX_BRN
+	done<$SesIDFILE
+
+	#SIENA
+
+
+done<$SubIDFILE
