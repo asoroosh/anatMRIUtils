@@ -2,16 +2,39 @@ StudyID=CFTY720D2201E2
 RunID=1
 ImgType=$1
 
+########################################
+TransposeMe () {
+
+awk '
+{ 
+    for (i=1; i<=NF; i++)  {
+        a[NR,i] = $i
+    }
+}
+NF>p { p = NF }
+END {    
+    for(j=1; j<=p; j++) {
+        str=a[1,j]
+        for(i=2; i<=NR; i++){
+            str=str" "a[i,j];
+        }
+        print str
+    }
+}' $1
+}
+######################################
+
 GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
 SubIDFILE="${GitHubDataDir}/SubDirID_${StudyID}.txt"
 
 echo ${SubIDFILE}
 
 PathProcParent="/data/output/habib/processed/${StudyID}"
-
 IDP_GMP="${PathProcParent}/anat/IDP_${StudyID}_${ImgType}_GMP.txt"
 
-rm -f ${}
+NROI=139
+
+rm -f ${IDP_GMP}
 
 while read SubID
 do
@@ -46,23 +69,26 @@ do
 				echo "$ImgType is unrecognised"
 			fi
 
-		#SIENAX
+		#GMP
 		GMPOutputDir=${PathProcParent}/${SubID}/${SesID}/anat/${ImageName}.gmp
 		AnatOutputDir=${PathProcParent}/${SubID}/${SesID}/anat/${ImageName}.anat
 
 		#echo ${SienaXOutputDir}
 		if [ ! -d ${GMPOutputDir} ] || [ ! -d ${AnatOutputDir} ]; then
-			echo "**DOES NOT EXISTS: ${SienaXOutputDir} "
+			echo "**DOES NOT EXISTS: ${GMPOutputDir} "
 			
-			echo "${SubID} ${SesID} ${StudyID} NaN" >> $IDP_GMP
+			NaNResults=""
+			for i in $(seq 1 $NROI) ; do 
+    				NaNResults="NaN $NaNResults"; 
+			done 
+
+			echo "${SubID} ${SesID} ${StudyID} $NaNResults" >> $IDP_GMP
 
 			continue
 		fi
 
-		echo "${SubID} ${SesID} ${StudyID} `cat ${SienaXOutputDir}/report.sienax | grep GREY | awk '{print $3 "  " $2}'`"  >> $IDP_GMP
+		echo "${SubID} ${SesID} ${StudyID} `TransposeMe ${GMPOutputDir}/NVROX-GMPVOLS.txt | grep GREY | awk '{print $3 "  " $2}'`"  >> $IDP_GMP
 
 	done<$SesIDFILE
-
-#        echo "${SubID} ${SesA}-${SesB} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep PBVC | awk {'print $2'} | awk 'NR==2'`" >> $IDP_SIENA_B2A_PBVC
         
 done<${SubIDFILE}
