@@ -1,1 +1,68 @@
-SA
+StudyID=CFTY720D2201E2
+RunID=1
+ImgType=$1
+
+GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
+SubIDFILE="${GitHubDataDir}/SubDirID_${StudyID}.txt"
+
+echo ${SubIDFILE}
+
+PathProcParent="/data/output/habib/processed/${StudyID}"
+
+IDP_GMP="${PathProcParent}/anat/IDP_${StudyID}_${ImgType}_GMP.txt"
+
+rm -f ${}
+
+while read SubID
+do
+	SubID=`basename $SubID`
+
+	echo ${SubID}
+
+	SesIDFILE="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_Sessions.txt"
+
+	while read SesID
+	do
+		SesID=`basename $SesID`
+
+		echo ${SesID}
+
+		#Check whether the file is there, if not put a NaN and continue
+
+			if [ $ImgType == T13D ] ; then
+				#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
+				ImageName=${SubID}_${SesID}_acq-3d_run-${RunID}_T1w
+			elif [ $ImgType == T12D ] ; then
+				#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
+				ImageName=${SubID}_${SesID}_run-${RunID}_T1w
+			elif [ $ImgType == PD2D ] ; then
+				#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
+				ImageName=${SubID}_${SesID}_run-${RunID}_PDT2_1
+			elif [ $ImgType == T22D ] ; then
+				#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
+				ImageName=${SubID}_${SesID}_run-${RunID}_PDT2_2
+			else
+				# throw an error and halt here
+				echo "$ImgType is unrecognised"
+			fi
+
+		#SIENAX
+		GMPOutputDir=${PathProcParent}/${SubID}/${SesID}/anat/${ImageName}.gmp
+		AnatOutputDir=${PathProcParent}/${SubID}/${SesID}/anat/${ImageName}.anat
+
+		#echo ${SienaXOutputDir}
+		if [ ! -d ${GMPOutputDir} ] || [ ! -d ${AnatOutputDir} ]; then
+			echo "**DOES NOT EXISTS: ${SienaXOutputDir} "
+			
+			echo "${SubID} ${SesID} ${StudyID} NaN" >> $IDP_GMP
+
+			continue
+		fi
+
+		echo "${SubID} ${SesID} ${StudyID} `cat ${SienaXOutputDir}/report.sienax | grep GREY | awk '{print $3 "  " $2}'`"  >> $IDP_GMP
+
+	done<$SesIDFILE
+
+#        echo "${SubID} ${SesA}-${SesB} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep PBVC | awk {'print $2'} | awk 'NR==2'`" >> $IDP_SIENA_B2A_PBVC
+        
+done<${SubIDFILE}
