@@ -14,6 +14,8 @@ GMP_dir=$3
 
 GMPTXTFILENAME=$GMP_dir/NVROX-GMPVOLS.txt
 
+rm -f $GMPTXTFILENAME
+
 mkdir -p ${GMP_dir}
 
 # MNI_to_T1_nonlin_field.nii.gz is equivalent of T1_to_MNI_warp_coef_inv? check the BIANCA website... and Field's code in BIANCA:
