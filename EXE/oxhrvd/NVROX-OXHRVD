@@ -39,7 +39,7 @@ do
 	while read Ses
 	do
 
-					Ses=`basename $Ses`
+		Ses=`basename $Ses`
         	#Image Name
         	if [ $ImgType == T13D ] ; then
                 	#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
