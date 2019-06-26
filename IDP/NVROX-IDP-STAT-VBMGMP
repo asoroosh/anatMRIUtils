@@ -87,7 +87,7 @@ do
 			continue
 		fi
 
-		echo "${SubID} ${SesID} ${StudyID} `TransposeMe ${GMPOutputDir}/NVROX-GMPVOLS.txt | grep GREY | awk '{print $3 "  " $2}'`"  >> $IDP_GMP
+		echo "${SubID} ${SesID} ${StudyID} `TransposeMe ${GMPOutputDir}/NVROX-GMPVOLS.txt`"  >> $IDP_GMP
 
 	done<$SesIDFILE
         
