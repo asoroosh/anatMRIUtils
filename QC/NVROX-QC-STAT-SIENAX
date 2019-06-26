@@ -10,15 +10,28 @@ echo ${SubIDFILE}
 
 PathProcParent="/data/output/habib/processed/${StudyID}"
 
-IDP_SIENAX_WM="${PathProcParent}/anat/IDP_SIENAX_WM.txt"
-IDP_SIENAX_GM="${PathProcParent}/anat/IDP_SIENAX_GM.txt"
-IDP_SIENAX_BRN="${PathProcParent}/anat/IDP_SIENAX_BRN.txt"
-IDP_SIENAX_VSCALING="${PathProcParent}/anat/IDP_SIENAX_VSCALING.txt"
+IDP_SIENAX_WM="${PathProcParent}/anat/IDP_${StudyID}_SIENAX_WM.txt"
+IDP_SIENAX_GM="${PathProcParent}/anat/IDP_${StudyID}_SIENAX_GM.txt"
+IDP_SIENAX_BRN="${PathProcParent}/anat/IDP_${StudyID}_SIENAX_BRN.txt"
+IDP_SIENAX_VSCALING="${PathProcParent}/anat/IDP_${StudyID}_SIENAX_VSCALING.txt"
 
-rm ${IDP_SIENAX_WM}
-rm ${IDP_SIENAX_GM}
-rm ${IDP_SIENAX_BRN}
-rm ${IDP_SIENAX_VSCALING}
+IDP_SIENA_FINALPBVC="${PathProcParent}/anat/IDP_${StudyID}_SIENA_FINALPBVC.txt"
+
+IDP_SIENA_A2B_PBVC="${PathProcParent}/anat/IDP_${StudyID}_SIENA_A2B_PBVC.txt"
+IDP_SIENA_A2B_RATIO="${PathProcParent}/anat/IDP_${StudyID}_SIENA_A2B_RATIO.txt"
+IDP_SIENA_A2B_VOLC="${PathProcParent}/anat/IDP_${StudyID}_SIENA_A2B_VOLC.txt"
+IDP_SIENA_A2B_AREA="${PathProcParent}/anat/IDP_${StudyID}_SIENA_A2B_AREA.txt"
+
+IDP_SIENA_B2A_PBVC="${PathProcParent}/anat/IDP_${StudyID}_SIENA_B2A_PBVC.txt"
+IDP_SIENA_B2A_RATIO="${PathProcParent}/anat/IDP_${StudyID}_SIENA_B2A_RATIO.txt"
+IDP_SIENA_B2A_VOLC="${PathProcParent}/anat/IDP_${StudyID}_SIENA_B2A_VOLC.txt"
+IDP_SIENA_B2A_AREA="${PathProcParent}/anat/IDP_${StudyID}_SIENA_B2A_AREA.txt"
+
+rm ${IDP_SIENAX_WM} ${IDP_SIENAX_GM} ${IDP_SIENAX_BRN} ${IDP_SIENAX_VSCALING}
+
+rm ${IDP_SIENA_FINALPBVC}\
+	${IDP_SIENA_A2B_PBVC} ${IDP_SIENA_A2B_RATIO} ${IDP_SIENA_A2B_VOLC} ${IDP_SIENA_A2B_AREA} \
+	${IDP_SIENA_B2A_PBVC} ${IDP_SIENA_B2A_RATIO} ${IDP_SIENA_B2A_VOLC} ${IDP_SIENA_B2A_AREA}
 
 while read SubID
 do
@@ -80,6 +93,50 @@ do
 	done<$SesIDFILE
 
 	#SIENA
+	ADir=`sed -n '1p' ${SesIDFILE}` # Get the first data point
+	BDir=`sed -n '2p' ${SesIDFILE}` # Get the second data point
+
+	SesA=`basename $ADir`
+	SesB=`basename $BDir`
+
+	if [ $ImgType == T13D ] ; then
+            SienaDirName=${SubID}_${SesA}-${SesB}_acq-3d_run-${RunID}_T1w
+        elif [ $ImgType == T12D ] ; then
+            SienaDirName=${SubID}_${SesA}-${SesB}_run-${RunID}_T1w
+        elif [ $ImgType == PD2D ] ; then
+            SienaDirName=${SubID}_${SesA}-${SesB}_run-${RunID}_PDT2_1
+        elif [ $ImgType == T22D ] ; then
+            SienaDirName=${SubID}_${SesA}-${SesB}_run-${RunID}_PDT2_2
+        else
+            # throw an error and halt here
+            echo "$ImgType is unrecognised"
+        fi
+
+
+	SienaOutputDir=${PathProcParent}/${SubID}/siena/${SienaDirName}.siena
+
+	if [ ! -d ${SienaOutputDir} ]; then 
+		echo "${SubID} ${StudyID} NaN" >> $IDP_SIENA_FINALPBVC
+
+		continue	
+	fi
+
+
+	# Halfway from B > A
+        echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep PBVC | awk {'print $2'} | awk 'NR==2'`" >> $IDP_SIENA_B2A_PBVC
+        echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep RATIO | awk {'print $2'} | awk 'NR==2'`" >> $IDP_SIENA_B2A_RATIO
+        echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep VOLC | awk {'print $2'} | awk 'NR==2'`" >> $IDP_SIENA_B2A_VOLC
+        echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep AREA | awk {'print $2'} | awk 'NR==2'`" >>	$IDP_SIENA_B2A_AREA
+
+
+	# Halfway from A > B
+	echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep PBVC | awk {'print $2'} | awk 'NR==1'`" >> $IDP_SIENA_A2B_PBVC
+	echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep RATIO | awk {'print $2'} | awk 'NR==1'`" >> $IDP_SIENA_A2B_RATIO
+	echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep VOLC | awk {'print $2'} | awk 'NR==1'`" >>	$IDP_SIENA_A2B_VOLC
+	echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep AREA | awk {'print $2'} | awk 'NR==1'`" >> $IDP_SIENA_A2B_AREA
+	
+	#FINAL
+	echo "${SubID} ${StudyID} `cat ${SienaOutputDir}/report.siena | grep finalPBVC | awk '{print $2}'`" >> $IDP_SIENA_FINALPBVC
 
 
 done<${SubIDFILE}
