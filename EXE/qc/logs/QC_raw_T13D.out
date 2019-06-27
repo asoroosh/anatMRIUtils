@@ -1,5 +1,5 @@
 =========== raw Images T13D ===============
-From: /data/output/habib/processed/CFTY720D2201E2/*/*/anat/*_*_acq-3d_run-*_T1w.anat/
+From: /data/output/habib/processed/CFTY720D2201E2/*/*/anat/sub-*_ses-V*_M[0-9]_*_run-[0-9]_T1w.anat/
 To: /data/output/habib/processed/CFTY720D2201E2/QC/QC_T13D_raw
 -------------------------------------------------------
 /data/output/habib/processed/CFTY720D2201E2/sub-0wsPQK5lY6/ses-V1_M1/anat/sub-0wsPQK5lY6_ses-V1_M1_acq-3d_run-1_T1w.anat/T1_orig

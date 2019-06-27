@@ -9,16 +9,19 @@ ImgType=$2
 # One the following: raw, fov, linreg, reg, seg
 QCType=$3
 
+
+RunID=1
+
 clobber=no
 ############################################################################################
 
 #Image Name
 if [ $ImgType == T13D ] ; then
         #sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
-        ImageName=*_*_acq-3d_run-*_T1w
+        ImageName=sub-*_ses-V*_M[0-9]_*_run-[0-9]_T1w
 elif [ $ImgType == T12D ] ; then
         #sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
-        ImageName=*_*_run-*_T1w
+        ImageName=sub-*_ses-V*_M[0-9]_run-[0-9]_T1w
 elif [ $ImgType == PD2D ] ; then
         ImageName=*_*_run-*_PDT2_1
 elif [ $ImgType == T22D ] ; then

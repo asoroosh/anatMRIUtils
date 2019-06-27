@@ -1,5 +1,5 @@
 StudyID=CFTY720D2201E2
-QCLocalDir="/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/fslanat/QC"
+QCLocalDir="${HOME}/NVROXBOX/EXE/qc"
 
 Mem=5G
 Time="20:00"
@@ -22,7 +22,7 @@ cat > ${SubmitterFileName} << EOF
 
 ## Code goes here ## ## ##
 
-sh /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/fslanat/QC/NVR-OX-SLICESDIR-QC.sh ${StudyID} ${ImgTyp} ${QCType}
+sh ${QCLocalDir}/NVR-OX-SLICESDIR-QC.sh ${StudyID} ${ImgTyp} ${QCType}
 
 ## ## ## ## ## ## ## ## ## ## ## ##
 
