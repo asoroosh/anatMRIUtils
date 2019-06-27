@@ -16,6 +16,14 @@ NROI=15
 
 rm -f ${IDP_FIRSTSEGVOL}
 
+### Print the headers into the text file: #####
+HEAD_LABELS="SubID SesID StudID"
+for i in $(seq 1 $NROI) ; do
+	HEAD_LABELS="$HEAD_LABELS ROI${i}";
+done
+echo $HEAD_LABELS > $IDP_FIRSTSEGVOL
+###############################################
+
 while read SubID
 do
 	SubID=`basename $SubID`
