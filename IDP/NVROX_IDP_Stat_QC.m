@@ -18,4 +18,11 @@ for IT = ImageType_List
     IT_cnt = IT_cnt+1;
 end
 fh_firstseg = figure; 
+hold on; title('FSL FIRST SUBCORTICAL SEG VOLUMES -- ')
+ScatterBoxPlots(A,'unequal','figure',fh_firstseg)
+fh_firstseg.Children.XTick=1:1:numel(ImageType_List);
+fh_firstseg.Children.XTickLabel=ImageType_List;
+ylabel('Volume')
+xlabel('Image Type')
+set(fh_firstseg,'color','w')
 

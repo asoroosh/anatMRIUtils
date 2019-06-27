@@ -1,2 +1,4 @@
 /Data
 *.m~
+*.err
+*.out
