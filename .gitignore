@@ -2,3 +2,6 @@
 *.m~
 *.err
 *.out
+*.mat
+*.nii
+*.nii.gz
