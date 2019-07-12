@@ -63,9 +63,9 @@ do
 			continue
 		else
 
-			GMPOutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.gmp
+			GMPOutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
 
-			GitHubDataDirSubGMP=${GitHubDataDirSub}/${Ses}/anat/gmp
+			GitHubDataDirSubGMP=${GitHubDataDirSub}/${Ses}/anat/${DirSuffix}
 			mkdir -p ${GitHubDataDirSubGMP}
 
 			JobName=${StudyID}_${ImageName}_GMP
@@ -85,8 +85,10 @@ mkdir -p ${GMPOutputDir}
 
 ### ### ### ### ### ###
 
+ml FreeSurfer
+
 # FSLANAT_dir=$1 Atlas_dir=$2 GMP_dir=$3
-sh ${SRC_DIR}/NVROX-GMPARCELS ${FSLANAT_dir} ${GMATLAS_DIR} ${GMPOutputDir}
+recon-all ${FSLANAT_dir} ${GMATLAS_DIR} ${GMPOutputDir}
 
 ### ### ### ### ### ###
 
