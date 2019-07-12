@@ -10,16 +10,19 @@ set -e
 Mem=5G
 Time="30:00"
 
-PathProcParent="/data/output/habib/processed/$StudyID"
+DirSuffix="AUTORECON12"
 
-SRC_DIR="${HOME}/NVROXBOX/SOURCE"
-GMATLAS_DIR="${HOME}/NVROXBOX/SOURCE/atlas/GMatlas"
+PathProcParent="/data/output/habib/processed/${StudyID}"
 
+#SRC_DIR="${HOME}/NVROXBOX/SOURCE"
+#GMATLAS_DIR="${HOME}/NVROXBOX/SOURCE/atlas/GMatlas"
+
+# These info should be already available via getinfo scripts
 GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
 StudySubIDFile="${GitHubDataDir}/SubDirID_${StudyID}.txt"
 
 #Submitter files, just save the path to them for future mass re-producing
-SubmitterPath="${GitHubDataDir}/SLUMR_GMP_Submitters_${StudyID}_${ImgType}.txt"
+SubmitterPath="${GitHubDataDir}/SLUMR_${DirSuffix}_Submitters_${StudyID}_${ImgType}.txt"
 rm -f ${SubmitterPath}
 
 while read SubID
@@ -44,32 +47,42 @@ do
         	if [ $ImgType == T13D ] ; then
                 	#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
 			ImageName=${SubID}_${Ses}_acq-3d_run-${RunID}_T1w
-
-			elif [ $ImgType == T12D ] ; then
+		elif [ $ImgType == T12D ] ; then
                 	#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
                 	ImageName=${SubID}_${Ses}_run-${RunID}_T1w
-        	else
-                	# throw an error and halt here
-                	echo "$ImgType is unrecognised"
+        	elif [ $ImgType == PD2D ] ; then
+                        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
+                        ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_1
+                elif [ $ImgType == T22D ] ; then
+                        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
+                        ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_2
+                else
+                    	# throw an error and halt here
+                        echo "$ImgType is unrecognised"
         	fi
 
-		FSLANAT_dir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.anat
+		# Reconstruct the directory name
+                InputDir=$PathUnProcParent/$SubID/$Ses/anat/${ImageName}.nii.gz
 
+#===================================================================
+# This section is suitable for when you wanna check whether a dependency is available or not
+		#FSAUTORECON_dir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
     		# Check whether the file actually exists
-    		if [ ! -d $FSLANAT_dir ];
-    		then
-    			echo "**** File Does Not Exist ***** ";
-        		echo "Missing: $GMSEGIMG" >> ${GitHubDataDir}/EmptyDir_GMP_${StudyID}_${ImgType}.txt
-			continue
-		else
+    		#if [ ! -d $FSAUTORECON_dir ];
+    		#then
+    		#	echo "**** File Does Not Exist ***** ";
+        	#	echo "" >> 
+		#	continue
+		#else
+#===================================================================
 
-			GMPOutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
+			OutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
 
 			GitHubDataDirSubGMP=${GitHubDataDirSub}/${Ses}/anat/${DirSuffix}
 			mkdir -p ${GitHubDataDirSubGMP}
 
-			JobName=${StudyID}_${ImageName}_GMP
-        		SubmitterFileName="${GitHubDataDirSubGMP}/SubmitMe_${JobName}.sh"
+			JobName=${StudyID}_${ImageName}_${DirSuffix}
+        		SubmitterFileName="${GitHubDataDirSub}/SubmitMe_${JobName}.sh"
         		echo "${SubmitterFileName}" >> $SubmitterPath
 
 cat > $SubmitterFileName << EOF
@@ -78,17 +91,16 @@ cat > $SubmitterFileName << EOF
 #SBATCH --job-name=${JobName}
 #SBATCH --mem=${Mem}
 #SBATCH --time=${Time}
-#SBATCH --output=${GitHubDataDirSubGMP}/${JobName}.out
-#SBATCH --error=${GitHubDataDirSubGMP}/${JobName}.err
+#SBATCH --output=${GitHubDataDirSub}/${JobName}.out
+#SBATCH --error=${GitHubDataDirSub}/${JobName}.err
 
-mkdir -p ${GMPOutputDir}
+mkdir -p ${OutputDir} 
 
 ### ### ### ### ### ###
 
 ml FreeSurfer
 
-# FSLANAT_dir=$1 Atlas_dir=$2 GMP_dir=$3
-recon-all ${FSLANAT_dir} ${GMATLAS_DIR} ${GMPOutputDir}
+recon-all  ${OutputDir} ${InputDir}
 
 ### ### ### ### ### ###
 
