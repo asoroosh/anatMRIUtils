@@ -1,5 +1,7 @@
 StudyID=CFTY720D2201E2
 
+DirSuffix="AUTORECON12"
+
 # T13D T12D T22D PD2D 
 ImgType=$1
 
