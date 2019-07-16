@@ -1,0 +1,4 @@
+
+
+
+${FSLDIR}/bin/slicesdir 
