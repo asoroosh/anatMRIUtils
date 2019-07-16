@@ -107,15 +107,20 @@ do
 		if [ ! -f $Path_UnpImg ]; 
 		then 
 			echo "**** File Does Not Exist ***** "; 
-			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}_${ImgType}.txt
+			echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/${StudyID}_${ImgType}_Missing.txt
 		else
 			GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
                 	mkdir -p ${GitHubDataDirSubSes}
+			echo "Exists: $Path_UnpImg" >> ${GitHubDataDir}/${StudyID}_${ImgType}_SubSes.txt
 		fi
 	
 	done<$StudSubSesIDFile
 
 done<$StudySubIDFile
+
+
+
+
 
 ##########################################################################################
 ##########################################################################################
