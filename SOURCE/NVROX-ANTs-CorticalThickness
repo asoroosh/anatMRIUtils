@@ -1,10 +1,8 @@
 # ============= FUNCTIONS ====================================
-error_exit() { echo "$1" 1>&2;  exit 1; }
-
+#error_exit() { echo "$1" 1>&2;  exit 1; }
 # Also write a log function for later use
-
 # ============== Initialise ==================================
-ml ANTs
+# ml ANTs
 
 InputDir=${1}
 OutputDir=${2}

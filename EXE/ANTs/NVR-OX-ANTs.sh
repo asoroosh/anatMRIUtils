@@ -8,11 +8,12 @@ RunID=1
 set -e
 
 Mem=8G
-Time="50:00"
+Time="48:00"
 
 DirSuffix="ANTs"
 
 TemplateMNI=${FSLDIR}/data/standard/MNI152_T1_2mm_brain.nii.gz
+NVROXSOURCEDIR=/home/bdivdi.local/dfgtyk/NVROXBOX/SOURCE
 
 # This will be changed later
 AllDataDir="/data/output/habib"
@@ -79,14 +80,14 @@ do
       		fi
 #===================================================================
 
-			OutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
+		OutputDir=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}.${DirSuffix}
 
-			MetaOpDataDir=${MetaSubDataDir}/${Ses}/anat/${DirSuffix}
-			mkdir -p ${MetaOpDataDir}
+		MetaOpDataDir=${MetaSubDataDir}/${Ses}/anat/${DirSuffix}
+		mkdir -p ${MetaOpDataDir}
 
-			JobName=${StudyID}_${ImageName}_${DirSuffix}
-        		SubmitterFileName="${MetaOpDataDir}/SubmitMe_${JobName}.sh"
-        		echo "${SubmitterFileName}" >> $SubmitterPath
+		JobName=${StudyID}_${ImageName}_${DirSuffix}
+       		SubmitterFileName="${MetaOpDataDir}/SubmitMe_${JobName}.sh"
+       		echo "${SubmitterFileName}" >> $SubmitterPath
 
 cat > $SubmitterFileName << EOF
 #!/bin/bash
@@ -106,7 +107,7 @@ ml ANTs
 
 # And now the operations
 
-${NVROX-SOURCE-DIR}/NVROX-ANTs-CorticalThickness ${InputDir} ${OutputDir}
+${NVROXSOURCEDIR}/NVROX-ANTs-CorticalThickness ${InputDir} ${OutputDir}
 
 ### ### ### ### ### ###
 
