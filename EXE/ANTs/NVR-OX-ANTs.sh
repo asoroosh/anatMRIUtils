@@ -8,7 +8,7 @@ RunID=1
 set -e
 
 Mem=8G
-Time="48:00"
+Time="20:00:00"
 
 DirSuffix="ANTs"
 
