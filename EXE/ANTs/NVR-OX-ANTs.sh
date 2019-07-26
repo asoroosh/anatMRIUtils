@@ -19,7 +19,7 @@ NVROXSOURCEDIR=/home/bdivdi.local/dfgtyk/NVROXBOX/SOURCE
 AllDataDir="/data/output/habib"
 
 PathProcParent=${AllDataDir}/processed/${StudyID}
-PathUnProcParent=${AllDataDir}/unprocessed/${StudyID} 
+PathUnProcParent=${AllDataDir}/unprocessed/${StudyID}
 
 # These info should be already available via getinfo scripts
 MetaStudyDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
@@ -71,7 +71,7 @@ do
 		# Reconstruct the directory name
                 InputDir=${PathUnProcParent}/${SubID}/${Ses}/anat/${ImageName}.nii.gz
 
-#===================================================================		
+#===================================================================
     		# Check whether the file actually exists
     		if [ ! -f $InputDir ];
     		then

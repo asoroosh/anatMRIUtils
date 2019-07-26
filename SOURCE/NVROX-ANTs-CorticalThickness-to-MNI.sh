@@ -10,7 +10,7 @@ OutputPrefix=MNI
 
 ImageList=(BrainSegmentationResampled BrainExtractionBrain BrainSegmentation CorticalThickness)
 
-for Res in 1 2
+for Res in 2
 do
 	for ImageName in ${ImageList[@]}
 	do
