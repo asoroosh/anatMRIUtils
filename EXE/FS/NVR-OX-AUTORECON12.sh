@@ -8,7 +8,7 @@ RunID=1
 set -e
 
 Mem=8G
-Time="50:00"
+Time="20:00:00"
 
 DirSuffix="AUTORECON12"
 
@@ -16,7 +16,7 @@ DirSuffix="AUTORECON12"
 AllDataDir="/data/output/habib"
 
 PathProcParent=${AllDataDir}/processed/${StudyID}
-PathUnProcParent=${AllDataDir}/unprocessed/${StudyID} 
+PathUnProcParent=${AllDataDir}/unprocessed/${StudyID}
 
 # These info should be already available via getinfo scripts
 MetaStudyDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
@@ -104,6 +104,7 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
+rm -r ${OutputDir}/${ImageName}.${DirSuffix}
 
 # And now the operations
 recon-all \
@@ -114,13 +115,25 @@ recon-all \
 -subcortseg \
 -gcareg \
 -canorm \
-#-careg \
-#-rmneck \
-#-skull-lta \
-#-calabel \
-#-segstats \
-#-normalization \
-#-segmentation
+-careg \
+-rmneck \
+-skull-lta \
+-calabel \
+-segstats \
+-normalization \
+-segmentation
+
+mkdir -p ${OutputDir}/${ImageName}.${DirSuffix}/mri/nii
+
+#for FileName in brain aseg nu nu_noneck norm wm brainmask brainmask.auto T1
+for MGZ_FileName in ${OutputDir}/${ImageName}.${DirSuffix}/mri/*.mgz
+do
+        MGZ2NII_ImageName=\$(basename "\${MGZ_FileName}" .mgz)
+        NII_FileName=${OutputDir}/${ImageName}.${DirSuffix}/mri/nii/\${MGZ2NII_ImageName}_RAS.nii.gz
+        echo Image Name: \${MGZ2NII_ImageName}
+        echo Where to save NII: \${NII_FileName}
+        mri_convert --in_type mgz --out_type nii --out_orientation RAS \${MGZ_FileName} \${NII_FileName}
+done
 
 ### ### ### ### ### ###
 
