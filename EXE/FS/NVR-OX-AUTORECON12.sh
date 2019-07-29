@@ -68,7 +68,7 @@ do
 		# Reconstruct the directory name
                 InputDir=${PathUnProcParent}/${SubID}/${Ses}/anat/${ImageName}.nii.gz
 
-#===================================================================		
+#===================================================================
     		# Check whether the file actually exists
     		if [ ! -f $InputDir ];
     		then
