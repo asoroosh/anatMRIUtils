@@ -96,6 +96,7 @@ cat > $SubmitterFileName << EOF
 #SBATCH --error=${MetaOpDataDir}/${JobName}.err
 
 # Make the output directory. Keep this line here so you can easily test without making a mess
+rm -r ${OutputDir}
 mkdir -p ${OutputDir} 
 ### ### ### ### ### ###
 

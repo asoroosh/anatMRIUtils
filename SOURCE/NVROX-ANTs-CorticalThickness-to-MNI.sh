@@ -28,7 +28,7 @@ do
 		-t s \
 		-f ${FixedImage_MNI} \
 		-m ${MovingImage} \
-		-o ${OutputDir}/${OutputPrefix}_${Res}mm_
+		-o ${OutputDir}/${OutputPrefix}_${Res}mm_${ImageName}_
 
 		######
 
@@ -36,8 +36,8 @@ do
 		--dimensionality 3 \
 		--reference-image ${FixedImage_MNI} \
 		--input ${MovingImage} \
-		--transform ${OutputDir}/${OutputPrefix}_${Res}mm_1Warp.nii.gz \
-		--transform ${OutputDir}/${OutputPrefix}_${Res}mm_0GenericAffine.mat \
+		--transform ${OutputDir}/${OutputPrefix}_${Res}mm_${ImageName}_1Warp.nii.gz \
+		--transform ${OutputDir}/${OutputPrefix}_${Res}mm_${ImageName}_0GenericAffine.mat \
 		--output ${OutputDir}/${ImageName}_MNI_${Res}mm.nii.gz \
 		--verbose 1
 	done
