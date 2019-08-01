@@ -1,13 +1,18 @@
 #This should later be in a loop around StudyIDs
-StudyID=CFTY720D2309
-ImgTyp=T12D # Here we only use T13D and T12D
+#StudyID=CFTY720D2309
+#ImgTyp=T12D # Here we only use T13D and T12D
 
-#set -e
+StudyID=$1
+ImgTyp=$2
+
+# NUMJB sets the number of images that will be run for this specific operation
+# If you want to run the operation on all available images, leave NUMJB empty
+NUMJB=$3
 
 # Later for the submitter file:
 Mem=8G
-Time="50:00"
-DirSuffix="TEST"
+Time="23:59:00"
+DirSuffix="autorecon12"
 
 #============================== FUNCTIONS ============
 PROGNAME=$(basename $0)
@@ -18,6 +23,8 @@ error_exit()
 }
 #=====================================================
 
+# Path to the source files (i.e. editted functions for each operation ~/NVROXBOX/SOURCE/*)
+SOURCEPATH=${HOME}/NVROXBOX/SOURCE/
 
 # Set the paths and read number of jobs to be submitted
 DataDir="${HOME}/NVROXBOX/Data"
@@ -29,7 +36,11 @@ if [ ! -f $ImageFileTxt ]; then
 	error_exit "***** ERROR $LINENO: The file list for study ${StudyID}, Image type: ${ImgTyp} does not exists."
 fi
 
-NUMJB=$(cat $ImageFileTxt | wc -l)
+if [ -z $NUMJB ]
+then
+      NUMJB=$(cat $ImageFileTxt | wc -l)
+fi
+
 echo "We will shortly submit $NUMJB jobs..."
 
 
@@ -73,7 +84,11 @@ DATE=$(date +"%d-%m-%y")
 ImgTypOp=${ImgTypDir}/${DirSuffix}
 ImgTypOpLog=${ImgTypOp}/Logs_${DATE}
 mkdir -p ${ImgTypOpLog}
-#==============
+
+
+#############################################################################
+#############################################################################
+
 JobName=${StudyID}_${DirSuffix}_${NUMJB}
 SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
 
@@ -83,9 +98,11 @@ cat > $SubmitterFileName << EOF
 #SBATCH --job-name=${JobName}
 #SBATCH --mem=${Mem}
 #SBATCH --time=${Time}
-#SBATCH --output=${ImgTypOpLog}/${JobName}_%a_%A.out
-#SBATCH --error=${ImgTypOpLog}/${JobName}_%a_%A.err
+#SBATCH --output=${ImgTypOpLog}/${JobName}_%A_%a.out
+#SBATCH --error=${ImgTypOpLog}/${JobName}_%A_%a.err
 #SBATCH --array=1-${NUMJB}
+
+set -e
 
 # Read the input path
 ImgIDX=\$SLURM_ARRAY_TASK_ID
@@ -96,13 +113,17 @@ StudyIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$6}') # Study ID
 SubIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$7}') # Sub ID
 SesIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$8}') # Session ID
 ModIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
-ImgNameEx=\$(echo \$InputImagePath | awk -F"/" '{print \$10}') #ImageName with extension 
-ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension 
+ImgNameEx=\$(echo \$InputImagePath | awk -F"/" '{print \$10}') #ImageName with extension
+ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension
+
+# Set the job status to zero here. If the operation reaches the bottom without error, then the status will be changed to 1
+echo "\${InputImagePath}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 # Reconstruct the output directory name
 ProcessedDir="/data/ms/processed/mri"
 OutputDir=\${ProcessedDir}/\${StudyIDVar}/\${SubIDVar}/\${SesIDVar}/\${ModIDVar}/\${ImgName}.${DirSuffix}
 
+rm -rf \${OutputDir}
 mkdir -p \${OutputDir}
 
 ###### Write me down a report:
@@ -116,19 +137,25 @@ echo "==="
 echo "Output Directory: \${OutputDir}"
 
 echo "==========================================="
-echo "STARTS @" `date`
+echo "STARTS @" \`date\`
 echo "==========================================="
-######
+
+#############################################################################
+#############################################################################
 
 # Load packages and software here
 
 # And now the operations
 
+#############################################################################
+#############################################################################
+
+echo "\${InputImagePath}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
+
 ### ### ### ### ### ###
 
-
 echo "==========================================="
-echo "ENDS @" `date`
+echo "ENDS @" \`date\`
 echo "==========================================="
 
 EOF

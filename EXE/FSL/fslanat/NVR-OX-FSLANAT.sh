@@ -1,138 +1,92 @@
-#####################URGENT TO DOs######################################################
-# This is not super efficient to crawl each time -- write an indepent crawler
-# parse the inputs 
-#######################################################################################
-
 #This should later be in a loop around StudyIDs
-StudyID=CFTY720D2201E2
+#StudyID=CFTY720D2309
+#ImgTyp=T12D # Here we only use T13D and T12D
 
-Mem=5G
-Time="30:00"
+StudyID=$1
+ImgTyp=$2
 
-# One of the following: T13D T12D T22D PD2D
-#ImgType=PD2D
+# NUMJB sets the number of images that will be run for this specific operation 
+# If you want to run the operation on all available images, leave NUMJB empty
+NUMJB=$3
 
-ImgType=$1
+# Later for the submitter file:
+Mem=8G
+Time="50:00"
+DirSuffix="fslanat"
 
-echo "Image type::: $ImgType"
+#============================== FUNCTIONS ============
+PROGNAME=$(basename $0)
+error_exit()
+{
+	echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
+	exit 1
+}
+#=====================================================
 
-#For later use...###########################
-#if [ X$ImgType== X ] ; then
-#	ImgType=T13D
-#fi
-###########################
+# Path to the source files (i.e. editted functions for each operation ~/NVROXBOX/SOURCE/*)
+SOURCEPATH=${HOME}/NVROXBOX/SOURCE/
 
-# It is always 1 for all subjects?!
-RunID=1
+# Set the paths and read number of jobs to be submitted
+DataDir="${HOME}/NVROXBOX/Data"
+StudyDir="${DataDir}/${StudyID}"
+ImgTypDir=${StudyDir}/${ImgTyp}
+ImageFileTxt=${ImgTypDir}/${StudyID}_${ImgTyp}_ImageList.txt
 
-#This is pending until the copy dilemma is resolved
-PathUnProcParent="/data/output/habib/unprocessed/$StudyID"
-PathProcParent="/data/output/habib/processed/$StudyID"
+if [ ! -f $ImageFileTxt ]; then
+	error_exit "***** ERROR $LINENO: The file list for study ${StudyID}, Image type: ${ImgTyp} does not exists."
+fi
 
-##########################################################################################
-##########################################################################################
+if [ -z $NUMJB ]
+then
+      NUMJB=$(cat $ImageFileTxt | wc -l)
+fi
 
-SOURCEPATH="${HOME}/NVROXBOX/SOURCE"
+echo "We will shortly submit $NUMJB jobs..."
 
-GitHubDataDir="${HOME}/NVROXBOX/Data/${StudyID}"
 
-StudySubIDFile="${GitHubDataDir}/SubDirID_$StudyID.txt"
+#========================================
+# Depending on the image type, we can parse args down to the operation
+# Just FYI
+#PD_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_PD.nii.gz"
+#T12D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T1w.nii.gz"
+#T13D_WC="sub-*.*.*_ses-V*[0-9]_acq-3d_run-[0-9]_T1w.nii.gz"
+#T12DCE_WC="sub-*.*.*_ses-V*[0-9]_ce-Gd_run-[0-9]_T1w.nii.gz"
+#T22D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T2w.nii.gz"
+#DWI_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
+#BVEC_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
+#BVAL_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bval"
 
-#Submitter files, just save the path to them for future mass re-producing
-SubmitterPath="${GitHubDataDir}/SLUMR_FSLANAT_Submitters_${StudyID}_${ImgType}.txt"
-rm -f ${SubmitterPath}
+#
+if [ $ImgTyp == T13D ] ; then
+	Arg_ImageType=T1
+	Arg_command=""
+elif [ $ImgTyp == T12D ] ; then
+	Arg_ImageType=T1
+elif [ $ImgTyp == PD2D ] ; then
+	Arg_ImageType=PD
+	Arg_command=""
+elif [ $ImgTyp == T22D ] ; then
+	Arg_ImageType=T2
+	Arg_command=""
+elif [ $ImgTyp == T12DCE ]; then
+        Arg_ImageType=
+        Arg_command=""
+else
+	# throw an error and halt here
+	error_exit "***** ERROR $LINENO: Unknown image type..."
+fi
+#========================================
 
-while read SubID
-do
-	# Get the SubID from the directory path
-	SubID=`basename $SubID`
-	echo "For Subject: $SubID ========================================"
 
-	StudSubSesIDFile="${GitHubDataDir}/Sessions/${StudyID}_${SubID}_Sessions.txt"
-		
-        GitHubDataDirSub=$GitHubDataDir/$SubID
-        mkdir -p $GitHubDataDirSub
 
-	#Loop around the available sessions of $SubID
-	while read Ses
-	do
-		# Get the session ID from the path directory
-		Ses=`basename $Ses`
+DATE=$(date +"%d-%m-%y")
 
-		#Image Name
-		if [ $ImgType == T13D ] ; then
-			FA_ImageType=T1
-			FA_command=''
-			#sub-2okKlAKGz7_ses-V1_M2_acq-3d_run-1_T1w.nii.gz
-                	ImageName=${SubID}_${Ses}_acq-3d_run-${RunID}_T1w
-		elif [ $ImgType == T12D ] ; then
-			FA_ImageType=T1 
-			#sub-2okKlAKGz7_ses-V1_M2_run-1_T1w.nii.gz
-			ImageName=${SubID}_${Ses}_run-${RunID}_T1w
-		elif [ $ImgType == PD2D ] ; then
-			FA_ImageType=PD
-			FA_command="--nononlinreg --nosubcortseg --noseg"
-			#sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_1.nii.gz
-			ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_1
-		elif [ $ImgType == T22D ] ; then
-			FA_ImageType=T2
-			FA_command="--nononlinreg --nosubcortseg --noseg"
-		        #sub-2okKlAKGz7_ses-V1_M2_run-1_PDT2_2.nii.gz
-                        ImageName=${SubID}_${Ses}_run-${RunID}_PDT2_2
-		else
-			# throw an error and halt here
-			echo "$ImgType is unrecognised"
-		fi
-
-# SANITY CHECK ###################################
-#============================================#============================================#================================
-		#Remove this later, just for sanity check
-		echo ${ImageName}
-
-		# Reconstruct the directory name
-		Path_UnpImg=$PathUnProcParent/$SubID/$Ses/anat/${ImageName}.nii.gz
-		
-		# Check whether the file actually exists
-		if [ ! -f $Path_UnpImg ]; 
-		then 
-			echo "**** File Does Not Exist ***** "; 
-		#
-		#	
-		#	echo "Missing: $Path_UnpImg" >> ${GitHubDataDir}/EmptyDir_${StudyID}_${ImgType}.txt
-		else
-
-			#============================================
-			# Just for now until the permission is sorted
-			#if [ ! -r $PathUnProcParent/$SubID/ ]
-			#then 		
-			#	echo "!!"
-			#	echo `ls -lsh ${PathUnProcParent}/${SubID}` >> ${GitHubDataDir}/${StudyID}_NoReadPermit.txt
-			#	continue
-			#fi
-			#===========================================
-#============================================#============================================#================================
-
-			GitHubDataDirSubSes=${GitHubDataDirSub}/${Ses}/anat
-                	mkdir -p ${GitHubDataDirSubSes}
-
-			#If it does, make an $FILENAME.anat directory
-			Path_ProImg=${PathProcParent}/${SubID}/${Ses}/anat/${ImageName}
-
-	                if [ ! -d ${Path_ProImg}.anat ];
-	                then
-				echo "${Path_ProImg} == does not exists, the script will make one."	
-			else
-				echo "${Path_ProImg} already exists, we use --clobber to remove and remake it."
-				FA_command="${FA_command} --clobber"
-			fi
-
-			echo $Path_UnpImg
-                	echo $Path_ProImg
-
-			JobName=${StudyID}_${ImageName}
-			SubmitterFileName="${GitHubDataDirSubSes}/SubmitMe_${JobName}.sh"
-			echo "${SubmitterFileName}"
-			echo "${SubmitterFileName}" >> $SubmitterPath
+ImgTypOp=${ImgTypDir}/${DirSuffix}
+ImgTypOpLog=${ImgTypOp}/Logs_${DATE}
+mkdir -p ${ImgTypOpLog}
+#==============
+JobName=${StudyID}_${DirSuffix}_${NUMJB}
+SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
 
 cat > $SubmitterFileName << EOF
 #!/bin/bash
@@ -140,36 +94,67 @@ cat > $SubmitterFileName << EOF
 #SBATCH --job-name=${JobName}
 #SBATCH --mem=${Mem}
 #SBATCH --time=${Time}
-#SBATCH --output=${GitHubDataDirSubSes}/${JobName}.out
-#SBATCH --error=${GitHubDataDirSubSes}/${JobName}.err
+#SBATCH --output=${ImgTypOpLog}/${JobName}_%A_%a.out
+#SBATCH --error=${ImgTypOpLog}/${JobName}_%A_%a.err
+#SBATCH --array=1-${NUMJB}
 
-echo "==== RUNING FSLANA ===="
-echo "logs and error will be saved in: ${GitHubDataDirSubSes}/${JobName}"
-echo "FSL is available from: $FSLDIR"
-echo "fsl_anat log files will be in: $Path_ProImg"
-echo "======================="
-echo "Unprocessed images will be: $Path_UnpImg"
-echo "Processed images will be:   $Path_ProImg"
+set -e
 
-# Prior to this point we do *not* have a directory for this sub/ses in the processed directory:
-mkdir -p ${PathProcParent}/${SubID}/${Ses}/anat/
+# Read the input path
+ImgIDX=\$SLURM_ARRAY_TASK_ID
+InputImagePath=\$(cat $ImageFileTxt | sed -n \${ImgIDX}p)
 
-## fsl_anat code goes here ## ## ## 
+# INPUT & OUTPUT functions =================================================
+StudyIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$6}') # Study ID
+SubIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$7}') # Sub ID
+SesIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$8}') # Session ID
+ModIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
+ImgNameEx=\$(echo \$InputImagePath | awk -F"/" '{print \$10}') #ImageName with extension 
+ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension 
 
-# $FSLDIR/bin/fsl_anat 
+# Set the job status to zero here. If the operation reaches the bottom without error, then the status will be changed to 1
+echo "\${InputImagePath}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
-sh ${SOURCEPATH}/NVR-OX-FSLANAT.sh -i $Path_UnpImg -t ${FA_ImageType} ${FA_command} -o ${Path_ProImg}
+# Reconstruct the output directory name
+ProcessedDir="/data/ms/processed/mri"
+OutputDir=\${ProcessedDir}/\${StudyIDVar}/\${SubIDVar}/\${SesIDVar}/\${ModIDVar}/\${ImgName}.${DirSuffix}
 
-## ## ## ## ## ## ## ## ## ## ## ##
+mkdir -p \${OutputDir}
+
+###### Write me down a report:
+echo "Input Image: \${InputImagePath}"
+echo "==="
+echo "Subject: \$SubIDVar"
+echo "Session: \$SesIDVar"
+echo "ImageName: \$ImgNameEx"
+echo "Image Type: ${ImgTyp}"
+echo "==="
+echo "Output Directory: \${OutputDir}"
+
+echo "==========================================="
+echo "STARTS @" \`date\`
+echo "==========================================="
+######
+
+# Load packages and software here
+
+# And now the operations
+
+sh ${SOURCEPATH}/NVR-OX-FSLANAT.sh -i \${InputImagePath} -t ${Arg_ImageType} ${Arg_command} -o \${OutputDir}/\$ImgName
+
+# And now register the pve files to the MNI for later possible quality control
+sh ${SOURCEPATH}/NVR-OX-FSLANAT-PVE-MNI.sh \${OutputDir}/\$ImgName.anat
+
+
+echo "\${InputImagePath}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
+
+### ### ### ### ### ###
+
+
+echo "==========================================="
+echo "ENDS @" \`date\`
+echo "==========================================="
 
 EOF
 
-		fi
-	
-	done<$StudSubSesIDFile
 
-done<$StudySubIDFile
-
-##########################################################################################
-##########################################################################################
-##########################################################################################
