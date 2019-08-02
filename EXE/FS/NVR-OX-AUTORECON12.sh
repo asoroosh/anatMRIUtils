@@ -38,7 +38,12 @@ fi
 
 if [ -z $NUMJB ]
 then
-      NUMJB=$(cat $ImageFileTxt | wc -l)
+        NUMJB=$(cat $ImageFileTxt | wc -l)
+else
+        NUMJB_tmp=$(cat $ImageFileTxt | wc -l)
+        NUMJBList_tmp=($NUMJB $NUMJB_tmp)
+        IFS=$'\n'
+        NUMJB=$(echo "${NUMJBList_tmp[*]}" | sort -n | head -n1)
 fi
 
 echo "We will shortly submit $NUMJB jobs..."
@@ -168,14 +173,14 @@ recon-all \\
 #-normalization \
 #-segmentation
 
-mkdir -p \${OutputDir}/\${ImgName}.${DirSuffix}/mri/nii
+mkdir -p \${OutputDir}/\${ImgName}/mri/nii
 
 echo "++++++++++ Running mgz >> nii with RAS orientation..."
 #for FileName in brain aseg nu nu_noneck norm wm brainmask brainmask.auto T1
-for MGZ_FileName in \${OutputDir}/\${ImgName}.${DirSuffix}/mri/*.mgz
+for MGZ_FileName in \${OutputDir}/\${ImgName}/mri/*.mgz
 do
 	MGZ2NII_ImageName=\$(basename "\${MGZ_FileName}" .mgz)
-	NII_FileName=\${OutputDir}/\${ImgName}.${DirSuffix}/mri/nii/\${MGZ2NII_ImageName}_RAS.nii.gz
+	NII_FileName=\${OutputDir}/\${ImgName}/mri/nii/\${MGZ2NII_ImageName}_RAS.nii.gz
 	echo Image Name: \${MGZ2NII_ImageName}
 	echo Where to save NII: \${NII_FileName}
 	mri_convert --in_type mgz --out_type nii --out_orientation RAS \${MGZ_FileName} \${NII_FileName}

@@ -47,15 +47,26 @@ rm -f $BasicStudyInfoTxt
 
 ##### Try for loops ####################
 
-PD_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_PD.nii.gz"
-T12D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T1w.nii.gz"
-T13D_WC="sub-*.*.*_ses-V*[0-9]_acq-3d_run-[0-9]_T1w.nii.gz"
-T12DCE_WC="sub-*.*.*_ses-V*[0-9]_ce-Gd_run-[0-9]_T1w.nii.gz"
-T22D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T2w.nii.gz"
-DWI_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
-BVEC_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
-BVAL_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bval"
+
+# This will be future ideal form:
+#PD_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_PD.nii.gz"
+#T12D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T1w.nii.gz"
+#T13D_WC="sub-*.*.*_ses-V*[0-9]_acq-3d_run-[0-9]_T1w.nii.gz"
+#T12DCE_WC="sub-*.*.*_ses-V*[0-9]_ce-Gd_run-[0-9]_T1w.nii.gz"
+#T22D_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_T2w.nii.gz"
+#DWI_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
+#BVEC_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
+#BVAL_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bval"
 # There are two more types of data that I have not added yet: TMReference and FieldMaps!
+
+PD_WC="sub-*_ses-V*[0-9]_run-[0-9]_PD.nii.gz"
+T12D_WC="sub-*_ses-V*[0-9]_run-[0-9]_T1w.nii.gz"
+T13D_WC="sub-*_ses-V*[0-9]_acq-3d_run-[0-9]_T1w.nii.gz"
+T12DCE_WC="sub-*_ses-V*[0-9]_ce-Gd_run-[0-9]_T1w.nii.gz"
+T22D_WC="sub-*_ses-V*[0-9]_run-[0-9]_T2w.nii.gz"
+DWI_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
+BVEC_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
+BVAL_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.bval"
 
 UnprocessedPath="/data/ms/unprocessed/mri"
 BaseDir_WC="${UnprocessedPath}/${StudyID}.anon.*.*.*"

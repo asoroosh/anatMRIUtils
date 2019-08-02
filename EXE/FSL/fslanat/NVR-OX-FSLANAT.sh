@@ -5,13 +5,13 @@
 StudyID=$1
 ImgTyp=$2
 
-# NUMJB sets the number of images that will be run for this specific operation 
+# NUMJB sets the number of images that will be run for this specific operation
 # If you want to run the operation on all available images, leave NUMJB empty
 NUMJB=$3
 
 # Later for the submitter file:
 Mem=8G
-Time="50:00"
+Time="23:59:00"
 DirSuffix="fslanat"
 
 #============================== FUNCTIONS ============
@@ -38,7 +38,12 @@ fi
 
 if [ -z $NUMJB ]
 then
-      NUMJB=$(cat $ImageFileTxt | wc -l)
+	NUMJB=$(cat $ImageFileTxt | wc -l)
+else
+	NUMJB_tmp=$(cat $ImageFileTxt | wc -l)
+	NUMJBList_tmp=($NUMJB $NUMJB_tmp)
+	IFS=$'\n'
+	NUMJB=$(echo "${NUMJBList_tmp[*]}" | sort -n | head -n1)
 fi
 
 echo "We will shortly submit $NUMJB jobs..."
@@ -84,7 +89,11 @@ DATE=$(date +"%d-%m-%y")
 ImgTypOp=${ImgTypDir}/${DirSuffix}
 ImgTypOpLog=${ImgTypOp}/Logs_${DATE}
 mkdir -p ${ImgTypOpLog}
-#==============
+
+
+#############################################################################
+#############################################################################
+
 JobName=${StudyID}_${DirSuffix}_${NUMJB}
 SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
 
@@ -109,8 +118,8 @@ StudyIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$6}') # Study ID
 SubIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$7}') # Sub ID
 SesIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$8}') # Session ID
 ModIDVar=\$(echo \$InputImagePath | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
-ImgNameEx=\$(echo \$InputImagePath | awk -F"/" '{print \$10}') #ImageName with extension 
-ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension 
+ImgNameEx=\$(echo \$InputImagePath | awk -F"/" '{print \$10}') #ImageName with extension
+ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension
 
 # Set the job status to zero here. If the operation reaches the bottom without error, then the status will be changed to 1
 echo "\${InputImagePath}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
@@ -119,6 +128,7 @@ echo "\${InputImagePath}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_
 ProcessedDir="/data/ms/processed/mri"
 OutputDir=\${ProcessedDir}/\${StudyIDVar}/\${SubIDVar}/\${SesIDVar}/\${ModIDVar}/\${ImgName}.${DirSuffix}
 
+rm -rf \${OutputDir}
 mkdir -p \${OutputDir}
 
 ###### Write me down a report:
@@ -134,22 +144,23 @@ echo "Output Directory: \${OutputDir}"
 echo "==========================================="
 echo "STARTS @" \`date\`
 echo "==========================================="
-######
+
+#############################################################################
+#############################################################################
 
 # Load packages and software here
-
-# And now the operations
-
 sh ${SOURCEPATH}/NVR-OX-FSLANAT.sh -i \${InputImagePath} -t ${Arg_ImageType} ${Arg_command} -o \${OutputDir}/\$ImgName
 
 # And now register the pve files to the MNI for later possible quality control
 sh ${SOURCEPATH}/NVR-OX-FSLANAT-PVE-MNI.sh \${OutputDir}/\$ImgName.anat
 
 
+#############################################################################
+#############################################################################
+
 echo "\${InputImagePath}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 ### ### ### ### ### ###
-
 
 echo "==========================================="
 echo "ENDS @" \`date\`

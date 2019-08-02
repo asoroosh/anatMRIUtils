@@ -1,4 +1,4 @@
-# Just a raw registration 
+# Just a raw registration
 # FixedImage_MNI_2mm=/apps/software/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz
 # FixedImage_MNI_1mm=/apps/software/fsl/data/standard/MNI152_T1_1mm_brain.nii.gz
 
