@@ -1,6 +1,6 @@
 
 StudyIDTxtFileName=${HOME}/NVROXBOX/EXE/getinfo/StudyIDs_Clean.txt
-NUMJB=100
+NUMJB=1
 
 # Loop around the image types
 for ImgTyp in T12D

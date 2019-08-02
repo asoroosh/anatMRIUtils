@@ -152,12 +152,12 @@ echo "==========================================="
 ml MATLAB
 
 # a bit of preprocessing
-cp ${InputImagePath} ${OutputDir}/${ImgName}.nii.gz
-gunzip -d ${OutputDir}/${ImgName}.nii.g
-cd ${OutputDir}
+cp \${InputImagePath} \${OutputDir}/\${ImgName}.nii.gz
+gunzip -d \${OutputDir}/\${ImgName}.nii.gz
+cd \${OutputDir}
 
 # run cat 12
-${HOME}/AUX/spm12/toolbox/cat12/cat_batch_cat.sh ${ImgName}.nii
+${HOME}/AUX/spm12/toolbox/cat12/cat_batch_cat.sh \${ImgName}.nii
 
 #############################################################################
 #############################################################################
