@@ -9,6 +9,8 @@ ImgTyp=$2
 # If you want to run the operation on all available images, leave NUMJB empty
 NUMJB=$3
 
+SLURMSUBMIT=$4
+
 # Later for the submitter file:
 Mem=8G
 Time="23:59:00"
@@ -199,4 +201,7 @@ echo "==========================================="
 
 EOF
 
-
+if [ ! -z $SLURMSUBMIT ]; then
+	echo "I am actually gonna submit them to the queue now!"
+	sbatch ${SubmitterFileName}
+fi

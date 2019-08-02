@@ -1,7 +1,7 @@
 
 StudyIDTxtFileName=${HOME}/NVROXBOX/EXE/getinfo/StudyIDs_Clean.txt
-NUMJB=100
-
+NUMJB=200
+SUBMITME=1
 # Loop around the image types
 for ImgTyp in T12D
 do
@@ -16,7 +16,7 @@ do
 		echo ""
                 echo "=============================================================="
                 echo "=============================================================="
-		sh NVR-OX-ANTs.sh ${StudyID} ${ImgTyp} ${NUMJB}
+		sh NVR-OX-ANTs.sh ${StudyID} ${ImgTyp} ${NUMJB} ${SUBMITME}
 
 	done<$StudyIDTxtFileName
 done
