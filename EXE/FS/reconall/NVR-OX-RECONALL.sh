@@ -11,8 +11,8 @@ NUMJB=$3
 
 # Later for the submitter file:
 Mem=8G
-Time="23:59:00"
-DirSuffix="autorecon12"
+Time="1-12:00:00"
+DirSuffix="autoreconall"
 
 #============================== FUNCTIONS ============
 PROGNAME=$(basename $0)
