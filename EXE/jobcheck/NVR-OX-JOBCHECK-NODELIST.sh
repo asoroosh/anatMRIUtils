@@ -1,6 +1,6 @@
 # Check the jobs and possibly resubmit them
 
-DirSuffix=autorecon12
+DirSuffix=fslanat
 ImgTyp=T12D # Here we only use T13D and T12D
 
 NUMJB_INPT=200
@@ -41,7 +41,10 @@ do
 	echo "Number of expected jobs: ${NUMJB}"
 	echo "======= ====== ====== ====== ======"
 
-	rm -f ${StudyID}_${DirSuffix}.failedjobs.txt
+	failedjobstxtfileDir=${HOME}/NVROXBOX/EXE/jobcheck/failedjobs/${StudyID}
+	failedjobstxtfile=${failedjobstxtfileDir}/${StudyID}_${DirSuffix}.failedjobs.txt
+	mkdir -p ${failedjobstxtfileDir}
+	rm -f ${failedjobstxtfile}
 
 	for i_NUMJB in `seq 1 ${NUMJB}`
 	do
@@ -54,9 +57,9 @@ do
 			FileName=$(basename $Path2StatPerFile .stat)
 			JOBID="$(cut -d'_' -f4 <<<"$FileName")"
 
-			echo "Stat:${JBSTAT}, JobNumb:${i_NUMJB}, JobID:${JOBID}" >> ${StudyID}_${DirSuffix}.failedjobs.txt
-			cat ${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_${JOBID}_${i_NUMJB}.err >> ${StudyID}_${DirSuffix}.failedjobs.txt
-			sacct --format=Nodelist -j ${JOBID}_${i_NUMJB} >> ${StudyID}_${DirSuffix}.failedjobs.txt
+			echo "Stat:${JBSTAT}, JobNumb:${i_NUMJB}, JobID:${JOBID}" >> ${failedjobstxtfile}
+			cat ${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_${JOBID}_${i_NUMJB}.err >> ${failedjobstxtfile}
+			sacct --format=Nodelist -j ${JOBID}_${i_NUMJB} >> ${failedjobstxtfile}
 
 
 		fi
