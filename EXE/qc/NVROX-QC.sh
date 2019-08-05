@@ -46,8 +46,6 @@ slicesdir -p ${FSLDIR}/data/standard/MNI152_T1_2mm.nii.gz ${T12D_Dir}
 ######################### CAT12
 
 
-
-
 ######################### FS
 T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]_M*[0-9]/anat/sub-*_ses-V*[0-9]_M*[0-9]_run-1_T1w.AUTORECON12/sub-*_ses-V*[0-9]_M*[0-9]_run-1_T1w.AUTORECON12/mri/nii/norm_RAS.nii.gz
 
