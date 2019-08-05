@@ -1,0 +1,399 @@
+Stat:0, JobNumb:1, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:2, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:3, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:4, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:5, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:6, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:7, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:8, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:9, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:10, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:11, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:12, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:13, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:14, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:15, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:16, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:17, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:18, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:19, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:20, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:21, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:22, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:23, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:24, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:25, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:26, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:27, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:28, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:29, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:30, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:31, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:32, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:33, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:34, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:35, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:36, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:37, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:38, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:39, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:40, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:41, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:42, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:43, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:44, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:45, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:46, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:47, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:48, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:49, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:50, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:51, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:52, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:53, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:54, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:55, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:56, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:57, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:58, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:59, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:60, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:61, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:62, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:63, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:64, JobID:7430
+mkdir: cannot create directory ‘/data/ms/processed/mri/CFTY720D2399.anon.2019.07.16’: Permission denied
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:135, JobID:7430
+       NodeList 
+--------------- 
+      worker012 
+      worker012 
+Stat:0, JobNumb:136, JobID:7430
+       NodeList 
+--------------- 
+      worker014 
+      worker014 
+Stat:0, JobNumb:137, JobID:7430
+       NodeList 
+--------------- 
+      worker008 
+      worker008 
