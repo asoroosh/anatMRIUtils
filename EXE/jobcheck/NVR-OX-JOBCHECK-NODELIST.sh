@@ -1,6 +1,6 @@
 # Check the jobs and possibly resubmit them
 
-DirSuffix=fslanat
+DirSuffix=ants
 ImgTyp=T12D # Here we only use T13D and T12D
 
 NUMJB_INPT=200

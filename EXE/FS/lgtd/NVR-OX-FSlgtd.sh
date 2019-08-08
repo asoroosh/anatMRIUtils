@@ -1,5 +1,5 @@
 #This should later be in a loop around StudyIDs
-StudyID=CFTY720D2309
+StudyID=CFTY720D2201
 ImgTyp=T12D # Here we only use T13D and T12D
 
 #StudyID=$1
@@ -7,7 +7,7 @@ ImgTyp=T12D # Here we only use T13D and T12D
 
 # NUMJB sets the number of **SUBJECTS** that will be run for this specific operation
 # If you want to run the operation on all available SUBJECTS, leave NUMJB empty
-NUMJB=100
+NUMJB=1
 SLURMSUBMIT=""
 
 # Later for the submitter file:
@@ -94,7 +94,7 @@ mkdir -p ${ImgTypOpLog}
 #############################################################################
 #############################################################################
 
-JobName=${StudyID}_${DirSuffix}_${NUMJB}
+JobName=${StudyID}_${LT_DirSuffix}_${DirSuffix}_${NUMJB}
 SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
 
 cat > $SubmitterFileName << EOF
@@ -121,7 +121,7 @@ SessionsDir=\${HOME}/NVROXBOX/Data/\${StudyID}/\${ImgTyp}/Sessions
 SessionTxtFile=\${SessionsDir}/\${StudyID}_\${SubID}_\${ImgTyp}.txt
 
 LT_OUTPUT_DIR=\${ProcessedDir}/\${StudyID}/\${SubID}/${LT_DirSuffix}/
-mkdir -p ${LT_OUTPUT_DIR}
+mkdir -p \${LT_OUTPUT_DIR}
 
 #--form the session image lists -----
 mov_list=""
@@ -152,7 +152,7 @@ do
 	mapmov_list="\${mapmov_list} \${MP_IMAGE_NAME}.nii.gz"
 
 	# Just keep a copy of the sessions for the record...
-	cp ${SessionTxtFile} ${LT_OUTPUT_DIR}
+	cp \${SessionTxtFile} \${LT_OUTPUT_DIR}
 
 done<\${SessionTxtFile}
 
@@ -189,12 +189,12 @@ source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 # And now the operations
 #echo "++++++++++ Running mri_robust_template..."
 
-mri_robust_template \
---mov \${mov_list} \
---lta \${lta_list} \
---template \${OutputDir} \
---mapmov \${mapmov_list} \
---average 0 \
+mri_robust_template \\
+--mov \${mov_list} \\
+--lta \${lta_list} \\
+--template \${OutputDir} \\
+--mapmov \${mapmov_list} \\
+--average 0
 
 #############################################################################
 #############################################################################

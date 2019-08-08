@@ -163,7 +163,6 @@ ${SOURCEPATH}/NVROX-ANTs-CorticalThickness \${InputImagePath} \${OutputDir}
 mkdir -p \${OutputDir}/MNI
 ${SOURCEPATH}/NVROX-ANTs-CorticalThickness-to-MNI.sh \${OutputDir} \${OutputDir}/MNI
 
-
 #############################################################################
 #############################################################################
 
