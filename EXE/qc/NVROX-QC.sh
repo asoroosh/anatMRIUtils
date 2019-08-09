@@ -1,8 +1,10 @@
-StudyID=CFTY720D2201
+StudyID=CFTY720D2309E1
 
 DataDir="/data/ms/processed/mri"
 
 StudyID_Date=$(ls ${DataDir} | grep "${StudyID}.") #because the damn Study names has inconsistant dates in them!
+
+echo ${StudyID_Date}
 
 QC_html_file=""
 
@@ -11,17 +13,23 @@ QC_Results=${DataDir}/QC/${StudyID}
 mkdir -p ${QC_Results}
 
 ######################## RAW IMAGES ###########################################
+#echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ RAW +_+_+_+_+_+_+_+_+_+_+_+_+_+_" 
+#echo ""
+#echo ""
 
-TargetDir=${QC_Results}/Raw_T12D
-mkdir -p ${TargetDir}
-cd ${TargetDir}
 
-T12D_Dir=/data/ms/unprocessed/mri/${StudyID_Date}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.nii.gz
+#TargetDir=${QC_Results}/Raw_T12D
+#mkdir -p ${TargetDir}
+#cd ${TargetDir}
 
-slicesdir ${T12D_Dir}
+#T12D_Dir=/data/ms/unprocessed/mri/${StudyID_Date}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.nii.gz
 
-QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
-echo ${QC_html_file}
+#echo "${T12D_Dir}"
+
+#slicesdir ${T12D_Dir}
+
+#QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
+#echo ${QC_html_file}
 
 ######################### FSL #################################################
 echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ FSL +_+_+_+_+_+_+_+_+_+_+_+_+_+_"
