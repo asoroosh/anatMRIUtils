@@ -1,5 +1,25 @@
 StudyID=CFTY720D2309E1
 
+#=============== FUNCTIONS================
+
+slicesdir2imghtm () {
+#Translate all png files from slicesdir land to the img2htm files
+SOURCEFILES=${HOME}/NVROXBOX/SOURCE
+mkdir -p $1/slicesdir/pngfiles
+# copy all png of images to a new directory to get rid of these stupid grot images
+cp $1/slicesdir/*sub*.png $1/slicesdir/pngfiles
+# And now call the img_htm_mri fro the source folder
+python3 ${SOURCEFILES}/img_htm_mri.py \
+-i "$1/slicesdir/pngfiles/" \
+-o "$1/" \
+-sn $2 \
+-nc 2 \
+-nf $(ls $1/slicesdir/pngfiles/ | wc -l)
+}
+#=========================================
+
+ml Python
+
 DataDir="/data/ms/processed/mri"
 
 StudyID_Date=$(ls ${DataDir} | grep "${StudyID}.") #because the damn Study names has inconsistant dates in them!
@@ -54,7 +74,11 @@ do
 
 	QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
 	echo ${QC_html_file}
+
+	slicesdir2imghtm ${TargetDir} ${StudyID}_${DirSuffix}_${ImageName}
+
 done
+
 
 
 #QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
@@ -75,8 +99,15 @@ T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${D
 slicesdir ${T12D_Dir}
 #slicesdir ${T13D_Dir}
 
+mkdir -p $TargetDir/slicesdir/pngfiles
+cp $TargetDir/slicesdir/*sub*.png $TargetDir/slicesdir/pngfiles
+${SOURCEFILES}/run $TargetDir/slicesdir/pngfiles/ ${$TargetDir}/ ${DirSuffix}_${ImageName}
+
 QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
 echo ${QC_html_file}
+
+slicesdir2imghtm ${TargetDir} ${StudyID}_${DirSuffix}_${ImageName}
+
 ######################### ANTs ##################################################
 echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ ANTs +_+_+_+_+_+_+_+_+_+_+_+_+_+_"
 echo ""
@@ -100,6 +131,9 @@ slicesdir -p ${FSLDIR}/data/standard/MNI152_T1_2mm_brain.nii.gz ${T12D_Dir}
 
 QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
 echo ${QC_html_file}
+
+slicesdir2imghtm ${TargetDir} ${StudyID}_${DirSuffix}_${ImageName}
+
 ######################### CAT12 ##################################################
 #DirSuffix=cat12
 
@@ -124,5 +158,11 @@ slicesdir ${T12D_Dir}
 
 QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
 echo ${QC_html_file}
+
+slicesdir2imghtm ${TargetDir} ${StudyID}_${DirSuffix}_${ImageName}
+
+
+# I don't think if we ever going to use slicesdir directly to get the images out 
+# but it is still nice to have the code here -- doesn't hurt :)
 runchrome="chromium-browser $QC_html_file"
 echo $runchrome >> ${QC_Results}/runchrome.txt
