@@ -2,7 +2,7 @@
 StudyID=$1
 ImgTyp_List=$2
 #ImgTyp_List=(PD T12D T13D T12DCE T22D DWI BVAL BVEC)                                           │
-#${ImgTyp_List[@]}  
+#${ImgTyp_List[@]}
 
 # FUNCTIONS ########################################
 checkNget () {
@@ -57,16 +57,30 @@ rm -f $BasicStudyInfoTxt
 #DWI_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
 #BVEC_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
 #BVAL_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_dwi.bval"
+#FLAIR_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_FLAIR.nii.gz"
 # There are two more types of data that I have not added yet: TMReference and FieldMaps!
 
+#######################################################
+#PD
 PD_WC="sub-*_ses-V*[0-9]_run-[0-9]_PD.nii.gz"
+
+#T1
 T12D_WC="sub-*_ses-V*[0-9]_run-[0-9]_T1w.nii.gz"
 T13D_WC="sub-*_ses-V*[0-9]_acq-3d_run-[0-9]_T1w.nii.gz"
 T12DCE_WC="sub-*_ses-V*[0-9]_ce-Gd_run-[0-9]_T1w.nii.gz"
+
+#T2
 T22D_WC="sub-*_ses-V*[0-9]_run-[0-9]_T2w.nii.gz"
+
+#FLAIR
+FLAIR_WC="sub-*.*.*_ses-V*[0-9]_run-[0-9]_FLAIR.nii.gz"
+
+#DWI
 DWI_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.nii.gz"
 BVEC_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.bvec"
 BVAL_WC="sub-*_ses-V*[0-9]_run-[0-9]_dwi.bval"
+
+######################################################
 
 UnprocessedPath="/data/ms/unprocessed/mri"
 BaseDir_WC="${UnprocessedPath}/${StudyID}.anon.*.*.*"
@@ -132,6 +146,7 @@ do
 	echo "Unique number of images with $ImgType : `cat $ImageUniqueSubIDs | wc -l` "
 
 	echo "Get data longitudinal information..."
+
 	#Logitudinal stuff------------
 	SessionDir=${ImgTypDir}/Sessions
 	mkdir -p ${SessionDir}
@@ -141,19 +156,24 @@ do
 #	rm -f $SubSessionTxtFile
 #	cat $ImageUniqueSubIDs | wc -l
 
+
+	FullSessionSubTxtFile=${SessionDir}/${StudyID}_FullSessionSubID_${ImgTyp}.txt
+	rm -f $FullSessionSubTxtFile
+
 	while read SubID
 	do
 
 		SubSessionTxtFile=${SessionDir}/${StudyID}_${SubID}_${ImgTyp}.txt
         	rm -f $SubSessionTxtFile
 
-		LongSubDir=${BaseDir_WC}/${SubID}/*/*/$TMP_WC 
+		LongSubDir=${BaseDir_WC}/${SubID}/*/*/$TMP_WC
 		NumSes=$(ls $LongSubDir | wc -l)
 
 		echo "${StudyID}, ${SubID}, ${ImgTyp}: ${NumSes}"
 
-		if [ $NumSes -gt 1 ]; then 
+		if [ $NumSes -gt 1 ]; then
 			ls $LongSubDir > $SubSessionTxtFile
+			echo $SubID >> $FullSessionSubTxtFile
 		else
 			echo "There is only ${NumSes} sessions, so we skip."
 		fi
