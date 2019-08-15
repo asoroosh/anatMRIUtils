@@ -1,5 +1,4 @@
-
-ImgTyp=T13D
+ImgTyp=T12D
 while read StudyID;
 do
 	echo "${StudyID}: `ls -d /data/ms/unprocessed/mri/${StudyID}.anon.*/sub-* | wc -l`";
