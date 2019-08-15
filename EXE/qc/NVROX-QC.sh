@@ -1,6 +1,13 @@
-StudyID=CFTY720D2309E1
+StudyID=$1
 
 #=============== FUNCTIONS================
+
+PROGNAME=$(basename $0)
+error_exit()
+{
+	echo "${PROGNAME}: ${1:-"Unknown Error"}" 1>&2
+        exit 1
+}
 
 slicesdir2imghtm () {
 #Translate all png files from slicesdir land to the img2htm files
@@ -20,9 +27,15 @@ python3 ${SOURCEFILES}/img_htm_mri.py \
 
 ml Python
 
+
+if [ -z $StudyID ]; then
+	error_exit "***** ERROR $LINENO: StudyID should be set!"
+fi
+
+
 DataDir="/data/ms/processed/mri"
 
-StudyID_Date=$(ls ${DataDir} | grep "${StudyID}.") #because the damn Study names has inconsistant dates in them!
+StudyID_Date=$(ls ${DataDir} | grep "${StudyID}.anon") #because the damn Study names has inconsistant dates in them!
 
 echo ${StudyID_Date}
 
@@ -92,8 +105,7 @@ TargetDir=${QC_Results}/${DirSuffix}_${ImageName}
 mkdir -p ${TargetDir}
 cd ${TargetDir}
 
-T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/\
-	sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName}.nii.gz
+T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName}.nii.gz
 #T13D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_acq-3d_run-1_T1w.anat/T1_biascorr_brain.nii.gz
 
 slicesdir ${T12D_Dir}
@@ -101,7 +113,7 @@ slicesdir ${T12D_Dir}
 
 mkdir -p $TargetDir/slicesdir/pngfiles
 cp $TargetDir/slicesdir/*sub*.png $TargetDir/slicesdir/pngfiles
-${SOURCEFILES}/run $TargetDir/slicesdir/pngfiles/ ${$TargetDir}/ ${DirSuffix}_${ImageName}
+${SOURCEFILES}/run $TargetDir/slicesdir/pngfiles/ ${TargetDir}/ ${DirSuffix}_${ImageName}
 
 QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
 echo ${QC_html_file}
