@@ -1,14 +1,14 @@
 #This should later be in a loop around StudyIDs
-StudyID=CFTY720D2201
-ImgTyp=T12D # Here we only use T13D and T12D
+StudyID=$1
+ImgTyp=$2 # Here we only use T13D and T12D
 
 #StudyID=$1
 #ImgTyp=$2
 
 # NUMJB sets the number of **SUBJECTS** that will be run for this specific operation
 # If you want to run the operation on all available SUBJECTS, leave NUMJB empty
-NUMJB=1
-SLURMSUBMIT=""
+NUMJB=$3
+SLURMSUBMIT=$4
 
 # Later for the submitter file:
 Mem=8G
@@ -87,7 +87,7 @@ fi
 DATE=$(date +"%d-%m-%y")
 
 ImgTypOp=${ImgTypDir}/${DirSuffix}
-ImgTypOpLog=${ImgTypOp}/Logs_${DATE}
+ImgTypOpLog=${ImgTypOp}/Logs_${DirSuffix}${LT_DirSuffix}
 mkdir -p ${ImgTypOpLog}
 
 #############################################################################
@@ -108,12 +108,12 @@ cat > $SubmitterFileName << EOF
 
 set -e
 
-# Set the job status to zero here. If the operation reaches the bottom without error, then the status will be changed to 1
-echo "\${InputImagePath}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
-
 # Read the input path
 ImgIDX=\$SLURM_ARRAY_TASK_ID
 SubID=\$(cat $SubIDTxtFile | sed -n \${ImgIDX}p)
+
+# Set the job status to zero here. If the operation reaches the bottom without error, then the status will be changed to 1
+echo "${StudyID}_\${SubID}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 # ========================================================================
 SessionsDir=\${HOME}/NVROXBOX/Data/${StudyID}/${ImgTyp}/Sessions
@@ -124,7 +124,7 @@ if [ ! -f \$SessionTxtFile ]; then
 	exit 1
 fi
 
-StudyID_Date=$(ls ${ProcessedDir} | grep "\${StudyID}.anon")
+StudyID_Date=\$(ls ${ProcessedDir} | grep "${StudyID}.anon")
 LT_OUTPUT_DIR=${ProcessedDir}/\${StudyID_Date}/\${SubID}/${ImgTyp}.${DirSuffix}.${LT_DirSuffix}
 mkdir -p \${LT_OUTPUT_DIR}
 
@@ -219,13 +219,25 @@ mri_robust_template \\
 --average 0
 
 ####### ANTs TEMPLATE #######
-
+#antsMultivariateTemplateConstruction2.sh \\
+#-d 3 \\
+#-i 3 \\
+#-k 1 \\
+#-f 4x2x1 \\
+#-s 2x1x0vox \\
+#-q 30x20x4 \\
+#-t SyN  \\
+#-m CC \\
+#-c 0 \
+#-z ${template_pathname} \\
+#-o MY \\
+#${mov_list}
 
 
 #############################################################################
 #############################################################################
 
-echo "\${InputImagePath}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
+echo "${StudyID}_\${SubID}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 ### ### ### ### ### ###
 
@@ -235,7 +247,7 @@ echo "==========================================="
 
 EOF
 
-#if [ ! -z $SLURMSUBMIT ]; then
-#	echo "I am actually gonna submit them to the queue now!"
-#	sbatch ${SubmitterFileName}
-#fi
+if [ ! -z $SLURMSUBMIT ]; then
+	echo "I am actually gonna submit them to the queue now!"
+	sbatch ${SubmitterFileName}
+fi
