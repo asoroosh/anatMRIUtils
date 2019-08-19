@@ -93,8 +93,11 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
     for subject in subjects:
 
         # This look a bit shitty, but as long we are BIDS complaint, it should be safe/fince    
-        SubID=subject.split("_")[6]
-        SesID=subject.split("_")[7]
+	# Remember, we have our own slicesdir version which now produces stuff as the following example:
+	# /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/qc/slicesdir_test/slicesdir//IMG_sub-CFTY720D2201.0063.00012_ses-V5_T1_biascorr.png
+	# which basically is: SUBID_SESSIONID_IMAGE-BASENAME.png
+        SubID=subject.split("_")[2]
+        SesID=subject.split("_")[3]
 
         subjectcap=SubID+"_"+SesID
 
