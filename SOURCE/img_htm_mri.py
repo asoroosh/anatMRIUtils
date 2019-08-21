@@ -35,6 +35,7 @@ Currently does not search subdirectories
 
 from pathlib import Path
 from typing import List
+import os 
 
 __author__ = 'Henrik Westerberg, Aaron McCoy, Daniel Delbarre, Neil Horner'
 __credits__ = ['Henrik Westerberg', 'Aaron McCoy', 'Daniel Delbarre', 'Neil Horner']
@@ -96,8 +97,13 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
 	# Remember, we have our own slicesdir version which now produces stuff as the following example:
 	# /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/qc/slicesdir_test/slicesdir//IMG_sub-CFTY720D2201.0063.00012_ses-V5_T1_biascorr.png
 	# which basically is: SUBID_SESSIONID_IMAGE-BASENAME.png
-        SubID=subject.split("_")[2]
-        SesID=subject.split("_")[3]
+
+        [tmp_path,tmp_file] = os.path.split(subject)
+
+#        print(tmp_file)
+
+        SubID=tmp_file.split("_")[1]
+        SesID=tmp_file.split("_")[2]
 
         subjectcap=SubID+"_"+SesID
 
