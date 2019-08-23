@@ -7,18 +7,23 @@ OutputPrefix=MNI
 
 ml ANTs
 
+fslmaths ${MovingImage} -bin NativeSpaceMask
+
+fslmaths NativeSpaceMask -dilM NativeSpaceMask_dil
+
 antsRegistrationSyN.sh \
 -d 3 \
 -t s \
 -f ${FixedImage_MNI} \
 -m ${MovingImage} \
--o ${OutputPrefix}
+-o ${OutputPrefix} \
+-x NativeSpaceMask_dil.nii.gz
 
-antsApplyTransforms \
---dimensionality 3 \
---reference-image ${FixedImage_MNI} \
---input ${MovingImage} \
---transform ${OutputPrefix}1Warp.nii.gz \
---transform ${OutputPrefix}0GenericAffine.mat \
---output TEST_MNI_2mm.nii.gz \
---verbose 1
+#antsApplyTransforms \
+#--dimensionality 3 \
+#--reference-image ${FixedImage_MNI} \
+#--input ${MovingImage} \
+#--transform ${OutputPrefix}1Warp.nii.gz \
+#--transform ${OutputPrefix}0GenericAffine.mat \
+#--output TEST_MNI_2mm.nii.gz \
+#--verbose 1
