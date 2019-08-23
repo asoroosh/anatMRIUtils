@@ -47,6 +47,7 @@ NUMIMG=$(ls $T12D_Dir | wc -l)
 
 STANDARDDIR=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName}.nii.gz
 
+sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir" $TargetDir $NUMIMG
 sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir" "$STANDARDDIR" $TargetDir $NUMIMG
 sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$STANDARDDIR" $TargetDir $NUMIMG
 
@@ -56,7 +57,10 @@ do
 	imgnam_basename=$(basename $imgnam)
 	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
 	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
-	$FSLDIR/bin/pngappend ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${AUXImageName}_on_${ImageName}.png - ${TargetDir}/IMG_${SubIDVar}_${SesIDVar}_${ImageName}.png ${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName}.png
+	$FSLDIR/bin/pngappend \
+	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${AUXImageName}_on_${ImageName}.png - ${TargetDir}/IMG_${SubIDVar}_${SesIDVar}_${ImageName}.png \
+	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName}.png
+
 done
 
 python3 ${SOURCE2PATH}/img_htm_mri.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName} -nc 1 -nf $NUMIMG
@@ -77,6 +81,7 @@ STANDARDDIR=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.
 T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.fslanat/sub-*_ses-V*[0-9]_run-1_T1w.anat/${AUXImageName}.nii.gz
 NUMIMG=$(ls $STANDARDDIR | wc -l)
 
+sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir" $TargetDir $NUMIMG
 sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir" "$STANDARDDIR" $TargetDir $NUMIMG
 sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$STANDARDDIR" $TargetDir $NUMIMG
 
@@ -86,7 +91,8 @@ do
 	imgnam_basename=$(basename $imgnam)
 	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
 	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
-	$FSLDIR/bin/pngappend ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${AUXImageName}_on_${ImageName}.png - ${TargetDir}/IMG_${SubIDVar}_${SesIDVar}_${ImageName}.png ${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName}.png
+	$FSLDIR/bin/pngappend ${TargetDir}/IMG_${SubIDVar}_${SesIDVar}_${AUXImageName}.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${AUXImageName}_on_${ImageName}.png - ${TargetDir}/IMG_${SubIDVar}_${SesIDVar}_${ImageName}.png \
+	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName}.png
 done
 
 python3 ${SOURCE2PATH}/img_htm_mri.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName} -nc 1 -nf $NUMIMG
