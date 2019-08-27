@@ -21,11 +21,11 @@ fi
 
 DataDir="/data/ms/processed/mri"
 
+
+UnProDataDir="/data/ms/unprocessed/mri"
 StudyID_Date=$(ls ${DataDir} | grep "${StudyID}.anon") #because the damn Study names has inconsistant dates in them!
 
 echo ${StudyID_Date}
-
-QC_html_file=""
 
 ProcessedPath="${DataDir}/${StudyID_Date}"
 QC_Results=${DataDir}/QC/${StudyID}
@@ -39,9 +39,14 @@ echo "_+_+_+_+_+ BRAIN REGISTRATION "
 DirSuffix=fslanat
 ImageName_NONLIN=T1_to_MNI_nonlin
 ImageName_LIN=T1_to_MNI_lin
+ImageName_Raw=T1_orig
 
 TargetDir=${QC_Results}/${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN}
 mkdir -p ${TargetDir}
+
+#Raw Images
+T12D_Dir_RAW=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.fslanat/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName_Raw}.nii.gz
+NUMIMG_RAW=$(ls $T12D_Dir_RAW | wc -l)
 
 # Linear paths
 T12D_Dir_LIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName_LIN}.nii.gz
@@ -49,13 +54,14 @@ NUMIMG_LIN=$(ls $T12D_Dir_LIN | wc -l)
 
 # Nonlinear paths
 T12D_Dir_NONLIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName_NONLIN}.nii.gz
-NUMIMG_LIN=$(ls $T12D_Dir_NONLIN | wc -l)
+NUMIMG_NONLIN=$(ls $T12D_Dir_NONLIN | wc -l)
 
 # Standard space -- MNI 2mm
 STANDARDDIR=$FSLDIR/data/standard/MNI152_T1_2mm_brain.nii.gz
 
-sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG
-sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG_LIN
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG_NONLIN
+#sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir_RAW" $TargetDir $NUMIMG_RAW
 
 mkdir -p $TargetDir/TRI
 
@@ -64,6 +70,7 @@ do
 	imgnam_basename=$(basename $imgnam)
 	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
 	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
+
 	$FSLDIR/bin/pngappend \
 	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_LIN}_on_MNI152_T1_2mm_brain.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_NONLIN}_on_MNI152_T1_2mm_brain.png \
 	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
@@ -81,9 +88,14 @@ DirSuffix=ants
 
 ImageName_NONLIN=BrainExtractionBrain_MNI_2mm
 ImageName_LIN=BrainExtractionBrain_MNI_2mm_affine
+ImageName_Raw=BrainExtractionBrain
 
 TargetDir=${QC_Results}/${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN}
 mkdir -p ${TargetDir}
+
+#Raw Images
+T12D_Dir_RAW=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/antsCorticalThickness/${ImageName_Raw}.nii.gz
+NUMIMG_RAW=$(ls $T12D_Dir_RAW | wc -l)
 
 # Linear paths
 T12D_Dir_LIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/MNI/${ImageName_LIN}.nii.gz
@@ -96,8 +108,9 @@ NUMIMG_NONLIN=$(ls $T12D_Dir_NONLIN | wc -l)
 # Standard space -- MNI 2mm
 STANDARDDIR=$FSLDIR/data/standard/MNI152_T1_2mm_brain.nii.gz
 
-sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG
-sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG_LIN
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG_NONLIN
+#sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir_RAW" $TargetDir $NUMIMG_RAW
 
 mkdir -p $TargetDir/TRI
 
