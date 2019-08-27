@@ -35,67 +35,81 @@ mkdir -p ${QC_Results}
 echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ FSL +_+_+_+_+_+_+_+_+_+_+_+_+_+_"
 echo ""
 echo ""
-
+echo "_+_+_+_+_+ BRAIN REGISTRATION "
 DirSuffix=fslanat
+ImageName_NONLIN=T1_to_MNI_nonlin
+ImageName_LIN=T1_to_MNI_lin
 
-### Registration
-echo "_+_+_+_+_+ REGISTRATION "
+TargetDir=${QC_Results}/${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN}
+mkdir -p ${TargetDir}
 
-MNISTANDARD=$FSLDIR/data/standard/MNI152_T1_2mm_brain.nii.gz
+# Linear paths
+T12D_Dir_LIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName_LIN}.nii.gz
+NUMIMG_LIN=$(ls $T12D_Dir_LIN | wc -l)
 
-for ImageName in T1_to_MNI_nonlin T1_to_MNI_lin
+# Nonlinear paths
+T12D_Dir_NONLIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName_NONLIN}.nii.gz
+NUMIMG_LIN=$(ls $T12D_Dir_NONLIN | wc -l)
+
+# Standard space -- MNI 2mm
+STANDARDDIR=$FSLDIR/data/standard/MNI152_T1_2mm_brain.nii.gz
+
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG
+
+mkdir -p $TargetDir/TRI
+
+for imgnam in $TargetDir/COMB_*${ImageName_NONLIN}*
 do
-	echo "+_+_+_+_+_+_ ${DirSuffix} ${ImageName}"
-	TargetDir=${QC_Results}/${DirSuffix}_${ImageName}
-	mkdir -p ${TargetDir}
-
-	T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w.anat/${ImageName}.nii.gz
-
-	NUMIMG=$(ls $T12D_Dir | wc -l)
-#	NUMIMG=5
-	sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir" $MNISTANDARD $TargetDir $NUMIMG
-	python3 ${SOURCE2PATH}/img_htm_mri.py -i ${TargetDir} -o ${TargetDir} -sn ${StudyID}_${DirSuffix}_${ImageName} -nc 1 -nf $NUMIMG
+	imgnam_basename=$(basename $imgnam)
+	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
+	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
+	$FSLDIR/bin/pngappend \
+	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_LIN}_on_MNI152_T1_2mm_brain.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_NONLIN}_on_MNI152_T1_2mm_brain.png \
+	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
 done
 
+python3 ${SOURCE2PATH}/img_htm_mri_reg.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN} -nc 1 -nf $NUMIMG_LIN
 
 ######################### ANTs ##################################################
 echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ ANTs +_+_+_+_+_+_+_+_+_+_+_+_+_+_"
 echo ""
 echo ""
+echo "_+_+_+_+_+ BRAIN REGISTRATION "
 
 DirSuffix=ants
 
-## Registration --------------------------------------------
-ImageName=BrainExtractionBrain_MNI_2mm
-# Nonlinear Registration
-TargetDir=${QC_Results}/${DirSuffix}_${ImageName}
+ImageName_NONLIN=BrainExtractionBrain_MNI_2mm
+ImageName_LIN=BrainExtractionBrain_MNI_2mm_affine
+
+TargetDir=${QC_Results}/${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN}
 mkdir -p ${TargetDir}
-#cd ${TargetDir}
-T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/MNI/${ImageName}.nii.gz
-NUMIMG=$(ls $T12D_Dir | wc -l)
-#NUMIMG=5
 
-sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir" $MNISTANDARD $TargetDir $NUMIMG
-python3 ${SOURCE2PATH}/img_htm_mri.py -i ${TargetDir} -o ${TargetDir} -sn ${StudyID}_${DirSuffix}_${ImageName} -nc 1 -nf $NUMIMG
+# Linear paths
+T12D_Dir_LIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/MNI/${ImageName_LIN}.nii.gz
+NUMIMG_LIN=$(ls $T12D_Dir_LIN | wc -l)
 
-######################### CAT12 ##################################################
-#DirSuffix=cat12
+# Nonlinear paths
+T12D_Dir_NONLIN=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/MNI/${ImageName_NONLIN}.nii.gz
+NUMIMG_NONLIN=$(ls $T12D_Dir_NONLIN | wc -l)
 
-######################### FS #####################################################
-#echo "+_+_+_+_+_+_+_+_+_+_+_+_+_ FREESURFER +_+_+_+_+_+_+_+_+_+_+_+_+_+_"
-#echo ""
-#echo ""
+# Standard space -- MNI 2mm
+STANDARDDIR=$FSLDIR/data/standard/MNI152_T1_2mm_brain.nii.gz
 
-#DirSuffix=autorecon12
-#ImageName=norm_RAS
-#echo "+_+_+_+_+_+_ ${DirSuffix} ${ImageName}"
-#T12D_Dir=${ProcessedPath}/sub-*/ses-V*[0-9]/anat/sub-*_ses-V*[0-9]_run-1_T1w.${DirSuffix}/sub-*_ses-V*[0-9]_run-1_T1w/mri/nii/norm_RAS.nii.gz
-#TargetDir=${QC_Results}/${DirSuffix}_${ImageName}
-#mkdir -p ${TargetDir}
-#cd ${TargetDir}
-#slicesdir ${T12D_Dir}
-#QC_html_file="$QC_html_file $TargetDir/slicesdir/index.html"
-#echo ${QC_html_file}
-#slicesdir2imghtm ${TargetDir} ${StudyID}_${DirSuffix}_${ImageName}
-# I don't think if we ever going to use slicesdir directly to get the images out 
-# but it is stil
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $TargetDir $NUMIMG
+sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG
+
+mkdir -p $TargetDir/TRI
+
+for imgnam in $TargetDir/COMB_*${ImageName_NONLIN}*
+do
+	imgnam_basename=$(basename $imgnam)
+	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
+	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
+
+	$FSLDIR/bin/pngappend \
+	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_LIN}_on_MNI152_T1_2mm_brain.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_NONLIN}_on_MNI152_T1_2mm_brain.png \
+	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+done
+
+python3 ${SOURCE2PATH}/img_htm_mri_reg.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN} -nc 1 -nf $NUMIMG_LIN
