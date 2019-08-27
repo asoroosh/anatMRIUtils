@@ -100,18 +100,20 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
 
         [tmp_path,tmp_file] = os.path.split(subject)
 
-#        print(tmp_file)
+        print(tmp_file)
 
         SubID=tmp_file.split("_")[1]
         SesID=tmp_file.split("_")[2]
 
         subjectcap=SubID+"_"+SesID
 
+        print(subjectcap)
+
         h.append("""
                  <figure>
                  <img src='{}' height=300px>
                  <figcaption>{}</figcaption>
-                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="fail" tabIndex="-1">FAILED</a> | <a href="#" class="func" data-type="negative" tabIndex="-1">TENTATIVE</a> | <a href="#" class="func" data-type="positive" tabIndex="-1">CHECK</a></div>
+                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="linfail" tabIndex="-1">LIN FAILED</a> | <a href="#" class="func" data-type="nonlinfail" tabIndex="-1">NONLIN FAILED</a> | <a href="#" class="func" data-type="average" tabIndex="-1">TENTATIVE</a> | <a href="#" class="func" data-type="note" tabIndex="-1">NOTE</a></div>
                  </figure>
                 """.format(imgs[counter], subjectcap)) 
         counter = counter + 1
@@ -168,12 +170,14 @@ def get_css():
     .func:hover{{ background: #b3b3b3; }}
     figure.pass{{border-color: green;}}
     figure.pass .active{{background: green;}}
-    figure.fail{{border-color: red}}
-    figure.fail .active{{background: red;}}
-    figure.positive{{border-color: orange}}
-    figure.positive .active{{background: orange;}}
-    figure.negative{{border-color: blue}}
-    figure.negative .active{{background: blue;}}
+    figure.nonlinfail{{border-color: red}}
+    figure.nonlinfail .active{{background: red;}}
+    figure.linfail{{border-color: red}}
+    figure.linfail .active{{background: red;}}   
+    figure.note{{border-color: orange}}
+    figure.note .active{{background: orange;}}
+    figure.average{{border-color: blue}}
+    figure.average .active{{background: blue;}}
     hr{{clear: both;}}
     #links a{{display: inline-block; margin-right: 10px; text-decoration: none;}}
     #downloads {{padding-top: 10px;}}
@@ -185,11 +189,12 @@ def get_css():
 
 def get_js(i,study_name):
     js = """<script>/*-------Declare arrays------*/
-            var positive = [],
-                negative = [],
+            var note = [],
+                average = [],
                 pass = [],
-                fail = [],
-                arrs = [positive, negative, pass, fail];
+                nonlinfail = [],
+                linfail = [],
+                arrs = [note, average, pass, nonlinfail, linfail];
 
             // Get html elements
             var filenames = document.getElementsByTagName("figcaption");
@@ -237,17 +242,21 @@ def get_js(i,study_name):
                         remove(filename);
                         pass.push(filename);
                         break;
-                    case 'fail':
+                    case 'nonlinfail':
                         remove(filename);
-                        fail.push(filename);
+                        nonlinfail.push(filename);
+                        break; 
+                    case 'linfail':
+                        remove(filename);
+                        linfail.push(filename);
+                        break;                                                   
+                    case 'note':
+                        remove(filename);
+                        note.push(filename);
                         break;
-                    case 'positive':
+                    case 'average':
                         remove(filename);
-                        positive.push(filename);
-                        break;
-                    case 'negative':
-                        remove(filename);
-                        negative.push(filename);
+                        average.push(filename);
                         break;
                 };
             };
@@ -294,9 +303,10 @@ def get_js(i,study_name):
                 parent.appendChild(container);
 
                 printArrays(pass, '%s_%s_PASSED.csv');
-                printArrays(fail, '%s_%s_FAILED.csv');
-                printArrays(positive, '%s_%s_CHECK.csv');
-                printArrays(negative, '%s_%s_TENTATIVE.csv');
+                printArrays(nonlinfail, '%s_%s_NONLINFAILED.csv');
+                printArrays(linfail, '%s_%s_LINFAILED.csv');
+                printArrays(note, '%s_%s_CHECK.csv');
+                printArrays(average, '%s_%s_TENTATIVE.csv');
 
                 saveAll.style.display = 'inline-block';
             });
@@ -310,7 +320,7 @@ def get_js(i,study_name):
                 }
 
             });
-            </script>""" % (study_name, i, study_name, i, study_name, i, study_name, i)
+            </script>""" % (study_name, i, study_name, i, study_name, i, study_name, i, study_name, i)
     return js
 
 
