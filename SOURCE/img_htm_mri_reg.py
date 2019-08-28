@@ -100,14 +100,14 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
 
         [tmp_path,tmp_file] = os.path.split(subject)
 
-        print(tmp_file)
+#        print(tmp_file)
 
         SubID=tmp_file.split("_")[1]
         SesID=tmp_file.split("_")[2]
 
         subjectcap=SubID+"_"+SesID
 
-        print(subjectcap)
+#        print(subjectcap)
 
         h.append("""
                  <figure>
