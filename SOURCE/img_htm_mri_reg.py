@@ -113,7 +113,8 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
                  <figure>
                  <img src='{}' height=300px>
                  <figcaption>{}</figcaption>
-                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="average" tabIndex="-1">TENTATIVE</a> | <a href="#" class="func" data-type="linfail" tabIndex="-1">LIN FAILED</a> | <a href="#" class="func" data-type="linnote" tabIndex="-1">LIN NOTE</a> | <a href="#" class="func" data-type="nonlinfail" tabIndex="-1">NONLIN FAILED</a> | <a href="#" class="func" data-type="nonlinnote" tabIndex="-1">NONLIN NOTE</a></div>
+                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="average" tabIndex="-1">TENTATIVE</a> | <a href="#" class="func" data-type="linfail" tabIndex="-1">ONLY LIN FAILED</a> | <a href="#" class="func" data-type="linnote" tabIndex="-1">LIN NOTE</a> | <a href="#" class="func" data-type="nonlinfail" tabIndex="-1">ONLY NONLIN FAILED</a> | <a href="#" class="func" data-type="nonlinnote" tabIndex="-1">NONLIN NOTE</a> | <a href="#" class="func" data-type="bothfail" tabIndex="-1">BOTH FAILED</a> 
+                 </div>
                  </figure>
                 """.format(imgs[counter], subjectcap)) 
         counter = counter + 1
@@ -177,7 +178,9 @@ def get_css():
     figure.linnote{{border-color: orange}}
     figure.linnote .active{{background: orange;}}
     figure.nonlinnote{{border-color: orange}}
-    figure.nonlinnote .active{{background: orange;}}    
+    figure.nonlinnote .active{{background: orange;}} 
+    figure.bothfail{{border-color: red}}
+    figure.bothfail .active{{background: red;}}        
     figure.average{{border-color: blue}}
     figure.average .active{{background: blue;}}
     hr{{clear: both;}}
@@ -197,7 +200,8 @@ def get_js(i,study_name):
                 pass = [],
                 nonlinfail = [],
                 linfail = [],
-                arrs = [linnote, nonlinnote, average, pass, nonlinfail, linfail];
+                bothfail = [],
+                arrs = [linnote, nonlinnote, average, pass, nonlinfail, linfail, bothfail];
 
             // Get html elements
             var filenames = document.getElementsByTagName("figcaption");
@@ -260,7 +264,11 @@ def get_js(i,study_name):
                     case 'linnote':
                         remove(filename);
                         linnote.push(filename);
-                        break;                        
+                        break;          
+                    case 'bothfail':
+                        remove(filename);
+                        bothfail.push(filename);
+                        break;                      
                     case 'average':
                         remove(filename);
                         average.push(filename);
@@ -312,6 +320,7 @@ def get_js(i,study_name):
                 printArrays(pass, '%s_%s_PASSED.csv');
                 printArrays(nonlinfail, '%s_%s_NONLINFAILED.csv');
                 printArrays(linfail, '%s_%s_LINFAILED.csv');
+                printArrays(bothfail, '%s_%s_BOTHFAILED.csv');
                 printArrays(linnote, '%s_%s_LINCHECK.csv');
                 printArrays(nonlinnote, '%s_%s_NONLINCHECK.csv');
                 printArrays(average, '%s_%s_TENTATIVE.csv');
@@ -328,7 +337,7 @@ def get_js(i,study_name):
                 }
 
             });
-            </script>""" % (study_name, i, study_name, i, study_name, i, study_name, i, study_name, i, study_name, i)
+            </script>""" % (study_name, i, study_name, i, study_name, i, study_name, i, study_name, i, study_name, i, study_name, i)
     return js
 
 
