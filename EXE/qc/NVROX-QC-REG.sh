@@ -14,6 +14,7 @@ error_exit()
 SOURCE2PATH=${HOME}/NVROXBOX/SOURCE
 
 ml Python
+ml ImageMagick
 
 if [ -z $StudyID ]; then
 	error_exit "***** ERROR $LINENO: StudyID should be set!"
@@ -63,7 +64,10 @@ sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $Targe
 sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG_NONLIN
 #sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir_RAW" $TargetDir $NUMIMG_RAW
 
+Path2BrainExtractionImages="/data/ms/processed/mri/QC/${StudyID}/fslanat_T1_biascorr_brain/TRI"
+
 mkdir -p $TargetDir/TRI
+mkdir -p $TargetDir/QUAD
 
 for imgnam in $TargetDir/COMB_*${ImageName_NONLIN}*
 do
@@ -71,9 +75,30 @@ do
 	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
 	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
 
+	TRIOutputImage=${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+
+	#Append linear and non-linear registration
 	$FSLDIR/bin/pngappend \
 	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_LIN}_on_MNI152_T1_2mm_brain.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_NONLIN}_on_MNI152_T1_2mm_brain.png \
-	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+	${TRIOutputImage}
+
+#	echo "1st Appended Image: ${TRIOutput}"
+
+	# Here I resize the brain extraction stuff using ImageMagick
+	BrainExImag="${Path2BrainExtractionImages}/TRI_${SubIDVar}_${SesIDVar}_T1_biascorr_brain.png"
+	BrainExImg_resized=${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_T1_biascorr_brain_resized.png
+	convert ${BrainExImag} -resize $(identify -format "%w" "$TRIOutputImage") ${BrainExImg_resized}
+
+#	echo "Resized: ${BrainExImg_resized}"
+
+	# Here I attach the brain extraction images to the registration images
+	QUADOutputImage=${TargetDir}/QUAD/QUAD_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+	$FSLDIR/bin/pngappend \
+	${BrainExImg_resized} - ${TRIOutputImage} \
+	${QUADOutputImage}
+
+#	echo "FinalImage: $QUADOutputImage"
+
 done
 
 python3 ${SOURCE2PATH}/img_htm_mri_reg.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN} -nc 1 -nf $NUMIMG_LIN
@@ -112,7 +137,10 @@ sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_LIN" "$STANDARDDIR" $Targe
 sh ${SOURCE2PATH}/NVR-OX-slicer-overlay.sh "$T12D_Dir_NONLIN" "$STANDARDDIR" $TargetDir $NUMIMG_NONLIN
 #sh ${SOURCE2PATH}/NVR-OX-slicer.sh "$T12D_Dir_RAW" $TargetDir $NUMIMG_RAW
 
+Path2BrainExtractionImages="/data/ms/processed/mri/QC/${StudyID}/ants_BrainExtractionBrain/TRI"
+
 mkdir -p $TargetDir/TRI
+mkdir -p $TargetDir/QUAD
 
 for imgnam in $TargetDir/COMB_*${ImageName_NONLIN}*
 do
@@ -120,9 +148,24 @@ do
 	SubIDVar=$(echo $imgnam_basename | awk -F"_" '{print $2}')
 	SesIDVar=$(echo $imgnam_basename | awk -F"_" '{print $3}')
 
+	TRIOutputImage=${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+
+	#Append linear and non-linear registration
 	$FSLDIR/bin/pngappend \
 	${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_LIN}_on_MNI152_T1_2mm_brain.png - ${TargetDir}/COMB_${SubIDVar}_${SesIDVar}_${ImageName_NONLIN}_on_MNI152_T1_2mm_brain.png \
-	${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+	${TRIOutputImage}
+
+	# Here I resize the brain extraction stuff using ImageMagick
+	BrainExImag="${Path2BrainExtractionImages}/TRI_${SubIDVar}_${SesIDVar}_BrainExtractionBrain.png"
+	BrainExImg_resized=${TargetDir}/TRI/TRI_${SubIDVar}_${SesIDVar}_BrainExtractionBrain_resized.png
+	convert ${BrainExImag} -resize $(identify -format "%w" "$TRIOutputImage") ${BrainExImg_resized}
+
+	# Here I attach the brain extraction images to the registration images
+	QUADOutputImage=${TargetDir}/QUAD/QUAD_${SubIDVar}_${SesIDVar}_${ImageName_LIN}-${ImageName_NONLIN}.png
+	$FSLDIR/bin/pngappend \
+	${BrainExImg_resized} - ${TRIOutputImage} \
+	${QUADOutputImage}
+
 done
 
-python3 ${SOURCE2PATH}/img_htm_mri_reg.py -i ${TargetDir}/TRI -o ${TargetDir}/TRI -sn ${StudyID}_${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN} -nc 1 -nf $NUMIMG_LIN
+python3 ${SOURCE2PATH}/img_htm_mri_reg.py -i ${TargetDir}/QUAD -o ${TargetDir}/QUAD -sn ${StudyID}_${DirSuffix}_${ImageName_LIN}-${ImageName_NONLIN} -nc 1 -nf $NUMIMG_LIN
