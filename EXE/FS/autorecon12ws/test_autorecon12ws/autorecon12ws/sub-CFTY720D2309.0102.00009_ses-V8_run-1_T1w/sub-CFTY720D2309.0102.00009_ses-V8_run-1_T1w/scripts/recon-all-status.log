@@ -1,0 +1,14 @@
+Linux frontend001 3.10.0-957.27.2.el7.x86_64 #1 SMP Mon Jul 29 17:46:05 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+
+recon-all -s sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w exited with ERRORS at Thu Sep 19 09:07:24 UTC 2019
+
+
+
+
+New invocation of recon-all 
+
+
+
+status file for recon-all
+Thu Sep 19 09:07:25 UTC 2019
+#@# MotionCor Thu Sep 19 09:07:26 UTC 2019

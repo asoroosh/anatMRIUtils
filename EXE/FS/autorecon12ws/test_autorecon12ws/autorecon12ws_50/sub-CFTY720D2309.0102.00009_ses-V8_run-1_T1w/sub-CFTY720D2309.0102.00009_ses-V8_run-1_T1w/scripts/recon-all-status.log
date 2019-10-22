@@ -1,0 +1,20 @@
+status file for recon-all
+Wed Sep 18 12:21:41 UTC 2019
+#@# MotionCor Wed Sep 18 12:21:42 UTC 2019
+#@# Talairach Wed Sep 18 12:21:48 UTC 2019
+#@# Talairach Failure Detection Wed Sep 18 12:23:05 UTC 2019
+#@# Nu Intensity Correction Wed Sep 18 12:23:05 UTC 2019
+#@# Intensity Normalization Wed Sep 18 12:24:30 UTC 2019
+#@# Skull Stripping Wed Sep 18 12:25:47 UTC 2019
+recon-all -s sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w finished without error at Wed Sep 18 12:36:51 UTC 2019
+
+
+
+New invocation of recon-all 
+
+
+
+status file for recon-all
+Wed Sep 18 14:00:05 UTC 2019
+#@# Skull Stripping Wed Sep 18 14:00:05 UTC 2019
+recon-all -s sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w finished without error at Wed Sep 18 14:00:18 UTC 2019

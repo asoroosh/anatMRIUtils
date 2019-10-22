@@ -1,0 +1,7 @@
+status file for recon-all
+Wed Sep 18 09:46:43 UTC 2019
+#@# Skull Stripping Wed Sep 18 09:46:44 UTC 2019
+Linux frontend001 3.10.0-957.27.2.el7.x86_64 #1 SMP Mon Jul 29 17:46:05 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+
+recon-all -s sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w exited with ERRORS at Wed Sep 18 09:46:45 UTC 2019
+

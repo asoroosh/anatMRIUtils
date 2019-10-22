@@ -1,0 +1,126 @@
+Thu Sep 19 09:07:24 UTC 2019
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w
+Linux frontend001 3.10.0-957.27.2.el7.x86_64 #1 SMP Mon Jul 29 17:46:05 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+/apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/bin/recon-all
+-subjid sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w -i /data/ms/unprocessed/mri/CFTY720D2309.anon.2019.07.15/sub-CFTY720D2309.0102.00009/ses-V8/anat/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w.nii.gz -sd /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w -autorecon1 -no-wsgcaatlas
+subjid sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w
+setenv SUBJECTS_DIR /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w
+FREESURFER_HOME /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64
+Actual FREESURFER_HOME /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64
+
+build-stamp.txt: freesurfer-Linux-centos6_x86_64-stable-pub-v6.0.1-f53a55a
+recon-all -s sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w exited with ERRORS at Thu Sep 19 09:07:24 UTC 2019
+Linux frontend001 3.10.0-957.27.2.el7.x86_64 #1 SMP Mon Jul 29 17:46:05 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+cputime      unlimited
+filesize     unlimited
+datasize     unlimited
+stacksize    8192 kbytes
+coredumpsize 0 kbytes
+memoryuse    unlimited
+vmemoryuse   unlimited
+descriptors  1024 
+memorylocked 64 kbytes
+maxproc      4096 
+maxlocks     unlimited
+maxsignal    256788 
+maxmessage   819200 
+maxnice      0 
+maxrtprio    0 
+maxrttime    unlimited
+
+
+              total        used        free      shared  buff/cache   available
+Mem:       65807856    32711552     4061336     5174708    29034968    27076888
+Swap:       8388604     6611452     1777152
+
+To report a problem, see http://surfer.nmr.mgh.harvard.edu/fswiki/BugReporting
+########################################
+program versions used
+$Id: recon-all,v 1.580.2.16 2017/01/18 14:11:24 zkaufman Exp $
+$Id: mri_motion_correct.fsl,v 1.15 2016/02/16 17:17:20 zkaufman Exp $
+mri_convert.bin -all-info 
+ProgramName: mri_convert.bin  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_convert.c,v 1.226 2016/02/26 16:15:24 mreuter Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+FLIRT version 5.5
+$Id: talairach_avi,v 1.13 2015/12/23 04:25:17 greve Exp $
+mri_convert.bin --version 
+stable6
+ProgramName: tkregister2_cmdl  ProgramArguments: --all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: tkregister2.c,v 1.132.2.1 2016/08/02 21:17:29 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+Program nu_correct, built from:
+Package MNI N3, version 1.12.0, compiled by nicks@terrier (x86_64-unknown-linux-gnu) on 2015-06-19 at 01:25:34
+ProgramName: mri_make_uchar  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_make_uchar.c,v 1.4 2011/03/02 00:04:14 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_normalize  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_normalize.c,v 1.88.2.3 2016/12/27 16:47:13 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_watershed  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_watershed.cpp,v 1.103 2016/06/17 18:00:49 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_gcut  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_gcut.cpp,v 1.14 2011/03/02 00:04:16 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_segment  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_segment.c,v 1.43.2.1 2016/10/27 22:24:52 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_label2label.bin  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_label2label.c,v 1.48.2.2 2016/12/12 14:15:26 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_em_register  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_em_register.c,v 1.105.2.1 2016/10/27 22:25:10 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_ca_normalize  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_ca_normalize.c,v 1.67.2.2 2016/10/27 22:25:09 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_ca_register  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_ca_register.c,v 1.96.2.3 2016/10/27 22:25:10 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_ca_label  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_ca_label.c,v 1.113.2.2 2016/10/27 22:25:10 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_pretess  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_pretess.c,v 1.22 2013/08/30 18:12:25 mreuter Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_fill  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_fill.c,v 1.119 2011/10/25 14:09:58 fischl Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_tessellate  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_tessellate.c,v 1.38.2.1 2016/07/26 18:46:38 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_concatenate_lta.bin  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_concatenate_lta.c,v 1.16 2015/11/21 00:06:20 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_normalize_tp2  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_normalize_tp2.c,v 1.8 2011/03/02 00:04:23 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_smooth  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_smooth.c,v 1.30 2014/01/21 18:48:21 fischl Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_inflate  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_inflate.c,v 1.45 2016/01/20 23:42:15 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_curvature  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_curvature.c,v 1.31 2011/03/02 00:04:30 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_sphere  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_sphere.c,v 1.61 2016/01/20 23:42:15 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_fix_topology  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_fix_topology.c,v 1.50.2.1 2016/10/27 22:25:58 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_topo_fixer  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_topo_fixer.cpp,v 1.29 2011/03/02 00:04:34 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_ca_label  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_ca_label.c,v 1.37 2014/02/04 17:46:42 fischl Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_euler_number  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:24-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_euler_number.c,v 1.10 2013/01/14 22:39:14 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_make_surfaces  ProgramArguments: -all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_make_surfaces.c,v 1.164.2.4 2016/12/13 22:26:32 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_register  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_register.c,v 1.63 2016/01/20 23:43:04 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_volmask  ProgramArguments: --all-info  ProgramVersion: $Name:  $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_volmask.cpp,v 1.26.2.2 2016/11/18 20:05:18 zkaufman Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_anatomical_stats  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_anatomical_stats.c,v 1.79 2016/03/14 15:15:34 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mrisp_paint  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mrisp_paint.c,v 1.12 2016/03/22 14:47:57 fischl Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_curvature_stats  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_curvature_stats.c,v 1.65 2015/06/04 20:50:51 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mris_calc  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mris_calc.c,v 1.54.2.1 2016/09/27 18:51:28 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+$Id: mri_robust_register.cpp,v 1.77 2016/01/20 23:36:17 greve Exp $
+
+ProgramName: mri_robust_register.bin  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_robust_register.cpp,v 1.77 2016/01/20 23:36:17 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+$Id: mri_robust_template.cpp,v 1.54 2016/05/05 21:17:08 mreuter Exp $
+
+ProgramName: mri_robust_template  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_robust_template.cpp,v 1.54 2016/05/05 21:17:08 mreuter Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_and  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_and.c,v 1.4 2011/03/02 00:04:13 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_or  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_or.c,v 1.5 2013/03/20 15:03:29 lzollei Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_fuse_segmentations  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_fuse_segmentations.c,v 1.8 2011/03/02 00:04:15 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_segstats  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_segstats.c,v 1.121 2016/05/31 17:27:11 greve Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+ProgramName: mri_relabel_hypointensities  ProgramArguments: -all-info  ProgramVersion: $Name: stable6 $  TimeStamp: 2019/09/19-09:07:25-GMT  BuildTimeStamp: Oct 20 2017 13:59:15  CVS: $Id: mri_relabel_hypointensities.c,v 1.13 2015/05/15 18:44:10 nicks Exp $  User: dfgtyk@bdivdi.local  Machine: frontend001  Platform: Linux  PlatformVersion: 3.10.0-957.27.2.el7.x86_64  CompilerName: GCC  CompilerVersion: 40400 
+#######################################
+GCADIR /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/average
+GCA RB_all_2016-05-10.vc700.gca
+GCASkull RB_all_withskull_2016-05-10.vc700.gca
+AvgCurvTif folding.atlas.acfb40.noaparc.i12.2016-08-02.tif
+GCSDIR /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/average
+GCS DKaparc.atlas.acfb40.noaparc.i12.2016-08-02.gcs
+#######################################
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w
+
+ mri_convert /data/ms/unprocessed/mri/CFTY720D2309.anon.2019.07.15/sub-CFTY720D2309.0102.00009/ses-V8/anat/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w.nii.gz /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig/001.mgz 
+
+mri_convert.bin /data/ms/unprocessed/mri/CFTY720D2309.anon.2019.07.15/sub-CFTY720D2309.0102.00009/ses-V8/anat/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w.nii.gz /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig/001.mgz 
+$Id: mri_convert.c,v 1.226 2016/02/26 16:15:24 mreuter Exp $
+reading from /data/ms/unprocessed/mri/CFTY720D2309.anon.2019.07.15/sub-CFTY720D2309.0102.00009/ses-V8/anat/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w.nii.gz...
+TR=1000.00, TE=0.00, TI=0.00, flip angle=0.00
+i_ras = (-1, 2.05024e-10, 5.72683e-12)
+j_ras = (2.05103e-10, 0.99961, 0.0279216)
+k_ras = (4.88134e-19, -0.0279216, 0.99961)
+writing to /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig/001.mgz...
+#--------------------------------------------
+#@# MotionCor Thu Sep 19 09:07:26 UTC 2019
+Found 1 runs
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig/001.mgz
+Checking for (invalid) multi-frame inputs...
+WARNING: only one run found. This is OK, but motion
+correction cannot be performed on one run, so I'll
+copy the run to rawavg and continue.
+
+ cp /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig/001.mgz /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/rawavg.mgz 
+
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w
+
+ mri_convert /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/rawavg.mgz /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig.mgz --conform 
+
+mri_convert.bin /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/rawavg.mgz /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/orig.mgz --conform 

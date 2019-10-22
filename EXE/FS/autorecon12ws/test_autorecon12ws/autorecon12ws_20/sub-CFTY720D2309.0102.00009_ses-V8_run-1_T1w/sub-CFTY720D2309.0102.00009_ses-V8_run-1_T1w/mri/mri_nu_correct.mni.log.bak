@@ -1,0 +1,114 @@
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws_20/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri
+/apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/bin/mri_nu_correct.mni
+--no-rescale --i orig.mgz --o orig_nu.mgz --n 1 --proto-iters 1000 --distance 50
+nIters 1
+$Id: mri_nu_correct.mni,v 1.27 2016/02/26 16:19:49 mreuter Exp $
+Linux frontend001 3.10.0-957.27.2.el7.x86_64 #1 SMP Mon Jul 29 17:46:05 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
+Wed Sep 18 09:02:35 UTC 2019
+Program nu_correct, built from:
+Package MNI N3, version 1.12.0, compiled by nicks@terrier (x86_64-unknown-linux-gnu) on 2015-06-19 at 01:25:34
+tmpdir is ./tmp.mri_nu_correct.mni.1324
+/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws_20/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri
+mri_convert orig.mgz ./tmp.mri_nu_correct.mni.1324/nu0.mnc -odt float
+mri_convert.bin orig.mgz ./tmp.mri_nu_correct.mni.1324/nu0.mnc -odt float 
+$Id: mri_convert.c,v 1.226 2016/02/26 16:15:24 mreuter Exp $
+reading from orig.mgz...
+TR=1000.00, TE=0.00, TI=0.00, flip angle=0.00
+i_ras = (-1, 2.77683e-17, 8.46473e-19)
+j_ras = (-5.4263e-20, 1.86265e-09, -1)
+k_ras = (1.38642e-17, 1, 1.86265e-09)
+changing data type from uchar to float (noscale = 0)...
+writing to ./tmp.mri_nu_correct.mni.1324/nu0.mnc...
+ 
+--------------------------------------------------------
+Iteration 1 Wed Sep 18 09:02:37 UTC 2019
+nu_correct -clobber ./tmp.mri_nu_correct.mni.1324/nu0.mnc ./tmp.mri_nu_correct.mni.1324/nu1.mnc -tmpdir ./tmp.mri_nu_correct.mni.1324/0/ -iterations 1000 -distance 50
+[dfgtyk@bdivdi.local@frontend001:/home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws_20/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/mri/] [2019-09-18 09:02:37] running:
+  /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/mni/bin/nu_estimate_np_and_em -parzen -log -sharpen 0.15 0.01 -iterations 1000 -stop 0.001 -shrink 4 -auto_mask -nonotify -b_spline 1.0e-7 -distance 50 -quiet -execute -clobber -nokeeptmp -tmpdir ./tmp.mri_nu_correct.mni.1324/0/ ./tmp.mri_nu_correct.mni.1324/nu0.mnc ./tmp.mri_nu_correct.mni.1324/nu1.imp
+
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Processing:.................................................................Done
+Number of iterations: 65 
+CV of field change: 0.000997551
+ 
+ 
+ 
+mri_convert ./tmp.mri_nu_correct.mni.1324/nu1.mnc orig_nu.mgz --like orig.mgz --conform
+mri_convert.bin ./tmp.mri_nu_correct.mni.1324/nu1.mnc orig_nu.mgz --like orig.mgz --conform 
+$Id: mri_convert.c,v 1.226 2016/02/26 16:15:24 mreuter Exp $
+reading from ./tmp.mri_nu_correct.mni.1324/nu1.mnc...
+TR=0.00, TE=0.00, TI=0.00, flip angle=0.00
+i_ras = (-1, 2.77683e-17, 8.46473e-19)
+j_ras = (-5.4263e-20, 1.86265e-09, -1)
+k_ras = (1.38642e-17, 1, 1.86265e-09)
+INFO: transform src into the like-volume: orig.mgz
+changing data type from float to uchar (noscale = 0)...
+MRIchangeType: Building histogram 
+writing to orig_nu.mgz...
+ 
+ 
+Wed Sep 18 09:03:27 UTC 2019
+mri_nu_correct.mni done
