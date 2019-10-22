@@ -40,18 +40,27 @@ zscale=`grep Scales T1_to_MNI_linear.avscale | awk '{print $6}'`
 vscale=`echo "10 k $xscale $yscale * $zscale * p"|dc -`
 echo "VSCALING $vscale" >> report.sienax
 
+# Take the brain and skull into MNI -- linearly
 ${FSLDIR}/bin/flirt -in ../T1          -ref ${FSLDIR}/data/standard/MNI152_T1_1mm -o T1_to_MNI_linear             -applyxfm -init T1_to_MNI_linear.mat -interp spline
 ${FSLDIR}/bin/flirt -in T1_brain_skull -ref ${FSLDIR}/data/standard/MNI152_T1_1mm -o T1_brain_skull_to_MNI_linear -applyxfm -init T1_to_MNI_linear.mat -interp trilinear
 
+# take the priph to native space -- nonlinearly
 ${FSLDIR}/bin/applywarp --rel --interp=trilinear --in=${FSLDIR}/data/standard/MNI152_T1_2mm_strucseg_periph --ref=../T1 -w ../transforms/T1_to_MNI_warp_coef_inv -o T1_segperiph
+
+# Clean up & binarise the periph
 ${FSLDIR}/bin/fslmaths T1_segperiph -thr 0.5 -bin T1_segperiph
 
+# Take the vent out
 ${FSLDIR}/bin/fslmaths ${FSLDIR}/data/standard/MNI152_T1_2mm_strucseg -thr 4.5 -bin T1_segvent
+
+# Take the vent into native space
 ${FSLDIR}/bin/applywarp --rel --interp=nn --in=T1_segvent --ref=../T1 -w ../transforms/T1_to_MNI_warp_coef_inv -o T1_segvent
 
 echo "tissue             volume    unnormalised-volume" >> report.sienax
 
+# mask the pve with priph in native space
 ${FSLDIR}/bin/fslmaths ../T1_fast/T1_brain_pve_1 -mas T1_segperiph T1_pve_1_segperiph -odt float
+
 S=`${FSLDIR}/bin/fslstats T1_pve_1_segperiph -m -v`
 xa=`echo $S | awk '{print $1}'`
 xb=`echo $S | awk '{print $3}'`

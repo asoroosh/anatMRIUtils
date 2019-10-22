@@ -1,19 +1,20 @@
 # Check the jobs and possibly resubmit them
 
-DirSuffix=fslanat
+DirSuffix=autorecon12ws
 ImgTyp=T12D # Here we only use T13D and T12D
 
-NUMJB_INPT=200
+NUMJB_INPT=
 
 DataDir="${HOME}/NVROXBOX/Data"
 Path2StudyTxtFile=${HOME}/NVROXBOX/EXE/getinfo/StudyIDs_Clean.txt
 
+#Path2StudyTxtFile=Tmp_StudyIDs_Clean.txt
 #This should later be in a loop around StudyIDs
 while read StudyID
 do
 	StudyDir="${DataDir}/${StudyID}"
 	ImgTypDir=${StudyDir}/${ImgTyp}
-	ImageFileTxt=${ImgTypDir}/${StudyID}_${ImgTyp}_ImageList.txt
+	ImageFileTxt=${ImgTypDir}/${StudyID}_${ImgTyp}_ImageList_50Sub.txt
 
 	NUMJB=$NUMJB_INPT
 	NUMJB_SUCCESSFUL=
@@ -28,7 +29,7 @@ do
 		NUMJB=$(echo "${NUMJBList_tmp[*]}" | sort -n | head -n1)
 	fi
 
-	WhereTheStatFilesAre=${HOME}/NVROXBOX/Data/${StudyID}/${ImgTyp}/${DirSuffix}/Logs_02-08-19
+	WhereTheStatFilesAre=${HOME}/NVROXBOX/Data/${StudyID}/${ImgTyp}/${DirSuffix}/Logs_autorecon12ws.nuws_mrirobusttemplate
 
 #	echo ${WhereTheStatFilesAre}
 	Path2StatFile=${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_*_*.stat
@@ -53,18 +54,13 @@ do
 
 		if [ ${JBSTAT} == 0 ]; then
 #			echo ${Path2StatPerFile}
-
 			FileName=$(basename $Path2StatPerFile .stat)
 			JOBID="$(cut -d'_' -f4 <<<"$FileName")"
-
 			echo "Stat:${JBSTAT}, JobNumb:${i_NUMJB}, JobID:${JOBID}" >> ${failedjobstxtfile}
 			cat ${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_${JOBID}_${i_NUMJB}.err >> ${failedjobstxtfile}
-			sacct --format=Nodelist -j ${JOBID}_${i_NUMJB} >> ${failedjobstxtfile}
-
-
+			#sacct --format=Nodelist -j ${JOBID}_${i_NUMJB} >> ${failedjobstxtfile}
 		fi
 	done
-
 
 done<${Path2StudyTxtFile}
 

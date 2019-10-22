@@ -2,6 +2,13 @@
 *.m~
 *.err
 *.out
+*.stat
 *.mat
 *.nii
 *.nii.gz
+*.mgz
+*.lta
+*.png
+core.*
+EXE/jobcheck/failedjobs/
+

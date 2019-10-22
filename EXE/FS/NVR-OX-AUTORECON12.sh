@@ -14,7 +14,7 @@ SLURMSUBMIT=$4
 # Later for the submitter file:
 Mem=8G
 Time="23:59:00"
-DirSuffix="autorecon12"
+DirSuffix="autorecon12ws"
 
 #============================== FUNCTIONS ============
 PROGNAME=$(basename $0)
@@ -32,7 +32,7 @@ SOURCEPATH=${HOME}/NVROXBOX/SOURCE/
 DataDir="${HOME}/NVROXBOX/Data"
 StudyDir="${DataDir}/${StudyID}"
 ImgTypDir=${StudyDir}/${ImgTyp}
-ImageFileTxt=${ImgTypDir}/${StudyID}_${ImgTyp}_ImageList.txt
+ImageFileTxt=${ImgTypDir}/${StudyID}_${ImgTyp}_ImageList_50Sub.txt
 
 if [ ! -f $ImageFileTxt ]; then
 	error_exit "***** ERROR $LINENO: The file list for study ${StudyID}, Image type: ${ImgTyp} does not exists."
@@ -89,7 +89,7 @@ fi
 DATE=$(date +"%d-%m-%y")
 
 ImgTypOp=${ImgTypDir}/${DirSuffix}
-ImgTypOpLog=${ImgTypOp}/Logs_${DATE}
+ImgTypOpLog=${ImgTypOp}/Logs
 mkdir -p ${ImgTypOpLog}
 
 
@@ -164,9 +164,11 @@ recon-all \\
 -i \${InputImagePath} \
 -sd \${OutputDir} \\
 -autorecon1 \\
+-no-wsgcaatlas \\
 -subcortseg \\
 -gcareg \\
--canorm \\
+-canorm
+
 #-careg \
 #-rmneck \
 #-skull-lta \
