@@ -131,6 +131,9 @@ do
 	# Where do you want to get your data from? e.g. ANTs?
 	StudyIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$6}') # Study ID
 	SubIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$7}') # Sub ID
+
+	SubID=\$(echo \$SubIDVar | awk -F"-" '{print \$2}') # Sub ID
+
 	SesIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$8}') # Session ID
 	ModIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
 	ImgNameEx=\$(echo \$SessionFileName | awk -F"/" '{print \$10}') #ImageName with extension
@@ -184,6 +187,7 @@ ml ANTs
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
 
+sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh ${StudyID_Date} \${SubID}
 
 #--------------------------------------------------
 #--------------------------------------------------
@@ -194,8 +198,8 @@ ml ANTs
 for Ses_cnt in \$(seq 0 \$NumSes)
 do
 
-	${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh
-	${SRC_SEG_DIR}/brainseg_fast_rawavg.sh
+	sh \${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh
+	sh \${SRC_SEG_DIR}/brainseg_fast_rawavg.sh
 done
 
 
@@ -205,10 +209,10 @@ done
 #--------------------------------------------------
 #--------------------------------------------------
 
-${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh
+sh \${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh
 
 
-${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh
+sh \${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh
 
 
 #############################################################################

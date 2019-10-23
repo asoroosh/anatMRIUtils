@@ -7,21 +7,34 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
-do_seg=0
+do_seg=1
 
+ImgTyp=T12D
 #++++++++= Subject/Session Information
-# These should come from outside
-StudyID=CFTY720D2324
-SubID=${StudyID}.0217.00001
-SubTag=sub-CFTY720D2324 # this is some nonsense that ANTs spits out during the template construction
-SesID=V3
-#v_cnt=0
+
+StudyID_Date=$1
+SubID=$2
+SesID=$3
+
+StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
+SubTag=sub-${StudyID}
+
+
+#---------------------------------
 
 VoxRes=2
 
-STRG=/data/users/dfgtyk
+echo "======================================="
+echo "STARTED @" $(date)
+echo "======================================="
+echo ""
+echo "============================================================"
+echo "============================================================"
+echo "** StudyID: ${StudyID}, SubID: ${SubID}, SesID: ${SesID}"
+echo "============================================================"
+echo "============================================================"
 
-SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
+SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_${ImgTyp}.txt
 while read SessionPathsFiles
 do
 	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $8}')
@@ -75,34 +88,44 @@ MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_RAS
 #++++++++= Harvard Oxford Atlas
 ATLASMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_${VoxRes}mm_RAS
 
-#+++++++++++++++++++++++++++++++++++++= RAW DATA
-UnprocessedDIR=${STRG}/brainimg # this should be changed when mass runing
-#UnprocessedDIR=${UnprocessedDIR}/${StudyID}
-
-UnprocessedImg=${UnprocessedDIR}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
-ProcessedDIR=${STRG}/brainimg
-#ProcessedDIR=${ProcessedDIR}/${StudyID}/
-
-#+++++++++= FREESURFER PATHS
-
 XSectionalDirSuffix=autorecon12ws
+LogitudinalDirSuffix=nuws_mrirobusttemplate
+# ------
 
-FreeSurfer_Dir=${ProcessedDIR}/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
+#------------= Main paths
+PRSD_DIR="/data/ms/processed/mri"
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
+
+#-------------= X Sectional paths
+SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
+
+#--------------= Unprocessed paths
+UPRSD_DIR="/data/ms/unprocessed/mri"
+UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
+
+#-----------= FREESURFER (AUTORECONN) RESULTS:
+FreeSurfer_Dir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
 FreeSurfer_Vol_Dir=${FreeSurfer_Dir}/sub-${SubID}_ses-${SesID}_run-1_T1w/mri
 FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
 
-#+++++++++= ANTSMULTIVARIATETEMPLATECONSTRUCTION PATHS
+#-----------= SST TEMPLATE RESULTS:
 
-SST_Dir=${STRG}/brainimg/T12D.autorecon12ws.nuws_mrirobusttemplate
+#------ LINEAR SST
+FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
+Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
+Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
+Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
+#------ NONLINEAR SST
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 NonLinSSTDirImg=${SST_Dir}/${NonLinTempImgName}
 NonLinSSTDirImg_brain=${SST_Dir}/${NonLinTempImgName}_brain
 
 #+++++++++= Seg RESULTS
-PVE_Suboutdir=${ProcessedDIR}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_rawavg
+PVE_Suboutdir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_rawavg
 TissuePriors=${PVE_Suboutdir}/tissuepriors_sst
 AtlasesDir=${PVE_Suboutdir}/atlases
 TMPLDir=${PVE_Suboutdir}/templates
@@ -115,7 +138,7 @@ mkdir -p ${TissuePriors}
 mkdir -p ${AtlasesDir}
 mkdir -p ${TMPLDir}
 
-SEG_LOG=${PVE_SSToutDir}/sub-${SubID}_${OpDirSuffix}_brain_rawavg.log
+SEG_LOG=${PVE_Suboutdir}/sub-${SubID}_ses-${sesID}_${OpDirSuffix}_brain_rawavg.log
 
 #++++++++++= IDPs Results
 GMPTXTDIRNAME=${PVE_Suboutdir}/IDPs/GMVols
@@ -138,10 +161,10 @@ NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}1InverseWarp
 NonLinSST_MNI_Affine=${antsRegOutputPrefix}0GenericAffine
 
 #+++++++++= Registration to NonLinear SST Results
-FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
-Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
-Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
-Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
+#FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
+#Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
+#Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
+#Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
 #+++++++++= Resampling to the Linear SST Results
 LTA_FILE=${SST_Dir}/sub-${SubID}_ses-${SesID}_norm_xforms.lta
@@ -220,6 +243,9 @@ mri_vol2vol \
 	echo "-- Reference Image: ${UnprocessedImg}.nii.gz"
 	echo "#######"
 	echo " "
+
+
+
 mri_vol2vol \
 --mov ${SUBSESPriorPreFix}_nu.nii.gz \
 --targ ${UnprocessedImg}.nii.gz \

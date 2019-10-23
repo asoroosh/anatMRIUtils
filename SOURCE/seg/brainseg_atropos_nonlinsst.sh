@@ -6,17 +6,35 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
-do_seg=1
+do_seg=0
 
 #++++++++= Subject/Session Information
 # These should come from outside
-StudyID=CFTY720D2324
-SubID=${StudyID}.0217.00001
-SubTag=sub-CFTY720D2324 # this is some nonsense that ANTs spits out during the template construction
+#StudyID=CFTY720D2324
+#CFTY720D2324.0217.00001
+#CFTY720D2324.anon.2019.07.15 CFTY720D2324.0217.00001
+#SubID=${StudyID}.0217.00001
+#SubTag=sub-CFTY720D2324 # this is some nonsense that ANTs spits out during the template construction
 
+StudyID_Date=$1
+SubID=$2
+
+StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
+SubTag=sub-${StudyID}
+
+#-----------------------------------------------
+NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 VoxRes=2
 
-STRG=/data/users/dfgtyk
+echo "======================================="
+echo "STARTED @" $(date)
+echo "======================================="
+echo ""
+echo "======================================="
+echo "======================================="
+echo "** StudyID: ${StudyID}, SubID: ${SubID}"
+echo "======================================="
+echo "======================================="
 
 SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 while read SessionPathsFiles
@@ -49,7 +67,6 @@ AtlasIntepMethod=NearestNeighbor # atlas interpolation method
 MNI_tissuep=${HOME}/NVROXBOX/AUX/tissuepriors/
 
 #+++++++++= MNI TEMPLATE
-
 MNITMP_DIR=${HOME}/NVROXBOX/AUX/MNItemplates
 
 # head --
@@ -69,30 +86,29 @@ SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_RAS_Vent
 #++++++++= Harvard Oxford Atlas
 ATLASMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_${VoxRes}mm_RAS
 
-#+++++++++++++++++++++++++++++++++++++= RAW DATA
-UnprocessedDIR=${STRG}/brainimg # this should be changed when mass runing
-#UnprocessedDIR=${UnprocessedDIR}/${StudyID}
-
-UnprocessedImg=${UnprocessedDIR}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
-
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
-ProcessedDIR=${STRG}/brainimg
-#ProcessedDIR=${ProcessedDIR}/${StudyID}/
-
-#+++++++++= FREESURFER PATHS
-
+ImgTyp=T12D
 XSectionalDirSuffix=autorecon12ws
+LogitudinalDirSuffix=nuws_mrirobusttemplate
+# ------
 
-#+++++++++= ANTSMULTIVARIATETEMPLATECONSTRUCTION PATHS
+#------------= Main paths
+PRSD_DIR="/data/ms/processed/mri"
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
 
-SST_Dir=${STRG}/brainimg/T12D.autorecon12ws.nuws_mrirobusttemplate
+#-------------= X Sectional paths
+SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
 
-NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
+#--------------= Unprocessed paths
+UPRSD_DIR="/data/ms/unprocessed/mri"
+UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+
+#--------------------------------------------------------------------------------------
 NonLinSSTDirImg=${SST_Dir}/${NonLinTempImgName}
 NonLinSSTDirImg_brain=${SST_Dir}/${NonLinTempImgName}_brain
 
 #+++++++++= Seg RESULTS
-PVE_SSToutDir=${ProcessedDIR}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST
+PVE_SSToutDir=${PRSD_SUBDIR}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST
 TissuePriors=${PVE_SSToutDir}/tissuepriors_sst
 AtlasesDir=${PVE_SSToutDir}/atlases
 TMPLDir=${PVE_SSToutDir}/templates
@@ -316,7 +332,7 @@ echo "                ==========================================================
 echo "We are on Study ${StudyID}, Subject ${SubID}, Session ${SesID}, Session count ${v_cnt}. "
 echo "                ========================================================================"
 
-	FreeSurfer_Dir=${ProcessedDIR}/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
+	FreeSurfer_Dir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
 	FreeSurfer_Vol_Dir=${FreeSurfer_Dir}/sub-${SubID}_ses-${SesID}_run-1_T1w/mri
 	FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
 

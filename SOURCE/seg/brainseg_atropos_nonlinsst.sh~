@@ -6,26 +6,17 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
-do_seg=0
+do_seg=1
 
-#--------- SubID, StudyID, info from ANTs SST -----------------------------------------
-# comes from the user:
-#StudyID=CFTY720D2324
-#SubID=CFTY720D2324.0217.00001
-#SubTag=sub-${StudyID} #this is what the antsMultivariateTemplate uses
-
-StudyID_Date=$1
-SubID=$2
-
-
-StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-SubTag=sub-${StudyID}
-
-NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
-
-#--------------------------------------------------------------------
+#++++++++= Subject/Session Information
+# These should come from outside
+StudyID=CFTY720D2324
+SubID=${StudyID}.0217.00001
+SubTag=sub-CFTY720D2324 # this is some nonsense that ANTs spits out during the template construction
 
 VoxRes=2
+
+STRG=/data/users/dfgtyk
 
 SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 while read SessionPathsFiles
@@ -44,7 +35,7 @@ NumSes=${#SesIDList[@]}
 echo "# of sessions available: ${NumSes}"
 
 #-----------------------------------------------
-OpDirSuffix=fast # Name of the Segmentation operation
+OpDirSuffix=atropos # Name of the Segmentation operation
 
 SegOrFlg=RAS #Segmentation Orientations
 MNIOrientationFlag=RAS #MNI Template Orientation
@@ -78,30 +69,30 @@ SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_RAS_Vent
 #++++++++= Harvard Oxford Atlas
 ATLASMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_${VoxRes}mm_RAS
 
-#--------------------------------------------------------------------------------------
-ImgTyp=T12D
-XSectionalDirSuffix=autorecon12ws
-LogitudinalDirSuffix=nuws_mrirobusttemplate
-# ------
+#+++++++++++++++++++++++++++++++++++++= RAW DATA
+UnprocessedDIR=${STRG}/brainimg # this should be changed when mass runing
+#UnprocessedDIR=${UnprocessedDIR}/${StudyID}
 
-#------------= Main paths
-PRSD_DIR="/data/ms/processed/mri"
-PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
-
-#-------------= X Sectional paths
-SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
-
-#--------------= Unprocessed paths
-UPRSD_DIR="/data/ms/unprocessed/mri"
-UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+UnprocessedImg=${UnprocessedDIR}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
+ProcessedDIR=${STRG}/brainimg
+#ProcessedDIR=${ProcessedDIR}/${StudyID}/
 
+#+++++++++= FREESURFER PATHS
+
+XSectionalDirSuffix=autorecon12ws
+
+#+++++++++= ANTSMULTIVARIATETEMPLATECONSTRUCTION PATHS
+
+SST_Dir=${STRG}/brainimg/T12D.autorecon12ws.nuws_mrirobusttemplate
+
+NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 NonLinSSTDirImg=${SST_Dir}/${NonLinTempImgName}
 NonLinSSTDirImg_brain=${SST_Dir}/${NonLinTempImgName}_brain
 
 #+++++++++= Seg RESULTS
-PVE_SSToutDir=${PRSD_SUBDIR}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST
+PVE_SSToutDir=${ProcessedDIR}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST
 TissuePriors=${PVE_SSToutDir}/tissuepriors_sst
 AtlasesDir=${PVE_SSToutDir}/atlases
 TMPLDir=${PVE_SSToutDir}/templates
@@ -185,26 +176,29 @@ echo "++Results: ${PVE_SSToutDir}"
 echo "++Mask: ${SST_Dir}/sub-${SubID}_NonLinearSST_BrainMask.nii.gz"
 echo "==================================================================================="
 
-SegOutPrefix=${PVE_SSToutDir}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST
-NonLinSSTAllSegFile=${SegOutPrefix}_
+SegOutPrefix=${PVE_SSToutDir}/sub-${SubID}_${OpDirSuffix}_brain_NonLinearSST_
+NonLinSSTAllSegFile=${SegOutPrefix}Segmentation
 
 if [ $do_seg == 1 ]; then
 
 	echo " " > ${SEG_LOG}
 
+	antsAtroposN4.sh -d 3 \
+	-a  ${NonLinSSTDirImg}_brain.nii.gz \
+	-p "${TissuePriors}/sub-${SubID}_avg152T1_%02d_${PrOrFlg}_NonLinearSST.nii.gz" \
+	-x ${SST_Dir}/sub-${SubID}_NonLinearSST_BrainMask.nii.gz \
+	-c 3 \
+	-g 1 \
+	-o ${SegOutPrefix} >> ${SEG_LOG}
 
-	${FSLDIR}/bin/fast -n 3 \
-	-A ${SSTTissuePriors}/sub-${SubID}_avg152T1_gray_${PrOrFlg}_NonLinearSST.nii.gz \
-	${SSTTissuePriors}/sub-${SubID}_avg152T1_white_${PrOrFlg}_NonLinearSST.nii.gz \
-	${SSTTissuePriors}/sub-${SubID}_avg152T1_csf_${PrOrFlg}_NonLinearSST.nii.gz \
-	-I 4 \
-	-p \
-	-b \
-	-B \
-	-g \
-	-v \
-	-o ${SegOutPrefix} \
-	${NonLinSSTDirImg}_brain.nii.gz >> ${SEG_LOG}
+	echo "Break the segmentation file..."
+
+	# CSF (1)
+	${FSLDIR}/bin/fslmaths ${NonLinSSTAllSegFile}.nii.gz -uthr 1.5 -thr 0.5 ${NonLinSSTAllSegFile}Seg01.nii.gz
+	# Gray Matter (2)
+	${FSLDIR}/bin/fslmaths ${NonLinSSTAllSegFile}.nii.gz -uthr 2.5 -thr 1.5 ${NonLinSSTAllSegFile}Seg02.nii.gz
+	#White Matter (3)
+	${FSLDIR}/bin/fslmaths ${NonLinSSTAllSegFile}.nii.gz -uthr 3.5 -thr 2.5 ${NonLinSSTAllSegFile}Seg03.nii.gz
 
 else
 	echo "##### I WONT RUN SEGMENTATION"
@@ -215,21 +209,21 @@ fi
 #-----------------------------------------------------------------------------------------------------------------------
 
 InterpolationMethod_List=("Linear" "NearestNeighbor")
-OutputFiletype_List=("pve" "seg")
+AtroposOutputFiletype_List=("Posteriors" "Seg")
 
 for filetype_cnt in 0 1 # move Posteriors and Seg files around
 do
         InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
-        segfiletype=${OutputFiletype_List[$filetype_cnt]}
+        segfiletype=${AtroposOutputFiletype_List[$filetype_cnt]}
 
         echo "-----------------------------------------"
         echo "Segmentation File: ${segfiletype}"
         echo "Interpolation Method: ${InterpMeth}"
         echo "-----------------------------------------"
 
-        for tissue_cnt in 0 1 2 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 0, GM: 1, WM: 2
+        for tissue_cnt in 1 2 3 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
         do
-		NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}_${tissue_cnt}
+		NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}0${tissue_cnt}
 
                 echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
 		echo "-- Moving Image: ${NLSST_SegTisFile}.nii.gz"
@@ -322,7 +316,7 @@ echo "                ==========================================================
 echo "We are on Study ${StudyID}, Subject ${SubID}, Session ${SesID}, Session count ${v_cnt}. "
 echo "                ========================================================================"
 
-	FreeSurfer_Dir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
+	FreeSurfer_Dir=${ProcessedDIR}/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
 	FreeSurfer_Vol_Dir=${FreeSurfer_Dir}/sub-${SubID}_ses-${SesID}_run-1_T1w/mri
 	FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
 
@@ -335,25 +329,25 @@ echo "                ==========================================================
 	# Take Segmentation files from Nonlinear SST >> Linear SST -------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 
-	for filetype_cnt in 0 1 # move pve and seg files around
+	for filetype_cnt in 0 1 # move Posteriors and Seg files around
 	do
         	InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
-        	segfiletype=${OutputFiletype_List[$filetype_cnt]}
+        	segfiletype=${AtroposOutputFiletype_List[$filetype_cnt]}
 
         	echo "-----------------------------------------"
         	echo "Segmentation File: ${segfiletype}"
         	echo "Interpolation Method: ${InterpMeth}"
         	echo "-----------------------------------------"
 
-        	for tissue_cnt in 0 1 2 # loop around the $OpDirSuffix output tissues; of course for -n 3 ; CSF: 0, GM: 1, WM: 2
+        	for tissue_cnt in 1 2 3 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
         	do
-			NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}_${tissue_cnt}
+			NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}0${tissue_cnt}
 
 			SUBSESSegDIR=${PVE_SSToutDir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_NonLinearSST_Segmentation
 			mkdir -p ${SUBSESSegDIR}
 
 			SUBSESSegPreFix=${SUBSESSegDIR}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_NonLinearSST_Segmentation
-	                SUBSESSegFile=${SUBSESSegPreFix}${segfiletype}_${tissue_cnt}
+	                SUBSESSegFile=${SUBSESSegPreFix}${segfiletype}0${tissue_cnt}
 
 			# Nonlinear SST > Linear SST -------------------------------------------------------------------------------------------
         		echo "####### Take the segmentation files from Nonlinear SST into the linear median SST, use invwarp (ants)"
@@ -406,7 +400,7 @@ echo "                ==========================================================
 	#-----------------------------------------------------------------------------------------------------------------------
 	#-----------------------------------------------------------------------------------------------------------------------
 
-	GMSegTisFile=${SUBSESSegPreFix}pve_1
+	GMSegTisFile=${SUBSESSegPreFix}Posteriors02
 	GMPTXTFILENAME=${GMPTXTDIRNAME}/sub-${SubID}_ses-${SesID}_UKB-GMAtlas_GMVols
 
 	#----------------------------------------------------------------
@@ -525,9 +519,9 @@ echo "                ==========================================================
 	# GRAY MATTER ---------------------------------------------------
 	#----------------------------------------------------------------
 
-	segfiletype=pve
-	tissue_cnt=1 #CSF: 0, GM: 1, WM: 2
-	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}_${tissue_cnt}_LinearSST
+	segfiletype=Posteriors
+	tissue_cnt=2 #CSF: 1, GM: 2, WM: 3
+	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}0${tissue_cnt}_LinearSST
 
 	# mask the pve with priph in native space
 	${FSLDIR}/bin/fslmaths ${SEG_FILE_RAWAVG}.nii.gz -mas ${SUBSES_PRIPHSEG_PreFix}_LinearSST.nii.gz ${SEG_FILE_RAWAVG}_segpriph.nii.gz -odt float
@@ -543,9 +537,9 @@ echo "                ==========================================================
 	# CSF -----------------------------------------------------------
 	#----------------------------------------------------------------
 
-	segfiletype=pve
-	tissue_cnt=0 #CSF: 0, GM: 1, WM: 2
-	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}_${tissue_cnt}_LinearSST
+	segfiletype=Posteriors
+	tissue_cnt=1 #CSF: 1, GM: 2, WM: 3
+	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}0${tissue_cnt}_LinearSST
 
 	${FSLDIR}/bin/fslmaths ${SEG_FILE_RAWAVG}.nii.gz -mas ${SUBSES_VENTSEG_PreFix}_LinearSST.nii.gz ${SEG_FILE_RAWAVG}_segvent.nii.gz -odt float
 
@@ -560,9 +554,9 @@ echo "                ==========================================================
 	# WHOLE GRAY MATTER ---------------------------------------------
 	#----------------------------------------------------------------
 
-	segfiletype=pve
-	tissue_cnt=1 #CSF: 0, GM: 1, WM: 2
-	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}_${tissue_cnt}_LinearSST
+	segfiletype=Posteriors
+	tissue_cnt=2 #CSF: 1, GM: 2, WM: 3
+	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}0${tissue_cnt}_LinearSST
 
 	# ---------------- without cerebellum
 	${FSLDIR}/bin/fslmaths ${SEG_FILE_RAWAVG}.nii.gz -mas ${SUBSES_GMSEG_PreFix}_LinearSST.nii.gz ${SEG_FILE_RAWAVG}_nocereb.nii.gz -odt float
@@ -586,9 +580,9 @@ echo "                ==========================================================
 	# WHITE MATTER --------------------------------------------------
 	#----------------------------------------------------------------
 
-	segfiletype=pve
-	tissue_cnt=2 #CSF: 0, GM: 1, WM: 2
-	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}_${tissue_cnt}_LinearSST
+	segfiletype=Posteriors
+	tissue_cnt=3 #CSF: 1, GM: 2, WM: 3
+	SEG_FILE_RAWAVG=${SUBSESSegPreFix}${segfiletype}0${tissue_cnt}_LinearSST
 
 	# ---------------- without cerebellum
 	${FSLDIR}/bin/fslmaths ${SEG_FILE_RAWAVG}.nii.gz -mas ${SUBSES_GMSEG_PreFix}_LinearSST.nii.gz ${SEG_FILE_RAWAVG}_nocereb.nii.gz -odt float

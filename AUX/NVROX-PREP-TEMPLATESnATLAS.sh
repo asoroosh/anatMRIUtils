@@ -12,22 +12,34 @@ ATLAS_DIR=${HOME}/NVROXBOX/AUX/atlas/GMatlas
 TISS_DIR=${HOME}/NVROXBOX/AUX/tissuepriors
 
 # head --
+echo "RAS the head"
 MNIImg=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm
 MNIImg_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_RAS
 
 mri_convert --in_orientation LAS --out_orientation RAS ${MNIImg}.nii.gz ${MNIImg_RAS}.nii.gz
 
+fslmaths ${MNIImg_RAS}.nii.gz -bin ${MNIImg_RAS}_mask.nii.gz
+
 # brain --
+echo "RAS the brain"
 MNIImg_brain=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm_brain
 MNIImgBrain_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_RAS
 
 mri_convert --in_orientation LAS --out_orientation RAS ${MNIImg_brain}.nii.gz ${MNIImgBrain_RAS}.nii.gz
 
 # skull --
+echo "RAS the skull"
 MNIImg_skull=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm_skull
 MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_RAS
 
 mri_convert --in_orientation LAS --out_orientation RAS ${MNIImg_skull}.nii.gz ${MNIImgSkull_RAS}.nii.gz
+
+# brain mask --
+echo "RAS the brain mask"
+MaskInMNI=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm_brain_mask
+MaskInMNI_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_mask_RAS
+
+mri_convert --in_orientation LAS --out_orientation RAS ${MaskInMNI}.nii.gz ${MaskInMNI_RAS}.nii.gz
 
 # Get the Cort, Cereb, Subcort & Vent masks (For SIENAX)
 

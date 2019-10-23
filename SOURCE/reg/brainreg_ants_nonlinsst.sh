@@ -5,17 +5,32 @@ source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
 set -e
 
-do_reg=1
+do_reg=10
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
-StudyID=CFTY720D2324
-SubID=${StudyID}.0217.00001
-SubTag=sub-CFTY720D2324 #this is what the antsMultivariateTemplate uses
+#StudyID=CFTY720D2324
+#SubID=CFTY720D2324.0217.00001
+#SubTag=sub-${StudyID} #this is what the antsMultivariateTemplate uses
+
+StudyID_Date=$1
+SubID=$2
+
+
+StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
+SubTag=sub-${StudyID}
+
+NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 
 #--------------------------------------------------------------------------------------
 echo "======================================="
 echo "STARTED @" $(date)
+echo "======================================="
+echo ""
+echo "======================================="
+echo "======================================="
+echo "** StudyID: ${StudyID}, SubID: ${SubID}"
+echo "======================================="
 echo "======================================="
 
 SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
@@ -30,40 +45,35 @@ done<${SessionsFileName}
 SesIDList=(${SesIDList})
 NumSes=${#SesIDList[@]}
 #--------------------------------------------------------------------------------------
+ImgTyp=T12D
 XSectionalDirSuffix=autorecon12ws
-NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
-
+LogitudinalDirSuffix=nuws_mrirobusttemplate
 # ------
-STRG=/data/users/dfgtyk
-ImgDir=${STRG}/brainimg
-SST_Dir=${STRG}/brainimg/T12D.autorecon12ws.nuws_mrirobusttemplate
 
+#------------= Main paths
+PRSD_DIR="/data/ms/processed/mri"
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
+
+#-------------= X Sectional paths
+SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
+
+#--------------= Unprocessed paths
+UPRSD_DIR="/data/ms/unprocessed/mri"
+UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+
+#--------------= Path to SST templates
 # Nonlinear Template
 NonLinSSTDirImg=${SST_Dir}/${NonLinTempImgName}
-
 # Linear Template
 LinSST=${SST_Dir}/sub-${SubID}_norm_nu_median.nii.gz # this should be moved
-
-# MNI templates
-MNITMP_DIR=${ImgDir}/MNITMPLT
 
 # -------- Application initialisations ------------------------------------------------
 VoxRes=2
 MaskThr=0.5
 
-MNIImg=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm
-MNIImg_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_FS
-
-MaskInMNI=${FSLDIR}/data/standard/MNI152_T1_${VoxRes}mm_brain_mask
-MaskInMNI_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_FS_brain_mask
-
-#AtlasInMNI=${HOME}/NVROXBOX/AUX/atlas/GMatlas/GMatlas_2mm_intepNN
-#AtlasInMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_2mm_intepNN
-
-mri_convert --in_orientation LAS --out_orientation RAS ${MNIImg}.nii.gz ${MNIImg_FS}.nii.gz
-mri_convert --in_orientation LAS --out_orientation RAS ${MaskInMNI}.nii.gz ${MaskInMNI_FS}.nii.gz
-#mri_convert --in_orientation LAS --out_orientation RAS ${AtlasInMNI}.nii.gz ${AtlasInMNI_RAS}.nii.gz
-
+MNITMP_DIR=${HOME}/NVROXBOX/AUX/MNItemplates
+MNIImg_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_RAS
+MaskInMNI_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_mask_RAS
 
 echo "*************************************************************"
 echo "=== BRING THE MNI TEMPLATE & MASK INTO RAS ORIENTATION:"
@@ -78,8 +88,10 @@ antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-
 NonLinSST_MNI=${antsRegOutputPrefix}Warped
 NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}1InverseWarp
 NonLinSST_MNI_Affine=${antsRegOutputPrefix}0GenericAffine.mat
+REG_LOG=${NonLinSSTDirImg}_MNI.log
 
-if [ $do_reg == 1 ]; then
+
+if [ $do_reg == 1 ] || [ $do_reg == 10 ]; then
 #	rm -f ${NonLinSST_MNI_InvWarp} ${NonLinSST_MNI_Affine} ${NonLinSST_MNI}
 		echo "TEST"
 	else
@@ -101,30 +113,25 @@ echo "REGISTER NONLINEAR SST > MNI RAS"
 echo "MOVING: ${NonLinSSTDirImg}.nii.gz"
 echo "FIXED: ${MNIImg_FS}.nii.gz"
 echo "MASK: ${NonLinSSTDirImg_mask}"
+echo "LOG FILE: ${REG_LOG}"
 echo "*************************************************************"
-
-#------ TESTS
-#antsRegistrationSyNQuick.sh -d 3 \
-#-f ${MNIImg_FS}.nii.gz \
-#-m ${NonLinSSTDirImg}.nii.gz \
-#-t s \
-#-x ${NonLinSSTDirImg_mask}.nii.gz \
-#-o ${antsRegOutputPrefix}
-
-#ShrnkFctrs="6x4x4x1"
-#SmthFctrs="3x2x1x0vox"
-#ItrNum="100x100x100x0"
-#-------------------------------
-
-ShrnkFctrs="1x1x1x1"
-SmthFctrs="3x2x1x0vox"
-ItrNum="1000x500x250x0"
 
 
 if [ $do_reg == 1 ]; then
 
+#-------------------------------
+ShrnkFctrs="2x2x1x1"
+SmthFctrs="3x2x1x0vox"
+ItrNum="1000x500x250x0"
+#-------------------------------
+#ShrnkFctrs="1x1x1x1"
+#SmthFctrs="3x2x1x0vox"
+#ItrNum="1000x500x250x0"
+
+	echo " " > ${REG_LOG}
+
 antsRegistration \
---verbose 0 \
+--verbose 1 \
 --dimensionality 3 \
 --float 0 \
 --collapse-output-transforms 1 \
@@ -132,7 +139,6 @@ antsRegistration \
 --interpolation Linear \
 --use-histogram-matching 1 \
 --winsorize-image-intensities [0.005,0.995] \
--x [${NonLinSSTDirImg_mask}.nii.gz, NULL] \
 --initial-moving-transform [${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1] \
 --transform Rigid[0.1] \
 --metric MI[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1,32,Regular,0.25] \
@@ -148,8 +154,26 @@ antsRegistration \
 --metric CC[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1,4] \
 --convergence [${ItrNum},1e-6,10] \
 --shrink-factors ${ShrnkFctrs} \
---smoothing-sigmas ${SmthFctrs}
+--smoothing-sigmas ${SmthFctrs} >> ${REG_LOG}
 
+#-x [${MNIImg_FS}_mask.nii.gz,${NonLinSSTDirImg_mask}.nii.gz] >> ${REG_LOG}
+
+	echo "*************************************************************"
+	echo "********** Registration is DONE! ****************************"
+	echo "*************************************************************"
+
+elif [ $do_reg == 10 ]; then
+
+echo "--Run antsRegistrationSyN"
+
+#------ TESTS
+antsRegistrationSyN.sh -d 3 \
+-f ${MNIImg_FS}.nii.gz \
+-m ${NonLinSSTDirImg}.nii.gz \
+-t s \
+-o ${antsRegOutputPrefix}
+
+# -x ${NonLinSSTDirImg_mask}.nii.gz \
 
 else
 	echo "############# No Registration will be done..."
@@ -158,7 +182,7 @@ fi
 
 # Take a picture
 Reg_OUTPUTpngIMAGE=${antsRegOutputPrefix}Warped_Image
-sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${antsRegOutputPrefix}Warped.nii.gz" "$FSLDIR/data/standard/MNI152_T1_2mm_brain_mask.nii.gz" "${Reg_OUTPUTpngIMAGE}" 1
+sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${antsRegOutputPrefix}Warped.nii.gz" "${MaskInMNI_FS}" "${Reg_OUTPUTpngIMAGE}" 1
 
 ######################
 
@@ -211,13 +235,16 @@ for v_cnt in $(seq 0 $(($NumSes-1)))
 do
 	SesID=${SesIDList[v_cnt]}
 
+
+	echo "============================================================"
+	echo "** StudyID: ${StudyID}, SubID: ${SubID}, SesID: ${SesID}"
+	echo "============================================================"
+
 	echo " ------------------------------------------------- SESSION: ${SesID} -------------"
 
-	FreeSurfer_Dir=${ImgDir}/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}/
+	FreeSurfer_Dir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
 	FreeSurfer_Vol_Dir=${FreeSurfer_Dir}/sub-${SubID}_ses-${SesID}_run-1_T1w/mri
 	FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
-
-	# Maybe to mgz>nifti?
 
 	#Moving Image
 	FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
@@ -257,9 +284,6 @@ do
 	${FSLDIR}/bin/fslhd ${LinearSSTBrainMask}.nii.gz | grep sform
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-	# Now take back the masks from Linear SST to the subject space (i.e. FreeSurfer space 1x1x1, 256x256x256)
-	# MOV_FILE=${ImgDir}/${SubID}/ses-${SesID}/anat/${SubID}_ses-${SesID}_run-1_T1w.nii.gz
-
 	# Get inverse of LTA
 	LTA_FILE=${SST_Dir}/sub-${SubID}_ses-${SesID}_norm_xforms.lta
 	INV_LTA_FILE=${SST_Dir}/sub-${SubID}_ses-${SesID}_norm_xforms_inv.lta # Inverse LTA
@@ -298,9 +322,9 @@ do
 	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}_brain.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
 	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
 
-	# Now take me from 1x1x1 256^3 to the subject space
-	UnprocessedImg=${ImgDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
+	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
+	# Now take me from 1x1x1 256^3 to the subject space
 	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_brain.nii.gz \
 	--targ ${UnprocessedImg}.nii.gz --regheader \
 	--o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz --no-save-reg
