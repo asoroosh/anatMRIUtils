@@ -124,7 +124,7 @@ StudyID_Date=\$(ls ${ProcessedDir} | grep "${StudyID}.anon")
 #mkdir -p \${LT_OUTPUT_DIR}
 
 #--form the session image lists -----
-SesID_List=""
+SesIDList=""
 
 while read SessionFileName
 do
@@ -141,11 +141,11 @@ do
 
 	echo "==== On session: \${StudyIDVar}, \${SubIDVar}, \${SesIDVar}"
 
-	SesID_List="\${SesID_List} \${SesIDVar}"
+	SesIDList="\${SesIDList} \${SesIDVar}"
 
 done<\${SessionTxtFile}
 
-SesID_List_arr=(\$SesID_List)
+SesIDList_arr=(\$SesIDList)
 
 NumSes=\$(cat \${SessionTxtFile} | wc -l)
 
@@ -187,7 +187,7 @@ ml ANTs
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
 
-sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh ${StudyID_Date} \${SubID}
+sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 #--------------------------------------------------
 #--------------------------------------------------
@@ -198,8 +198,10 @@ sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh ${StudyID_Date} \${SubID}
 for Ses_cnt in \$(seq 0 \$NumSes)
 do
 
-	sh \${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh
-	sh \${SRC_SEG_DIR}/brainseg_fast_rawavg.sh
+	SesID=${SesIDList_arr[$v_cnt]}
+
+	sh \${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
+	sh \${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
 done
 
 
@@ -209,10 +211,9 @@ done
 #--------------------------------------------------
 #--------------------------------------------------
 
-sh \${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh
+sh \${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh \${StudyID_Date} \${SubID}
 
-
-sh \${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh
+sh \${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 
 #############################################################################
