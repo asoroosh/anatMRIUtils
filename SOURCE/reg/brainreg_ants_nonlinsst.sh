@@ -5,7 +5,7 @@ source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
 set -e
 
-do_reg=10
+do_reg=0
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
@@ -235,7 +235,6 @@ for v_cnt in $(seq 0 $(($NumSes-1)))
 do
 	SesID=${SesIDList[v_cnt]}
 
-
 	echo "============================================================"
 	echo "** StudyID: ${StudyID}, SubID: ${SubID}, SesID: ${SesID}"
 	echo "============================================================"
@@ -298,7 +297,7 @@ do
 	--mov ${FreeSurfer_Vol_nuImg}.mgz \
 	--no-resample \
 	--inv \
-	--o ${SubjBrainMaskFS}.nii.gz
+	--o ${SubjBrainMaskFS}.nii.gz > /dev/null
 
 	echo "*************************************************************"
 	echo "Brain Extraction on FreeSurfer 1x1x1 256^3 space"
@@ -322,20 +321,34 @@ do
 	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}_brain.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
 	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
 
+
+	echo ""
+	echo ""
+	echo "*************************************************************"
+	echo "Take the brains from FreeSurfer brain images to the rawavg space."
+	echo "Make a mask of the rawavg."
+	echo "*************************************************************"
+	echo ""
+	echo ""
+
 	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 	# Now take me from 1x1x1 256^3 to the subject space
 	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_brain.nii.gz \
-	--targ ${UnprocessedImg}.nii.gz --regheader \
-	--o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz --no-save-reg
+	--targ ${UnprocessedImg}.nii.gz \
+	--regheader \
+	--o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz \
+	--no-save-reg > /dev/null
 
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
 
 	#skull
 	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_skull.nii.gz \
-	--targ ${UnprocessedImg}.nii.gz --regheader \
-	--o ${FreeSurfer_Vol_nuImg}_skull_rawavg.nii.gz --no-save-reg
+	--targ ${UnprocessedImg}.nii.gz \
+	--regheader \
+	--o ${FreeSurfer_Vol_nuImg}_skull_rawavg.nii.gz \
+	--no-save-reg > /dev/null
 
 done
 
