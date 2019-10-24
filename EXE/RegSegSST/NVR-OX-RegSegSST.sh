@@ -2,9 +2,6 @@
 StudyID=$1
 ImgTyp=$2 # Here we only use T13D and T12D
 
-#StudyID=$1
-#ImgTyp=$2
-
 # NUMJB sets the number of **SUBJECTS** that will be run for this specific operation
 # If you want to run the operation on all available SUBJECTS, leave NUMJB empty
 NUMJB=$3
@@ -13,9 +10,8 @@ SLURMSUBMIT=$4
 # Later for the submitter file:
 Mem=8G
 Time="2-23:59:00"
-DirSuffix="autorecon12ws"
-LT_DirSuffix="nuws_mrirobusttemplate"
-LogSuffix="antsnonlintmp"
+DirSuffix="regseg"
+LT_DirSuffix="regseg"
 
 SRC_DIR="${HOME}/NVROXBOX/SOURCE"
 SRC_REG_DIR="${SRC_DIR}/reg"
@@ -80,13 +76,13 @@ fi
 DATE=$(date +"%d-%m-%y")
 
 ImgTypOp=${ImgTypDir}/${DirSuffix}
-ImgTypOpLog=${ImgTypOp}/Logs_${DirSuffix}.${LT_DirSuffix}.${LogSuffix}
+ImgTypOpLog=${ImgTypOp}/Logs_${DirSuffix}.${LT_DirSuffix}
 mkdir -p ${ImgTypOpLog}
 
 #############################################################################
 #############################################################################
 
-JobName=${StudyID}_${LT_DirSuffix}_${DirSuffix}_${LogSuffix}_${NUMJB}
+JobName=${StudyID}_${LT_DirSuffix}_${DirSuffix}_${NUMJB}
 SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
 
 cat > $SubmitterFileName << EOF
@@ -119,10 +115,6 @@ fi
 
 StudyID_Date=\$(ls ${ProcessedDir} | grep "${StudyID}.anon")
 
-# These will be made automatically inside the Reg and Seg scripts following the directory structures in the unprocessed folder
-#LT_OUTPUT_DIR=${ProcessedDir}/\${StudyID_Date}/\${SubID}/${ImgTyp}.${DirSuffix}.${LT_DirSuffix}
-#mkdir -p \${LT_OUTPUT_DIR}
-
 #--form the session image lists -----
 SesIDList=""
 
@@ -150,8 +142,7 @@ SesIDList_arr=(\$SesIDList)
 NumSes=\$(cat \${SessionTxtFile} | wc -l)
 
 # Just keep a copy of the sessions for the record...
-cp \${SessionTxtFile} \${LT_OUTPUT_DIR}
-
+#cp \${SessionTxtFile} \${LT_OUTPUT_DIR}
 
 # INPUT & OUTPUT functions =================================================
 ###### Write me down a report:
@@ -175,11 +166,9 @@ echo "==========================================="
 ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
-#ANTs
 ml ANTs
 
 # And now the operations
-
 
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
@@ -187,7 +176,7 @@ ml ANTs
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
 
-sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
+sh ${SRC_REG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 #--------------------------------------------------
 #--------------------------------------------------
@@ -198,10 +187,13 @@ sh \${SRC_SEG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
 for Ses_cnt in \$(seq 0 \$NumSes)
 do
 
-	SesID=${SesIDList_arr[$v_cnt]}
+	SesID=\${SesIDList_arr[\$v_cnt]}
 
-	sh \${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
-	sh \${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
+	echo "Running segmentation -- FAST and ATROPOS -- on the each sessions:"
+	echo "We are on session ${SesID}"
+
+	sh ${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
+	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
 done
 
 
@@ -211,9 +203,9 @@ done
 #--------------------------------------------------
 #--------------------------------------------------
 
-sh \${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh \${StudyID_Date} \${SubID}
+sh ${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh \${StudyID_Date} \${SubID}
 
-sh \${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
+sh ${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 
 #############################################################################
