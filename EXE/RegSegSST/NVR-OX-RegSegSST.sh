@@ -117,32 +117,32 @@ StudyID_Date=\$(ls ${ProcessedDir} | grep "${StudyID}.anon")
 
 #--form the session image lists -----
 SesIDList=""
+SesIDVarList=""
 
 while read SessionFileName
 do
 	# Where do you want to get your data from? e.g. ANTs?
 	StudyIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$6}') # Study ID
 	SubIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$7}') # Sub ID
-
 	SubID=\$(echo \$SubIDVar | awk -F"-" '{print \$2}') # Sub ID
-
 	SesIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$8}') # Session ID
+	SesID=\$(echo \$SesIDVar | awk -F"-" '{print \$2}') # Get the Session IDs with out the prepend
 	ModIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
 	ImgNameEx=\$(echo \$SessionFileName | awk -F"/" '{print \$10}') #ImageName with extension
 	ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension
 
-	echo "==== On session: \${StudyIDVar}, \${SubIDVar}, \${SesIDVar}"
+	echo "==== On session: \${StudyIDVar}, \${SubIDVar}, \${SesIDVar}, \${SesID}"
 
-	SesIDList="\${SesIDList} \${SesIDVar}"
+	SesIDList="\${SesIDList} \${SesID}"
+	SesIDVarList="\${SesIDVarList} \${SesIDVar}"
 
 done<\${SessionTxtFile}
 
-SesIDList_arr=(\$SesIDList)
+SesIDVarList_arr=(\$SesIDVarList)
+SesIDList=(\$SesIDList)
 
 NumSes=\$(cat \${SessionTxtFile} | wc -l)
 
-# Just keep a copy of the sessions for the record...
-#cp \${SessionTxtFile} \${LT_OUTPUT_DIR}
 
 # INPUT & OUTPUT functions =================================================
 ###### Write me down a report:
@@ -151,13 +151,13 @@ echo "Subject: \$SubIDVar"
 echo "Image Type: ${ImgTyp}"
 echo "Number of available sessions: \$NumSes"
 echo "==="
-echo "-------------// TEMPLATE: \\----------------"
-echo "TEMPLATE WILL BE SAVED: \${template_pathname}"
+echo ""
 echo ""
 echo "==========================================="
 echo "STARTS @" \`date\`
 echo "==========================================="
-
+echo ""
+echo ""
 #############################################################################
 #############################################################################
 
@@ -176,6 +176,8 @@ ml ANTs
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
 
+echo "REGISTRATION ON: \${StudyID_Date} \${SubID}"
+
 sh ${SRC_REG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 #--------------------------------------------------
@@ -183,14 +185,15 @@ sh ${SRC_REG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
 # Run the Segmentation on rawavg #-----------------
 #--------------------------------------------------
 #--------------------------------------------------
+echo ""
 
-for Ses_cnt in \$(seq 0 \$NumSes)
+for Ses_cnt in \$(seq 0 \$((\$NumSes-1)))
 do
 
-	SesID=\${SesIDList_arr[\$v_cnt]}
+	SesID=\${SesIDList[\$Ses_cnt]}
 
 	echo "Running segmentation -- FAST and ATROPOS -- on the each sessions:"
-	echo "We are on session ${SesID}"
+	echo "We are on session \${StudyID_Date} \${SubID} \${SesID} "
 
 	sh ${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
 	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
@@ -203,6 +206,8 @@ done
 #--------------------------------------------------
 #--------------------------------------------------
 
+echo "SEGMENTATION ON NONLIN SST: \${StudyID_Date} \${SubID}"
+
 sh ${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 sh ${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
@@ -210,14 +215,18 @@ sh ${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
 
 #############################################################################
 #############################################################################
-
+echo ""
 echo "${StudyID}_\${SubID}: 1" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 ### ### ### ### ### ###
 
+echo ""
+echo ""
 echo "==========================================="
 echo "ENDS @" \`date\`
 echo "==========================================="
+echo ""
+echo ""
 
 EOF
 
