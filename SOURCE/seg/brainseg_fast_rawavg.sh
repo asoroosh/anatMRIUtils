@@ -17,7 +17,9 @@ SubID=$2
 SesID=$3
 
 StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-SubTag=sub-${StudyID}
+StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}') # the get rid of the E of extensions
+
+SubTag=sub-${StudyIDwoE}
 
 
 #---------------------------------
@@ -338,86 +340,86 @@ FS_InterpolationMethod_List=("" "--nearest")
 InterpolationMethod_List=("Linear" "NearestNeighbor")
 OutputFiletype_List=("pve" "seg")
 
-for filetype_cnt in 0 1 # move pve and seg files around
-do
-        InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
-        segfiletype=${OutputFiletype_List[$filetype_cnt]}
-	FSInterpMeth=${FS_InterpolationMethod_List[$filetype_cnt]}
-
-        echo "-----------------------------------------"
-        echo "Segmentation File: ${segfiletype}"
-        echo "Interpolation Method: ${InterpMeth}"
-	echo "Interpolation Method for mri_vol2vol: ${FSInterpMeth}"
-        echo "-----------------------------------------"
-
-        for tissue_cnt in 0 1 2 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
-        do
-
-		SegTisFile=${AllSegFile}${segfiletype}_${tissue_cnt}
-
-                echo "#### Native Subj Space >> FS 1x1x1 256^3 ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Metho: ${InterpMeth}"
-		echo "-- Moving Image: ${SegTisFile}.nii.gz"
-		echo "-- Reference Image: ${FreeSurfer_Vol_nuImg}_brain.nii.gz"
-		echo "####"
-		echo " "
-mri_vol2vol \
---mov ${SegTisFile}.nii.gz \
---targ ${FreeSurfer_Vol_nuImg}_brain.nii.gz \
---regheader \
---o ${SegTisFile}_nu_brain.nii.gz --no-save-reg \
-${FSInterpMeth} #>> /dev/null 2>&1
-
-		echo "#### FS 1x1x1 256^3 >> Linear Median SST  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
-		echo "-- Moving Image: ${SegTisFile}_nu_brain.nii.gz"
-		echo "-- Reference Image: ${FreeSurferVol_SubInMedian}.nii.gz"
-		echo "-- LTA: ${LTA_FILE}"
-		echo "####"
-		echo " "
-
-mri_vol2vol --lta ${LTA_FILE} \
---targ ${FreeSurferVol_SubInMedian}.nii.gz \
---mov ${SegTisFile}_nu_brain.nii.gz \
---no-resample \
---o ${SegTisFile}_LinearSST.nii.gz \
-${FSInterpMeth} #>> /dev/null 2>&1
-
-		echo "#### Linear SST >> Non Linear SST  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
-		echo "-- Moving Image: ${SegTisFile}_LinearSST.nii.gz"
-		echo "-- Reference Image: ${NonLinSSTDirImg}.nii.gz"
-		echo "-- FWD Warp: ${Sub2NonLinSST_WarpFile}.nii.gz"
-		echo "-- Affine: ${Sub2NonLinSST_AffineFile}.mat"
-		echo "-- Intepolation Method: ${InterpMeth}"
-		echo "####"
-		echo " "
-
-antsApplyTransforms -d 3 \
--i ${SegTisFile}_LinearSST.nii.gz \
--r ${NonLinSSTDirImg}.nii.gz \
--t ${Sub2NonLinSST_AffineFile}.mat \
--t ${Sub2NonLinSST_WarpFile}.nii.gz \
--n ${InterpMeth} \
--o ${SegTisFile}_NonLinearSST.nii.gz
-
-                echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
-		echo "-- Moving Image: ${SegTisFile}_NonLinearSST.nii.gz"
-		echo "-- Reference Image: ${MNIImgBrain_RAS}.nii.gz"
-		echo "-- FWD Warp: ${NonLinSST_MNI_Warp}.nii.gz"
-		echo "-- Affine: ${NonLinSST_MNI_Affine}.mat"
-		echo "-- Intepolation Method: ${InterpMeth}"
-		echo "####"
-		echo " "
-
-                #Take me from NonLinear SST to the MNI
-antsApplyTransforms -d 3 \
--i ${SegTisFile}_NonLinearSST.nii.gz \
--r ${MNIImgBrain_RAS}.nii.gz \
--t ${NonLinSST_MNI_Affine}.mat \
--t ${NonLinSST_MNI_Warp}.nii.gz \
--n ${InterpMeth} \
--o ${SegTisFile}_MNI.nii.gz
-
-	done
-done
+#for filetype_cnt in 0 1 # move pve and seg files around
+#do
+#        InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
+#        segfiletype=${OutputFiletype_List[$filetype_cnt]}
+#	FSInterpMeth=${FS_InterpolationMethod_List[$filetype_cnt]}
+#
+#        echo "-----------------------------------------"
+#        echo "Segmentation File: ${segfiletype}"
+#        echo "Interpolation Method: ${InterpMeth}"
+#	echo "Interpolation Method for mri_vol2vol: ${FSInterpMeth}"
+#        echo "-----------------------------------------"
+#
+#        for tissue_cnt in 0 1 2 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
+#        do
+#
+#		SegTisFile=${AllSegFile}${segfiletype}_${tissue_cnt}
+#
+#                echo "#### Native Subj Space >> FS 1x1x1 256^3 ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Metho: ${InterpMeth}"
+#		echo "-- Moving Image: ${SegTisFile}.nii.gz"
+#		echo "-- Reference Image: ${FreeSurfer_Vol_nuImg}_brain.nii.gz"
+#		echo "####"
+#		echo " "
+#mri_vol2vol \
+#--mov ${SegTisFile}.nii.gz \
+#--targ ${FreeSurfer_Vol_nuImg}_brain.nii.gz \
+#--regheader \
+#--o ${SegTisFile}_nu_brain.nii.gz --no-save-reg \
+#${FSInterpMeth} #>> /dev/null 2>&1
+#
+#		echo "#### FS 1x1x1 256^3 >> Linear Median SST  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
+#		echo "-- Moving Image: ${SegTisFile}_nu_brain.nii.gz"
+#		echo "-- Reference Image: ${FreeSurferVol_SubInMedian}.nii.gz"
+#		echo "-- LTA: ${LTA_FILE}"
+#		echo "####"
+#		echo " "
+#
+#mri_vol2vol --lta ${LTA_FILE} \
+#--targ ${FreeSurferVol_SubInMedian}.nii.gz \
+#--mov ${SegTisFile}_nu_brain.nii.gz \
+#--no-resample \
+#--o ${SegTisFile}_LinearSST.nii.gz \
+#${FSInterpMeth} #>> /dev/null 2>&1
+#
+#		echo "#### Linear SST >> Non Linear SST  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
+#		echo "-- Moving Image: ${SegTisFile}_LinearSST.nii.gz"
+#		echo "-- Reference Image: ${NonLinSSTDirImg}.nii.gz"
+#		echo "-- FWD Warp: ${Sub2NonLinSST_WarpFile}.nii.gz"
+#		echo "-- Affine: ${Sub2NonLinSST_AffineFile}.mat"
+#		echo "-- Intepolation Method: ${InterpMeth}"
+#		echo "####"
+#		echo " "
+#
+#antsApplyTransforms -d 3 \
+#-i ${SegTisFile}_LinearSST.nii.gz \
+#-r ${NonLinSSTDirImg}.nii.gz \
+#-t ${Sub2NonLinSST_AffineFile}.mat \
+#-t ${Sub2NonLinSST_WarpFile}.nii.gz \
+#-n ${InterpMeth} \
+#-o ${SegTisFile}_NonLinearSST.nii.gz
+#
+#                echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
+#		echo "-- Moving Image: ${SegTisFile}_NonLinearSST.nii.gz"
+#		echo "-- Reference Image: ${MNIImgBrain_RAS}.nii.gz"
+#		echo "-- FWD Warp: ${NonLinSST_MNI_Warp}.nii.gz"
+#		echo "-- Affine: ${NonLinSST_MNI_Affine}.mat"
+#		echo "-- Intepolation Method: ${InterpMeth}"
+#		echo "####"
+#		echo " "
+#
+#                #Take me from NonLinear SST to the MNI
+#antsApplyTransforms -d 3 \
+#-i ${SegTisFile}_NonLinearSST.nii.gz \
+#-r ${MNIImgBrain_RAS}.nii.gz \
+#-t ${NonLinSST_MNI_Affine}.mat \
+#-t ${NonLinSST_MNI_Warp}.nii.gz \
+#-n ${InterpMeth} \
+#-o ${SegTisFile}_MNI.nii.gz
+#
+#	done
+#done
 
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
@@ -529,67 +531,67 @@ ${GMSegTisFile}.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> 
 #----------------------------------------------------------------
 #-------------- On the nu ---------------------------------------
 #----------------------------------------------------------------
-
-echo ""
-echo "#### Apply nu atlas on nu gray matter:"
-echo "-- Atlas: ${SUBSESAtlasPreFix}_nu.nii.gz"
-echo "-- PVE: ${GMSegTisFile}_nu_brain.nii.gz"
-echo "-- Results: ${GMPTXTFILENAME}_nu.txt"
-echo ""
-
-echo "" > ${GMPTXTFILENAME}_nu.txt
-
-${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_nu.nii.gz \
-${GMSegTisFile}_nu_brain.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_nu.txt
-
+#
+#echo ""
+#echo "#### Apply nu atlas on nu gray matter:"
+#echo "-- Atlas: ${SUBSESAtlasPreFix}_nu.nii.gz"
+#echo "-- PVE: ${GMSegTisFile}_nu_brain.nii.gz"
+#echo "-- Results: ${GMPTXTFILENAME}_nu.txt"
+#echo ""
+#
+#echo "" > ${GMPTXTFILENAME}_nu.txt
+#
+#${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_nu.nii.gz \
+#${GMSegTisFile}_nu_brain.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_nu.txt
+#
 #----------------------------------------------------------------
 #-------------- On the Linear SST -------------------------------
 #----------------------------------------------------------------
-
-echo ""
-echo "#### Apply Linear SST atlas on Linear SST gray matter:"
-echo "-- Atlas: ${SUBSESAtlasPreFix}_LinearSST.nii.gz"
-echo "-- PVE: ${GMSegTisFile}_LinearSST.nii.gz"
-echo "-- Results: ${GMPTXTFILENAME}_LinearSST.txt"
-echo ""
-
-echo "" > ${GMPTXTFILENAME}_LinearSST.txt
-
-${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_LinearSST.nii.gz \
-${GMSegTisFile}_LinearSST.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_LinearSST.txt
-
+#
+#echo ""
+#echo "#### Apply Linear SST atlas on Linear SST gray matter:"
+#echo "-- Atlas: ${SUBSESAtlasPreFix}_LinearSST.nii.gz"
+#echo "-- PVE: ${GMSegTisFile}_LinearSST.nii.gz"
+#echo "-- Results: ${GMPTXTFILENAME}_LinearSST.txt"
+#echo ""
+#
+#echo "" > ${GMPTXTFILENAME}_LinearSST.txt
+#
+#${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_LinearSST.nii.gz \
+#${GMSegTisFile}_LinearSST.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_LinearSST.txt
+#
 #----------------------------------------------------------------
 #-------------- On the NonLinear SST ----------------------------
 #----------------------------------------------------------------
-
-echo ""
-echo "#### Apply NonLinear SST atlas on NonLinear SST gray matter:"
-echo "-- Atlas: ${NLSSTAtlasPreFix}_NonLinearSST.nii.gz"
-echo "-- PVE: ${GMSegTisFile}_NonLinearSST.nii.gz"
-echo "-- Results: ${GMPTXTFILENAME}_NonLinearSST.txt"
-echo ""
-
-echo "" > ${GMPTXTFILENAME}_NonLinearSST.txt
-
-${FSLDIR}/bin/fslstats -K ${NLSSTAtlasPreFix}_NonLinearSST.nii.gz \
-${GMSegTisFile}_NonLinearSST.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_NonLinearSST.txt
-
+#
+#echo ""
+#echo "#### Apply NonLinear SST atlas on NonLinear SST gray matter:"
+#echo "-- Atlas: ${NLSSTAtlasPreFix}_NonLinearSST.nii.gz"
+#echo "-- PVE: ${GMSegTisFile}_NonLinearSST.nii.gz"
+#echo "-- Results: ${GMPTXTFILENAME}_NonLinearSST.txt"
+#echo ""
+#
+#echo "" > ${GMPTXTFILENAME}_NonLinearSST.txt
+#
+#${FSLDIR}/bin/fslstats -K ${NLSSTAtlasPreFix}_NonLinearSST.nii.gz \
+#${GMSegTisFile}_NonLinearSST.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_NonLinearSST.txt
+#
 #----------------------------------------------------------------
 #-------------- On the MNI --------------------------------------
 #----------------------------------------------------------------
-
-echo ""
-echo "#### Apply MNI atlas on MNI gray matter:"
-echo "-- Atlas: ${ATLASMNI_RAS}.nii.gz"
-echo "-- PVE: ${GMSegTisFile}_MNI.nii.gz"
-echo "-- Results: ${GMPTXTFILENAME}_MNI.txt"
-echo ""
-
-echo "" > ${GMPTXTFILENAME}_MNI.txt
-
-${FSLDIR}/bin/fslstats -K ${ATLASMNI_RAS}.nii.gz \
-${GMSegTisFile}_MNI.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_MNI.txt
-
+#
+#echo ""
+#echo "#### Apply MNI atlas on MNI gray matter:"
+#echo "-- Atlas: ${ATLASMNI_RAS}.nii.gz"
+#echo "-- PVE: ${GMSegTisFile}_MNI.nii.gz"
+#echo "-- Results: ${GMPTXTFILENAME}_MNI.txt"
+#echo ""
+#
+#echo "" > ${GMPTXTFILENAME}_MNI.txt
+#
+#${FSLDIR}/bin/fslstats -K ${ATLASMNI_RAS}.nii.gz \
+#${GMSegTisFile}_MNI.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_MNI.txt
+#
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------------------- SIENAX ON THE SEGs --------------------------------------------------

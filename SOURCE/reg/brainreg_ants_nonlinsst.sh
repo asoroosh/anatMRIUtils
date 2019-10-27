@@ -5,7 +5,7 @@ source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
 set -e
 
-do_reg=0
+do_reg=1
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
@@ -18,7 +18,9 @@ SubID=$2
 
 
 StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-SubTag=sub-${StudyID}
+StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}')
+
+SubTag=sub-${StudyIDwoE}
 
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 
@@ -181,8 +183,8 @@ else
 fi
 
 # Take a picture
-Reg_OUTPUTpngIMAGE=${antsRegOutputPrefix}Warped_Image
-sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${antsRegOutputPrefix}Warped.nii.gz" "${MaskInMNI_FS}" "${Reg_OUTPUTpngIMAGE}" 1
+#Reg_OUTPUTpngIMAGE=${antsRegOutputPrefix}Warped_Image
+#sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${antsRegOutputPrefix}Warped.nii.gz" "${MaskInMNI_FS}" "${Reg_OUTPUTpngIMAGE}" 1 > /dev/null 2>&1
 
 ######################
 
@@ -195,7 +197,7 @@ ${FSLDIR}/bin/fslmaths ${NonLinSST_MNI}.nii.gz -sub ${NonLinSST_MNI}_brain.nii.g
 
 # NonLinear SST Brain Mask
 NonLinSST_BrainMask=${SST_Dir}/sub-${SubID}_NonLinearSST_BrainMask
-rm -f ${NonLinSST_BrainMask}.nii.gz
+#rm -f ${NonLinSST_BrainMask}.nii.gz
 
 echo "*************************************************************"
 echo "BRAIN MASK:::  MNI > NonLinSST   ::::"
@@ -223,8 +225,8 @@ ${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -sub ${NonLinSSTDirImg}_brain.n
 echo "*************************************************************"
 
 #Take a picture of Nonlinear SST mask
-NonLinSSTpngIMAGE=${NonLinSST_BrainMask}_Image
-sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${NonLinSSTDirImg}.nii.gz" "${NonLinSST_BrainMask}.nii.gz" "${NonLinSSTpngIMAGE}" 1
+#NonLinSSTpngIMAGE=${NonLinSST_BrainMask}_Image
+#sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${NonLinSSTDirImg}.nii.gz" "${NonLinSST_BrainMask}.nii.gz" "${NonLinSSTpngIMAGE}" 1 > /dev/null 2>&1
 
 ####
 echo "++++++Now sort out the masks...."
@@ -251,7 +253,7 @@ do
 	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
 	LinearSSTBrainMask=${SST_Dir}/sub-${SubID}_ses-${SesID}_BrainMaskLinearSST
-	rm -f ${LinearSSTBrainMask}.nii.gz
+	#rm -f ${LinearSSTBrainMask}.nii.gz
 
 	echo "*************************************************************"
 	echo "--Session ID: ${SesID}, ${v_cnt}/${NumSes}"
@@ -289,7 +291,7 @@ do
 	lta_convert --inlta ${LTA_FILE} --outlta ${INV_LTA_FILE} --invert # Convert the LTAs
 
 	SubjBrainMaskFS=${SST_Dir}/sub-${SubID}_ses-${SesID}_BrainMaskFS
-	rm -f ${SubjBrainMaskFS}.nii.gz
+	#rm -f ${SubjBrainMaskFS}.nii.gz
 
 	# take everything back into the nu.mgz space using inverse LTA
 	mri_vol2vol --lta ${LTA_FILE} \
@@ -316,11 +318,10 @@ do
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	#Take a picture of subject level mask
-	SubjBrainMaskFSpngIMAGE=${SubjBrainMaskFS}_Image
-	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFS}" "${SubjBrainMaskFSpngIMAGE}" 1
-	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}_brain.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
-	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1
-
+#	SubjBrainMaskFSpngIMAGE=${SubjBrainMaskFS}_Image
+#	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer-overlay.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFS}" "${SubjBrainMaskFSpngIMAGE}" 1 >> /dev/null
+#	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}_brain.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1 > /dev/null 2>&1
+#	sh ${HOME}/NVROXBOX/SOURCE/NVR-OX-slicer.sh "${FreeSurfer_Vol_nuImg}.nii.gz" "${SubjBrainMaskFSpngIMAGE}" 1 > /dev/null 2>&1
 
 	echo ""
 	echo ""
@@ -334,21 +335,15 @@ do
 	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 	# Now take me from 1x1x1 256^3 to the subject space
-	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_brain.nii.gz \
-	--targ ${UnprocessedImg}.nii.gz \
-	--regheader \
-	--o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz \
-	--no-save-reg > /dev/null
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz --no-save-reg 
 
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
 
 	#skull
-	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_skull.nii.gz \
-	--targ ${UnprocessedImg}.nii.gz \
-	--regheader \
-	--o ${FreeSurfer_Vol_nuImg}_skull_rawavg.nii.gz \
-	--no-save-reg > /dev/null
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_skull_rawavg.nii.gz --no-save-reg
 
 done
 

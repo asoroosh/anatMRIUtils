@@ -6,7 +6,7 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
-do_seg=0
+do_seg=1
 
 #++++++++= Subject/Session Information
 # These should come from outside
@@ -20,7 +20,9 @@ StudyID_Date=$1
 SubID=$2
 
 StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-SubTag=sub-${StudyID}
+StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}') # the get rid of the E of extensions
+
+SubTag=sub-${StudyIDwoE}
 
 #-----------------------------------------------
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
@@ -227,40 +229,40 @@ fi
 InterpolationMethod_List=("Linear" "NearestNeighbor")
 AtroposOutputFiletype_List=("Posteriors" "Seg")
 
-for filetype_cnt in 0 1 # move Posteriors and Seg files around
-do
-        InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
-        segfiletype=${AtroposOutputFiletype_List[$filetype_cnt]}
-
-        echo "-----------------------------------------"
-        echo "Segmentation File: ${segfiletype}"
-        echo "Interpolation Method: ${InterpMeth}"
-        echo "-----------------------------------------"
-
-        for tissue_cnt in 1 2 3 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
-        do
-		NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}0${tissue_cnt}
-
-                echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
-		echo "-- Moving Image: ${NLSST_SegTisFile}.nii.gz"
-		echo "-- Reference Image: ${MNIImgBrain_RAS}.nii.gz"
-		echo "-- FWD Warp: ${NonLinSST_MNI_Warp}.nii.gz"
-		echo "-- Affine: ${NonLinSST_MNI_Affine}.mat"
-		echo "-- Intepolation Method: ${InterpMeth}"
-		echo "####"
-		echo " "
-
-                #Take me from NonLinear SST to the MNI
-		antsApplyTransforms -d 3 \
-		-i ${NLSST_SegTisFile}.nii.gz \
-		-r ${MNIImgBrain_RAS}.nii.gz \
-		-t ${NonLinSST_MNI_Affine}.mat \
-		-t ${NonLinSST_MNI_Warp}.nii.gz \
-		-n ${InterpMeth} \
-		-o ${NLSST_SegTisFile}_MNI.nii.gz
-
-	done
-done
+#for filetype_cnt in 0 1 # move Posteriors and Seg files around
+#do
+#        InterpMeth=${InterpolationMethod_List[$filetype_cnt]}
+#        segfiletype=${AtroposOutputFiletype_List[$filetype_cnt]}
+#
+#        echo "-----------------------------------------"
+#        echo "Segmentation File: ${segfiletype}"
+#        echo "Interpolation Method: ${InterpMeth}"
+#        echo "-----------------------------------------"
+#
+#        for tissue_cnt in 1 2 3 # loop around the $OpDirSuffix output tissues; of course for -n 3 ;; CSF: 1, GM: 2, WM: 3
+#        do
+#		NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}0${tissue_cnt}
+#
+#                echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
+#		echo "-- Moving Image: ${NLSST_SegTisFile}.nii.gz"
+#		echo "-- Reference Image: ${MNIImgBrain_RAS}.nii.gz"
+#		echo "-- FWD Warp: ${NonLinSST_MNI_Warp}.nii.gz"
+#		echo "-- Affine: ${NonLinSST_MNI_Affine}.mat"
+#		echo "-- Intepolation Method: ${InterpMeth}"
+#		echo "####"
+#		echo " "
+#
+#               #Take me from NonLinear SST to the MNI
+#		antsApplyTransforms -d 3 \
+#		-i ${NLSST_SegTisFile}.nii.gz \
+#		-r ${MNIImgBrain_RAS}.nii.gz \
+#		-t ${NonLinSST_MNI_Affine}.mat \
+#		-t ${NonLinSST_MNI_Warp}.nii.gz \
+#		-n ${InterpMeth} \
+#		-o ${NLSST_SegTisFile}_MNI.nii.gz
+#
+#	done
+#done
 
 
 #--------------------------------- TAKE  THE ATLAS INTO THE NON-LINEAR SST -------------------------------------------------
