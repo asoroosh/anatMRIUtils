@@ -10,14 +10,19 @@ SLURMSUBMIT=$4
 # Later for the submitter file:
 Mem=8G
 Time="2-23:59:00"
-DirSuffix="regseg"
+DirSuffix="betsreg"
 LT_DirSuffix="atropos"
+
+#NVSHOME=/well/nvs-mri-temp/users/scf915
+#NVSHOME=${HOME}/NVROXBOX/SOURCE/
 
 SRC_DIR="${HOME}/NVROXBOX/SOURCE"
 SRC_REG_DIR="${SRC_DIR}/reg"
 SRC_SEG_DIR="${SRC_DIR}/seg"
 
-ProcessedDir="/data/ms/processed/mri"
+#ProcessedDir="/well/nvs-mri-temp/data/ms/processed"
+ProcessedDir="/rescompdata/ms/unprocessed/RESCOMP"
+
 #============================== FUNCTIONS ============
 PROGNAME=$(basename $0)
 error_exit()
@@ -26,17 +31,16 @@ error_exit()
 	exit 1
 }
 #=====================================================
-
-# Path to the source files (i.e. editted functions for each operation ~/NVROXBOX/SOURCE/*)
-SOURCEPATH=${HOME}/NVROXBOX/SOURCE/
-
 # Set the paths and read number of jobs to be submitted
-DataDir="${HOME}/NVROXBOX/Data"
+DataDir0="$HOME/NVROXBOX/Data/RELAB"
+DataDir="/rescompdata/ms/unprocessed/RESCOMP/MetaData"
 StudyDir="${DataDir}/${StudyID}"
 ImgTypDir=${StudyDir}/${ImgTyp}
+
 SubIDTxtFile=${ImgTypDir}/Sessions/${StudyID}_FullSessionSubID_${ImgTyp}.txt
 
 if [ ! -f $SubIDTxtFile ]; then
+	echo $SubIDTxtFile
 	error_exit "***** ERROR $LINENO: The file list for study ${StudyID}, Image type: ${ImgTyp} does not exists."
 fi
 
@@ -52,25 +56,6 @@ fi
 
 echo "We will shortly submit $NUMJB jobs..."
 
-#
-if [ $ImgTyp == T13D ] ; then
-	Arg_ImageType=T1
-	Arg_command=""
-elif [ $ImgTyp == T12D ] ; then
-	Arg_ImageType=T1
-elif [ $ImgTyp == PD2D ] ; then
-	Arg_ImageType=PD
-	Arg_command=""
-elif [ $ImgTyp == T22D ] ; then
-	Arg_ImageType=T2
-	Arg_command=""
-elif [ $ImgTyp == T12DCE ]; then
-        Arg_ImageType=
-        Arg_command=""
-else
-	# throw an error and halt here
-	error_exit "***** ERROR $LINENO: Unknown image type..."
-fi
 #========================================
 
 DATE=$(date +"%d-%m-%y")
@@ -78,6 +63,8 @@ DATE=$(date +"%d-%m-%y")
 ImgTypOp=${ImgTypDir}/${DirSuffix}
 ImgTypOpLog=${ImgTypOp}/Logs_${DirSuffix}.${LT_DirSuffix}
 mkdir -p ${ImgTypOpLog}
+
+echo "Check this: ${ImgTypOpLog}"
 
 #############################################################################
 #############################################################################
@@ -105,15 +92,13 @@ SubID=\$(cat $SubIDTxtFile | sed -n \${ImgIDX}p)
 echo "${StudyID}_\${SubID}: 0" > ${ImgTypOpLog}/${JobName}_\${SLURM_ARRAY_JOB_ID}_\${SLURM_ARRAY_TASK_ID}.stat
 
 # ========================================================================
-SessionsDir=\${HOME}/NVROXBOX/Data/${StudyID}/${ImgTyp}/Sessions
+SessionsDir=${DataDir}/${StudyID}/${ImgTyp}/Sessions
 SessionTxtFile=\${SessionsDir}/${StudyID}_\${SubID}_${ImgTyp}.txt
 
 if [ ! -f \$SessionTxtFile ]; then
-	echo "***** ERROR $LINENO: The session file does not exists for this subject: \${SubID}, ${ImgTyp}"
+	echo "***** ERROR $LINENO: The session file \${SessionTxtFile} does not exists for this subject: \${SubID}, ${ImgTyp}"
 	exit 1
 fi
-
-StudyID_Date=\$(ls ${ProcessedDir} | grep "${StudyID}.anon")
 
 #--form the session image lists -----
 SesIDList=""
@@ -122,13 +107,17 @@ SesIDVarList=""
 while read SessionFileName
 do
 	# Where do you want to get your data from? e.g. ANTs?
-	StudyIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$6}') # Study ID
-	SubIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$7}') # Sub ID
+	StudyIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$7}') # Study ID
+
+	SubIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$8}') # Sub ID
 	SubID=\$(echo \$SubIDVar | awk -F"-" '{print \$2}') # Sub ID
-	SesIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$8}') # Session ID
+
+	SesIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$9}') # Session ID
 	SesID=\$(echo \$SesIDVar | awk -F"-" '{print \$2}') # Get the Session IDs with out the prepend
-	ModIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$9}') #Modality type: anat, dwi etc
-	ImgNameEx=\$(echo \$SessionFileName | awk -F"/" '{print \$10}') #ImageName with extension
+
+	ModIDVar=\$(echo \$SessionFileName | awk -F"/" '{print \$10}') #Modality type: anat, dwi etc
+
+	ImgNameEx=\$(echo \$SessionFileName | awk -F"/" '{print \$11}') #ImageName with extension
 	ImgName=\$(basename \$ImgNameEx .nii.gz) # ImageName without extension
 
 	echo "==== On session: \${StudyIDVar}, \${SubIDVar}, \${SesIDVar}, \${SesID}"
@@ -143,6 +132,7 @@ SesIDList=(\$SesIDList)
 
 NumSes=\$(cat \${SessionTxtFile} | wc -l)
 
+echo "\$NumSes"
 
 # INPUT & OUTPUT functions =================================================
 ###### Write me down a report:
@@ -162,11 +152,9 @@ echo ""
 #############################################################################
 
 # Load packages and software here
-#Freesurfer
-ml FreeSurfer
-ml Perl
-source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
-ml ANTs
+#module load freesurfer
+#module load ANTs
+#module load fsl
 
 # And now the operations
 
@@ -176,9 +164,9 @@ ml ANTs
 #--------------------------------------------------#--------------------------------------------------
 #--------------------------------------------------#--------------------------------------------------
 
-echo "REGISTRATION ON: \${StudyID_Date} \${SubID}"
-
-sh ${SRC_REG_DIR}/brainreg_ants_nonlinsst.sh \${StudyID_Date} \${SubID}
+#echo "REGISTRATION ON: ${StudyID} \${SubID}"
+#sh ${SRC_REG_DIR}/brainreg_ants_nonlinsst.sh ${StudyID} \${SubID}
+#sh ${SRC_REG_DIR}/brainexreg_betreg_nonlinsst.sh ${StudyID} \${SubID}
 
 #--------------------------------------------------
 #--------------------------------------------------
@@ -193,10 +181,10 @@ do
 	SesID=\${SesIDList[\$Ses_cnt]}
 
 	echo "Running segmentation -- FAST and ATROPOS -- on the each sessions:"
-	echo "We are on session \${StudyID_Date} \${SubID} \${SesID} "
+	echo "We are on session ${StudyID} \${SubID} \${SesID} "
 
-	sh ${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
-#	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID_Date} \${SubID} \${SesID}
+	sh ${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh ${StudyID} \${SubID} \${SesID}
+#	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg.sh \${StudyID} \${SubID} \${SesID}
 done
 
 
@@ -206,12 +194,8 @@ done
 #--------------------------------------------------
 #--------------------------------------------------
 
-echo "SEGMENTATION ON NONLIN SST: \${StudyID_Date} \${SubID}"
-
-sh ${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh \${StudyID_Date} \${SubID}
-
-#sh ${SRC_SEG_DIR}/brainseg_fast_nonlinsst.sh \${StudyID_Date} \${SubID}
-
+echo "SEGMENTATION ON NONLIN SST: ${StudyID} \${SubID}"
+sh ${SRC_SEG_DIR}/brainseg_atropos_nonlinsst.sh ${StudyID} \${SubID}
 
 #############################################################################
 #############################################################################
