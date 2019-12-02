@@ -1,25 +1,27 @@
 
+#CFTY720D2309 CFTY720D2309x0507x00007 V8x20081211
+
 set -e
 
 #+++++++= What are we going to use, here?
-ml ANTs
-ml FreeSurfer
-ml Perl
-source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
+#module load freesurfer
+#module load ANTs
+#module load fsl
 
 do_seg=1
 
 ImgTyp=T12D
 #++++++++= Subject/Session Information
 
-StudyID_Date=$1
+StudyID=$1
 SubID=$2
 SesID=$3
 
-StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}') # the get rid of the E of extensions
-SubTag=sub-${StudyIDwoE}
+source /home/bdivdi.local/dfgtyk/NVROXBOX/SOURCE/seg/setpathinanalytics
 
+OPTAG=BETsREG
+
+# CFTY720D2201 CFTY720D2201x0001x00001 V2x20040219
 
 #---------------------------------
 
@@ -35,10 +37,11 @@ echo "** StudyID: ${StudyID}, SubID: ${SubID}, SesID: ${SesID}"
 echo "============================================================"
 echo "============================================================"
 
-SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_${ImgTyp}.txt
+#DataDir=/well/nvs-mri-temp/data/ms/processed/MetaData
+SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_${ImgTyp}.txt
 while read SessionPathsFiles
 do
-	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $8}')
+	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" -v i=$VisitIDX '{print $i}')
 	SesID_tmp=$(echo $ses_SesID_tmp | awk -F"-" '{print $2}')
 	SesIDList="${SesIDList} $SesID_tmp"
 #	echo ${SesIDList}
@@ -62,33 +65,28 @@ echo "                ==========================================================
 #-----------------------------------------------
 OpDirSuffix=atropos # Name of the Segmentation operation
 
-SegOrFlg=RAS #Segmentation Orientations
-MNIOrientationFlag=RAS #MNI Template Orientation
-AtOrFlg=RAS # Atlas Orientation
-PrOrFlg=RAS # Prior Orientation
+SegOrFlg=LIA #Segmentation Orientations
+MNIOrientationFlag=LIA #MNI Template Orientation
+AtOrFlg=LIA # Atlas Orientation
+PrOrFlg=LIA # Prior Orientation
 
 PriorIntepMethod=Linear # prior interpolation method
 AtlasIntepMethod=NearestNeighbor # atlas interpolation method
 
+#NVSHOME=/well/nvs-mri-temp/users/scf915
 #++++++++= MNI TISSUE PRIORS
-MNI_tissuep=${HOME}/NVROXBOX/AUX/tissuepriors/
-
+MNI_tissuep=${NVSHOME}/NVROXBOX/AUX/tissuepriors/${MNIOrientationFlag}
 #+++++++++= MNI TEMPLATE
-
-MNITMP_DIR=${HOME}/NVROXBOX/AUX/MNItemplates
-
+MNITMP_DIR=${NVSHOME}/NVROXBOX/AUX/MNItemplates/${MNIOrientationFlag}
 # head --
-MNIImg_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_RAS
-
+MNIImg_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_${MNIOrientationFlag}
 # brain --
-MNIImgBrain_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_RAS
-
+MNIImgBrain_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_${MNIOrientationFlag}
 # skull --
-MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_RAS
+MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_${MNIOrientationFlag}
 
 #++++++++= Harvard Oxford Atlas
-ATLASMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_${VoxRes}mm_RAS
-
+ATLASMNI_RAS=${NVSHOME}/NVROXBOX/AUX/atlas/GMatlas/${MNIOrientationFlag}/GMatlas_${VoxRes}mm_${MNIOrientationFlag}
 
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
 XSectionalDirSuffix=autorecon12ws
@@ -96,37 +94,41 @@ LogitudinalDirSuffix=nuws_mrirobusttemplate
 # ------
 
 #------------= Main paths
-PRSD_DIR="/data/ms/processed/mri"
-PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
+#PRSD_DIR="/well/nvs-mri-temp/data/ms/processed"
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID}/sub-${SubID}
 
 #-------------= X Sectional paths
 SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
 
 #--------------= Unprocessed paths
-UPRSD_DIR="/data/ms/unprocessed/mri"
-UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+#UPRSD_DIR="/well/nvs-mri-temp/data/ms/unprocessed"
+UnprocessedDir=${UPRSD_DIR}/${StudyID}
 UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 #-----------= FREESURFER (AUTORECONN) RESULTS:
 FreeSurfer_Dir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${XSectionalDirSuffix}
 FreeSurfer_Vol_Dir=${FreeSurfer_Dir}/sub-${SubID}_ses-${SesID}_run-1_T1w/mri
-FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
-
+FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu_${OPTAG}
+FreeSurfer_Vol_FSnuImg=${FreeSurfer_Vol_Dir}/nu
 #-----------= SST TEMPLATE RESULTS:
 
 #------ LINEAR SST
 FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
-Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
-Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
-Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
+
+Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}1InverseWarp
+Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}0GenericAffine
+Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}1Warp
+#Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
+#Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
+#Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
 #------ NONLINEAR SST
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 NonLinSSTDirImg=${SST_Dir}/${NonLinTempImgName}
-NonLinSSTDirImg_brain=${SST_Dir}/${NonLinTempImgName}_brain
+NonLinSSTDirImg_brain=${SST_Dir}/${NonLinTempImgName}_${OPTAG}_brain
 
 #+++++++++= Seg RESULTS
-PVE_Suboutdir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_rawavg
+PVE_Suboutdir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_${OPTAG}_brain_rawavg
 TissuePriors=${PVE_Suboutdir}/tissuepriors_sst
 AtlasesDir=${PVE_Suboutdir}/atlases
 TMPLDir=${PVE_Suboutdir}/templates
@@ -139,7 +141,7 @@ mkdir -p ${TissuePriors}
 mkdir -p ${AtlasesDir}
 mkdir -p ${TMPLDir}
 
-SEG_LOG=${PVE_Suboutdir}/sub-${SubID}_ses-${sesID}_${OpDirSuffix}_brain_rawavg.log
+SEG_LOG=${PVE_Suboutdir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_rawavg.log
 
 #++++++++++= IDPs Results
 GMPTXTDIRNAME=${PVE_Suboutdir}/IDPs/GMVols
@@ -155,7 +157,7 @@ mkdir -p ${SIENAXDIRNAME}
 #-----------------------------------------------------------------------------------------------------------------------
 
 #++++++++++= Registration to MNI Results
-antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-
+antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-${OPTAG}-
 NonLinSST_MNI=${antsRegOutputPrefix}Warped
 NonLinSST_MNI_Warp=${antsRegOutputPrefix}1Warp
 NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}1InverseWarp
@@ -177,12 +179,14 @@ FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
 PriorLabels=1
 for TissueType in gray white csf brain
 do
-	echo "-- Convert the gray matter prior from LAS orientation (FSL) to RAS orientation (FS)."
-	mri_convert --in_orientation LAS --out_orientation RAS ${MNI_tissuep}/avg152T1_${TissueType}.nii.gz ${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}.nii.gz
+	echo "-- Convert the gray matter prior from LAS orientation (FSL) to ${MNIOrientationFlag} orientation (FS)."
 
-	PriorRASMNI=${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}
-	NLSSTPriorPreFix=${TissuePriors}/sub-${SubID}_avg152T1_${TissueType}_${PrOrFlg}
-	SUBSESPriorPreFix=${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_${TissueType}_${PrOrFlg}
+	PriorRASMNI=${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}_${OPTAG}
+
+	mri_convert --in_orientation LAS --out_orientation ${MNIOrientationFlag} ${MNI_tissuep}/avg152T1_${TissueType}.nii.gz ${PriorRASMNI}.nii.gz
+
+	NLSSTPriorPreFix=${TissuePriors}/sub-${SubID}_avg152T1_${TissueType}_${PrOrFlg}_${OPTAG}
+	SUBSESPriorPreFix=${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_${TissueType}_${PrOrFlg}_${OPTAG}
 
 	# From MNI to Nonlinear SST
 	echo "######## Take the priors from MNI into the Nonlinear SST, use inwarp (ants)"
@@ -204,7 +208,7 @@ antsApplyTransforms \
 
 # change this from FAST/FSL naming convention into ANTs Atropos naming convention
 cp ${NLSSTPriorPreFix}_NonLinearSST.nii.gz \
-${TissuePriors}/sub-${SubID}_avg152T1_${PriorLabels}_${PrOrFlg}_NonLinearSST.nii.gz
+${TissuePriors}/sub-${SubID}_avg152T1_${PriorLabels}_${PrOrFlg}_${OPTAG}_NonLinearSST.nii.gz
 
 	echo "####### Take the priors from Nonlinear SST into the linear median SST, use invwarp (ants)"
 	echo "-- Moving Image: ${NLSSTPriorPreFix}_NonLinearSST.nii.gz"
@@ -224,7 +228,7 @@ antsApplyTransforms \
 -o ${SUBSESPriorPreFix}_LinearSST.nii.gz
 
 	echo "####### Take the priors from linear SST into the nu.mgz space, mri_vol2vol --inv"
-	echo "-- Moving Image: ${FreeSurfer_Vol_nuImg}.nii.gz"
+	echo "-- Moving Image: ${FreeSurfer_Vol_FSnuImg}.nii.gz"
 	echo "-- Reference Image: ${SUBSESPriorPreFix}_LinearSST.nii.gz"
 	echo "-- LTA: ${LTA_FILE}"
 	echo "#######"
@@ -233,7 +237,7 @@ antsApplyTransforms \
 mri_vol2vol \
 --lta ${LTA_FILE} \
 --targ ${SUBSESPriorPreFix}_LinearSST.nii.gz \
---mov ${FreeSurfer_Vol_nuImg}.nii.gz \
+--mov ${FreeSurfer_Vol_FSnuImg}.nii.gz \
 --no-resample \
 --inv \
 --o ${SUBSESPriorPreFix}_nu.nii.gz
@@ -255,7 +259,7 @@ mri_vol2vol \
 --no-save-reg
 
 cp ${SUBSESPriorPreFix}_rawavg.nii.gz \
-${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_${PriorLabels}_${PrOrFlg}_rawavg.nii.gz
+${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_${PriorLabels}_${PrOrFlg}_${OPTAG}_rawavg.nii.gz
 
         PriorLabels=$((($PriorLabels+1)))
 done
@@ -275,7 +279,7 @@ echo "++CSF prior: ${TissuePriors}/avg152T1_csf_ses-${SesID}_RAS2LAS_rawavg.nii.
 echo "++Results: ${PVE_Suboutdir}"
 #echo "==================================================================================="
 
-SegOutPrefix=${PVE_Suboutdir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_brain_rawavg_
+SegOutPrefix=${PVE_Suboutdir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_${OPTAG}_brain_rawavg_
 AllSegFile=${SegOutPrefix}Segmentation
 
 if [ $do_seg == 1 ]; then
@@ -283,10 +287,12 @@ if [ $do_seg == 1 ]; then
 
 	echo "" > $SEG_LOG
 
+#	CopyImageHeaderInformation ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
+
 	antsAtroposN4.sh -d 3 \
 	-a ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz \
-	-p "${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_%02d_${SegOrFlg}_rawavg.nii.gz" \
 	-x ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz \
+	-p "${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_%02d_${PrOrFlg}_${OPTAG}_rawavg.nii.gz" \
 	-c 3 \
 	-g 1 \
 	-o ${SegOutPrefix} >> ${SEG_LOG}
@@ -408,8 +414,8 @@ AtroposOutputFiletype_List=("Posteriors" "Seg")
 #-----------------------------------------------------------------------------------------------------------------------
 
 
-NLSSTAtlasPreFix=${AtlasesDir}/sub-${SubID}_${AtOrFlg}_UKB-GMAtlas
-SUBSESAtlasPreFix=${AtlasesDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_UKB-GMAtlas
+NLSSTAtlasPreFix=${AtlasesDir}/sub-${SubID}_${AtOrFlg}_${OPTAG}_UKB-GMAtlas
+SUBSESAtlasPreFix=${AtlasesDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_${OPTAG}_UKB-GMAtlas
 
 echo "######## Take the ATLAS from MNI into the Nonlinear SST, use inwarp (ants)"
 echo "-- Moving image: ${ATLASMNI_RAS}.nii.gz"
@@ -447,7 +453,7 @@ antsApplyTransforms \
 -o ${SUBSESAtlasPreFix}_LinearSST.nii.gz
 
 echo "####### Take the ATLAS from linear SST into the nu.mgz space, mri_vol2vol --inv"
-echo "-- Moving Image: ${FreeSurfer_Vol_nuImg}.nii.gz"
+echo "-- Moving Image: ${FreeSurfer_Vol_FSnuImg}.nii.gz"
 echo "-- Reference Image: ${SUBSESAtlasPreFix}_LinearSST.nii.gz"
 echo "-- LTA: ${LTA_FILE}"
 echo "#######"
@@ -456,7 +462,7 @@ echo " "
 mri_vol2vol \
 --lta ${LTA_FILE} \
 --targ ${SUBSESAtlasPreFix}_LinearSST.nii.gz \
---mov ${FreeSurfer_Vol_nuImg}.nii.gz \
+--mov ${FreeSurfer_Vol_FSnuImg}.nii.gz \
 --no-resample \
 --inv \
 --nearest \
@@ -488,7 +494,7 @@ mri_vol2vol \
 
 GMSegTisFile=${AllSegFile}Posteriors02
 
-GMPTXTFILENAME=${GMPTXTDIRNAME}/sub-${SubID}_ses-${SesID}_UKB-GMAtlas_GMVols
+GMPTXTFILENAME=${GMPTXTDIRNAME}/sub-${SubID}_ses-${SesID}_${OPTAG}_UKB-GMAtlas_GMVols
 
 #----------------------------------------------------------------
 #-------------- On the rawavg -----------------------------------
@@ -582,23 +588,23 @@ echo "#################################################"
 echo "SIENAX ##########################################"
 echo "#################################################"
 
-SIENAXFILENAME=${SIENAXDIRNAME}/sub-${SubID}_ses-${SesID}_Sienax
+SIENAXFILENAME=${SIENAXDIRNAME}/sub-${SubID}_ses-${SesID}_${OPTAG}_Sienax
 
-T12MNIlinear_RAS=${SIENAXFILENAME}_T12MNI_RAS
+T12MNIlinear_RAS=${SIENAXFILENAME}_T12MNI_${MNIOrientationFlag}
 report_sienax=${SIENAXFILENAME}_Report
 
-GMSEG_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_RAS_NoCereb_bin
-NLSST_GMSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_strucseg_nocereb
-SUBSES_GMSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_strucseg_nocereb
+GMSEG_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_${MNIOrientationFlag}_NoCereb_bin
+NLSST_GMSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_${OPTAG}_strucseg_nocereb
+SUBSES_GMSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_${OPTAG}_strucseg_nocereb
 
-SEGPRIPH_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_periph_RAS
-SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_RAS_Vent
+SEGPRIPH_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_periph_${MNIOrientationFlag}
+SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_${MNIOrientationFlag}_Vent
 
-NLSST_PRIPHSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_strucseg_periph
-SUBSES_PRIPHSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_strucseg_periph
+NLSST_PRIPHSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_${OPTAG}_strucseg_periph
+SUBSES_PRIPHSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_${OPTAG}_strucseg_periph
 
-NLSST_VENTSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_strucseg_vent
-SUBSES_VENTSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_strucseg_vent
+NLSST_VENTSEG_PreFix=${TMPLDir}/sub-${SubID}_${AtOrFlg}_${OPTAG}_strucseg_vent
+SUBSES_VENTSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_${OPTAG}_strucseg_vent
 
 #----------------------------------------------------------------
 #------------------------------ AVSCALE -------------------------
@@ -649,7 +655,7 @@ antsApplyTransforms \
 mri_vol2vol \
 --lta ${LTA_FILE} \
 --targ ${SUBSES_PRIPHSEG_PreFix}_LinearSST.nii.gz \
---mov ${FreeSurfer_Vol_nuImg}.nii.gz \
+--mov ${FreeSurfer_Vol_FSnuImg}.nii.gz \
 --no-resample \
 --inv \
 --nearest \
@@ -692,7 +698,7 @@ antsApplyTransforms \
 mri_vol2vol \
 --lta ${LTA_FILE} \
 --targ ${SUBSES_VENTSEG_PreFix}_LinearSST.nii.gz \
---mov ${FreeSurfer_Vol_nuImg}.nii.gz \
+--mov ${FreeSurfer_Vol_FSnuImg}.nii.gz \
 --no-resample \
 --inv \
 --nearest \
@@ -734,7 +740,7 @@ antsApplyTransforms \
 mri_vol2vol \
 --lta ${LTA_FILE} \
 --targ ${SUBSES_GMSEG_PreFix}_LinearSST.nii.gz \
---mov ${FreeSurfer_Vol_nuImg}.nii.gz \
+--mov ${FreeSurfer_Vol_FSnuImg}.nii.gz \
 --no-resample \
 --inv \
 --nearest \

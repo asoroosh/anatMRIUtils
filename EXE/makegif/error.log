@@ -1,2 +1,0 @@
-mghRead(/data/ms/processed/mri/CFTY720D2324.anon.2019.07.15/sub-CFTY720D2324.0217.00001/T12D.autorecon12ws.nuws_mrirobusttemplate/sub-CFTY720D2324.0217.00001_ses-V5_nu_2_median_nu.nii.gz, -1): could not open file.
-Filename extension must be .mgh, .mgh.gz or .mgz

@@ -6,9 +6,7 @@ ml FreeSurfer
 ml Perl
 source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
-do_seg=1
-
-OpDirSuffix=siena
+OpDirSuffix=sienax
 ImgTyp=T12D
 #++++++++= Subject/Session Information
 
@@ -29,10 +27,8 @@ done
 }
 #----------------------------------------------
 
-
 StudyID=$1
 SubID=$2
-SesBLTag=$3
 
 SubTag=sub-${StudyID}
 
@@ -72,43 +68,22 @@ PRSD_SUBDIR=${PRSD_DIR}/${StudyID}/sub-${SubID}
 
 #--------------= Unprocessed paths
 UPRSD_DIR="/data/ms/unprocessed/mri/relabelled/sesVISITYYYYMMDD"
-UnprocessedDir=${UPRSD_DIR}/${StudyID}
 
 #+++++++++= SIENA RESULTS
-SIENA_Suboutdir=${PRSD_SUBDIR}/sub-${SubID}.${OpDirSuffix}
 
-#if [ $do_seg == 1 ]; then
-#        rm -rf ${SIENA_Suboutdir}
-#fi
-
-BaselineIndex=$(get_index "${SesIDList[@]}" "$SesBLTag")
-Ses_BL=${SesIDList[BaselineIndex]}
-
-echo "Baseline: ${Ses_BL}"
-
-BaselineImg=${UnprocessedDir}/sub-${SubID}/ses-${Ses_BL}/anat/sub-${SubID}_ses-${Ses_BL}_run-1_T1w
-
-if [ ! -f ${BaselineImg}.nii.gz ]
-then
-	echo "No baseline available...."
-	exit 1
-fi
-
-echo "Baseline: ${BaselineImg}"
-
-SesIDList_woBL=${SesIDList[@]/$Ses_BL}
-
-for SesID in ${SesIDList_woBL[@]};
+for SesID in ${SesIDList[@]};
 do
+	UnprocessedDir=${UPRSD_DIR}/${StudyID}
 	TarImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
-	sienaxout=${SIENA_Suboutdir}/${Ses_BL}v${SesID}
 
-	mkdir -p ${sienaxout}
+	SIENAX_Suboutdir=${PRSD_SUBDIR}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w.${OpDirSuffix}
 
-	echo "Target to be compare against the baseline: ${TarImg}"
-	echo "Output Dir: ${sienaxout}"
+	mkdir -p ${SIENAX_Suboutdir}
 
-	${FSLDIR}/bin/siena ${BaselineImg}.nii.gz ${TarImg}.nii.gz -2 -o ${sienaxout}
+	echo "Target: ${TarImg}"
+	echo "Output Dir: ${SIENAX_Suboutdir}"
+
+	${FSLDIR}/bin/sienax ${TarImg}.nii.gz -2 -o ${SIENAX_Suboutdir}
 done
 
 echo "===================================="

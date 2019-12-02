@@ -1,33 +1,34 @@
-ml ANTs
-ml FreeSurfer
-ml Perl
-source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
+#Ecample sub
+#CFTY720D2201 CFTY720D2201x0001x00001
+
+source ${HOME}/NVROXBOX/SOURCE/reg/setpathinanalytics
+
+
+echo $PRSD_DIR
+echo $UPRSD_DIR
+echo $DataDir
+echo $NVSHOME
 
 set -e
 
 do_reg=1
+do_bex=0
 
-seglab=No
+#_BETsREG_
+#_BE${seglab}-REG${reglab}_
+
+seglab=BET
 reglab=2SyN
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
-#StudyID=CFTY720D2324
-#SubID=CFTY720D2324.0217.00001
-#SubTag=sub-${StudyID} #this is what the antsMultivariateTemplate uses
+#e.g.
+#sh brainexreg_ants_nonlinsst.sh CFTY720D2301E1.anon.2019.07.16 CFTY720D2301.0105.00001
 
-StudyID_Date=$1
+StudyID=$1
 SubID=$2
 
-
-StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}')
-
-SubTag=sub-${StudyIDwoE}
-
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
-
-OrFlag=LIA
 
 #--------------------------------------------------------------------------------------
 echo "======================================="
@@ -40,10 +41,11 @@ echo "** StudyID: ${StudyID}, SubID: ${SubID}"
 echo "======================================="
 echo "======================================="
 
-SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
+SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
+
 while read SessionPathsFiles
 do
-	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $8}')
+	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" -v i=$VisitIDX '{print $i}')
 	SesID_tmp=$(echo $ses_SesID_tmp | awk -F"-" '{print $2}');
 	SesIDList="${SesIDList} $SesID_tmp"
 	echo ${SesIDList}
@@ -58,15 +60,13 @@ LogitudinalDirSuffix=nuws_mrirobusttemplate
 # ------
 
 #------------= Main paths
-PRSD_DIR="/data/ms/processed/mri"
-PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID}/sub-${SubID}
 
 #-------------= X Sectional paths
 SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
 
 #--------------= Unprocessed paths
-UPRSD_DIR="/data/ms/unprocessed/mri"
-UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+UnprocessedDir=${UPRSD_DIR}/${StudyID}
 
 #--------------= Path to SST templates
 # Nonlinear Template
@@ -77,25 +77,31 @@ LinSST=${SST_Dir}/sub-${SubID}_norm_nu_median.nii.gz # this should be moved
 # -------- Application initialisations ------------------------------------------------
 VoxRes=2
 MaskThr=0.5
+OrFlag=LIA
 
-MNITMP_DIR=${HOME}/NVROXBOX/AUX/MNItemplates
+#NVSHOME=/well/nvs-mri-temp/users/scf915
+MNITMP_DIR=${NVSHOME}/NVROXBOX/AUX/MNItemplates/${OrFlag}
 MNIImg_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_${OrFlag}
 MaskInMNI_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_mask_${OrFlag}
 
+MNIImg_RAS_Brain=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_${OrFlag}
+MNIImg_RAS_Skull=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_${OrFlag}
+
 echo "*************************************************************"
-echo "=== BRING THE MNI TEMPLATE & MASK INTO ${OrFlag} ORIENTATION:"
-echo "MNI ${OrFlag}: ${MNIImg_FS}"
-echo "BrainMask ${OrFlag}: ${MaskInMNI_FS}"
+echo "=== BRING THE MNI TEMPLATE & MASK INTO RAS ORIENTATION:"
+echo "MNI RAS: ${MNIImg_FS}"
+echo "BrainMask RAS: ${MaskInMNI_FS}"
 echo "*************************************************************"
 
 # ------- Path inistialisations --------------------------------------------------------
 
 #register to MNI
 antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-BE${seglab}-REG${reglab}-
-NonLinSST_MNI=${antsRegOutputPrefix}Warped
+NonLinSST_MNI=${antsRegOutputPrefix}Warped_brain
 NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}1InverseWarp
+#NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}InverseWarp
 NonLinSST_MNI_Affine=${antsRegOutputPrefix}0GenericAffine.mat
-REG_LOG=${NonLinSSTDirImg}_MNI.log
+REG_LOG=${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_Brain_MNI.log
 
 
 if [ $do_reg == 1 ] || [ $do_reg == 10 ]; then
@@ -105,34 +111,49 @@ if [ $do_reg == 1 ] || [ $do_reg == 10 ]; then
 		echo "############# No Registration will be done..."
 fi
 
+
+#------ ANTs Brain Extraction --------------------------------------------------------------
+
+if [ $do_bex == 1 ]; then
+
+	echo "Doing brain extraction..."
+	bet ${NonLinSSTDirImg}.nii.gz ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz -R -m -S
+
+	echo "Brain extraction done; "
+	echo "check: ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz"
+
+else
+	echo "****No Brain Extraction is done!"
+
+fi
+
 # ------- Do the job ---------------------------------------------------------------------
 
 ## REGISTRATION ######
 
-# prepare a mask for ANTs
-NonLinSSTDirImg_mask=${NonLinSSTDirImg}_mask
-${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -bin ${NonLinSSTDirImg_mask}.nii.gz
-# delineate the mask
-${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg_mask}.nii.gz -dilM ${NonLinSSTDirImg_mask}.nii.gz
-
 echo "*************************************************************"
-echo "REGISTER NONLINEAR SST > MNI ${OrFlag}"
-echo "MOVING: ${NonLinSSTDirImg}.nii.gz"
+echo "REGISTER NONLINEAR SST > MNI RAS"
+echo "MOVING: ${MNIImg_RAS_Brain}.nii.gz"
 echo "FIXED: ${MNIImg_FS}.nii.gz"
-echo "MASK: ${NonLinSSTDirImg_mask}"
 echo "LOG FILE: ${REG_LOG}"
 echo "*************************************************************"
 
 if [ $do_reg == 1 ]; then
 
+	echo "Registration has started:"
+	echo ""
+	echo "${reglab}"
+
+${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask.nii.gz -dilM ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz
+
 #-------------------------------
-ShrnkFctrs="2x2x1x1"
+ShrnkFctrs="8x4x2x1"
 SmthFctrs="3x2x1x0vox"
-ItrNum="1000x500x250x0"
+ItrNum="2000x500x250x0"
 #-------------------------------
-#ShrnkFctrs="1x1x1x1"
+#ShrnkFctrs="6x4x2x1"
 #SmthFctrs="3x2x1x0vox"
-#ItrNum="1000x500x250x0"
+#ItrNum="50x50x20x0"
 
 	echo " " > ${REG_LOG}
 
@@ -141,61 +162,45 @@ antsRegistration \
 --dimensionality 3 \
 --float 0 \
 --collapse-output-transforms 1 \
---output [${antsRegOutputPrefix},${antsRegOutputPrefix}Warped.nii.gz,${antsRegOutputPrefix}InverseWarped.nii.gz] \
+--output [${antsRegOutputPrefix},${antsRegOutputPrefix}Warped_brain.nii.gz,${antsRegOutputPrefix}InverseWarped.nii.gz] \
 --interpolation Linear \
 --use-histogram-matching 1 \
 --winsorize-image-intensities [0.005,0.995] \
---initial-moving-transform [${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}.nii.gz,1] \
+--initial-moving-transform [${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1] \
 --transform Rigid[0.1] \
---metric MI[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}.nii.gz,1,32,Regular,0.25] \
+--metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1,32,Regular,0.25] \
 --convergence [1000x500x250x100,1e-6,10] \
 --shrink-factors 12x8x4x2 \
 --smoothing-sigmas ${SmthFctrs} \
 --transform Affine[0.1] \
---metric MI[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}.nii.gz,1,32,Regular,0.25] \
+--metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1,32,Regular,0.25] \
 --convergence [1000x500x250x100,1e-6,10] \
 --shrink-factors 12x8x4x2 \
 --smoothing-sigmas ${SmthFctrs} \
 --transform SyN[0.1,3,0] \
---metric CC[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}.nii.gz,1,10] \
+--metric CC[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1,10] \
 --convergence [100x100x70x50x20,1e-6,10] \
 --shrink-factors 10x6x4x2x1 \
 --smoothing-sigmas 6x4x2x1x0vox \
 --transform SyN[0.1,3,1] \
---metric CC[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}.nii.gz,1,10] \
+--metric CC[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1,10] \
 --convergence [100x100x70x50x20,1e-6,10] \
 --shrink-factors 10x6x4x2x1 \
---smoothing-sigmas 6x4x2x1x0vox
-#--masks [NULL,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz] #>> ${REG_LOG}
+--smoothing-sigmas 6x4x2x1x0vox \
+--masks [NULL,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz] #>> ${REG_LOG}
 
-# Old call------------------------------------------------------
-#antsRegistration \
-#--verbose 1 \
-#--dimensionality 3 \
-#--float 0 \
-#--collapse-output-transforms 1 \
-#--output [${antsRegOutputPrefix},${antsRegOutputPrefix}Warped.nii.gz,${antsRegOutputPrefix}InverseWarped.nii.gz] \
-#--interpolation Linear \
-#--use-histogram-matching 1 \
-#--winsorize-image-intensities [0.005,0.995] \
-#--initial-moving-transform [${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1] \
-#--transform Rigid[0.1] \
-#--metric MI[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1,32,Regular,0.25] \
-#--convergence [${ItrNum},1e-6,10] \
-#--shrink-factors ${ShrnkFctrs} \
-#--smoothing-sigmas ${SmthFctrs} \
-#--transform Affine[0.1] \
-#--metric MI[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1,32,Regular,0.25] \
-#--convergence [${ItrNum},1e-6,10] \
-#--shrink-factors ${ShrnkFctrs} \
-#--smoothing-sigmas ${SmthFctrs} \
 #--transform SyN[0.1,3,0] \
-#--metric CC[${MNIImg_FS}.nii.gz,${NonLinSSTDirImg}.nii.gz,1,4] \
+#--metric CC[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz,1,4] \
 #--convergence [${ItrNum},1e-6,10] \
 #--shrink-factors ${ShrnkFctrs} \
-#--smoothing-sigmas ${SmthFctrs} >> ${REG_LOG}
+#--smoothing-sigmas ${SmthFctrs} \
+#--masks [NULL,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz] \
 
-#-x [${MNIImg_FS}_mask.nii.gz,${NonLinSSTDirImg_mask}.nii.gz] >> ${REG_LOG}
+# extract the brain of nonlinear template in MNI
+${FSLDIR}/bin/fslmaths ${antsRegOutputPrefix}Warped_brain.nii.gz -mas ${MaskInMNI_FS}.nii.gz ${antsRegOutputPrefix}Warped_brain_brain.nii.gz # brain in MNI space
+#Skull in MNI
+#${FSLDIR}/bin/fslmaths ${NonLinSST_MNI}.nii.gz -sub ${NonLinSST_MNI}_brain.nii.gz ${NonLinSST_MNI}_skull.nii.gz
+#cp ${MNIImg_RAS_Skull}.nii.gz ${NonLinSST_MNI}_skull.nii.gz
 
 	echo "*************************************************************"
 	echo "********** Registration is DONE! ****************************"
@@ -205,39 +210,36 @@ elif [ $do_reg == 10 ]; then
 
 echo "--Run antsRegistrationSyN"
 
-#------ TESTS
-antsRegistrationSyN.sh -d 3 \
--f ${MNIImg_FS}.nii.gz \
--m ${NonLinSSTDirImg}.nii.gz \
--t s \
--o ${antsRegOutputPrefix}
+${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask.nii.gz -dilM ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz
 
-# -x ${NonLinSSTDirImg_mask}.nii.gz \
+antsRegistrationSyN.sh -d 3 \
+-f ${MNIImg_RAS_Brain}.nii.gz \
+-m ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz \
+-t s \
+-x ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz \
+-o ${antsRegOutputPrefix} >> ${REG_LOG}
+
+mv ${antsRegOutputPrefix}Warped.nii.gz ${antsRegOutputPrefix}Warped_brain.nii.gz
+
+# extract the brain of nonlinear template in MNI
+${FSLDIR}/bin/fslmaths ${antsRegOutputPrefix}Warped_brain.nii.gz -mas ${MaskInMNI_FS}.nii.gz ${antsRegOutputPrefix}Warped_brain_brain.nii.gz # brain in MNI space
+#Skull in MNI
+#${FSLDIR}/bin/fslmaths ${NonLinSST_MNI}.nii.gz -sub ${NonLinSST_MNI}_brain.nii.gz ${NonLinSST_MNI}_skull.nii.gz
 
 else
 	echo "############# No Registration will be done..."
 
 fi
 
-
-# extract the brain of nonlinear template in MNI
-${FSLDIR}/bin/fslmaths ${NonLinSST_MNI}.nii.gz -mas ${MaskInMNI_FS}.nii.gz ${NonLinSST_MNI}_brain.nii.gz # brain in MNI space
-
-#Skull
-${FSLDIR}/bin/fslmaths ${NonLinSST_MNI}.nii.gz -sub ${NonLinSST_MNI}_brain.nii.gz ${NonLinSST_MNI}_skull.nii.gz
-
-
-# NonLinear SST Brain Mask
-NonLinSST_BrainMask=${SST_Dir}/sub-${SubID}_NonLinearSST_BrainMask
-#rm -f ${NonLinSST_BrainMask}.nii.gz
+######################
 
 echo "*************************************************************"
-echo "BRAIN MASK:::  MNI > NonLinSST   ::::"
-echo "Inverse Warp: ${NonLinSST_MNI_InvWarp}"
-echo "& the Affine: ${NonLinSST_MNI_Affine}"
-echo " "
-echo "Output: ${NonLinSST_BrainMask}"
-echo "*************************************************************"
+NonLinSST_BrainMask=${SST_Dir}/sub-${SubID}_NonLinearSST_BE${seglab}-REG${reglab}_BrainMask
+
+#${FSLDIR}/bin/fslmaths $MaskInMNI_FS -dilM ${MaskInMNI_FS}_dil1
+
+if [ $do_reg == 1 ]; then
+echo "flag: $do_reg"
 
 antsApplyTransforms -d 3 \
 -i ${MaskInMNI_FS}.nii.gz \
@@ -246,24 +248,34 @@ antsApplyTransforms -d 3 \
 -t ${NonLinSST_MNI_InvWarp}.nii.gz \
 -o ${NonLinSST_BrainMask}.nii.gz
 
-echo "*************************************************************"
-echo "Brain Extraction on NonLinear SST"
-# threshold the mask, fill the holes and mask the image
-${FSLDIR}/bin/fslmaths ${NonLinSST_BrainMask}.nii.gz -thr ${MaskThr} -bin ${NonLinSST_BrainMask}.nii.gz
+else
+echo "flag: $do_reg"
+
+antsApplyTransforms -d 3 \
+-i ${MaskInMNI_FS}.nii.gz \
+-r ${NonLinSSTDirImg}.nii.gz \
+-t [${NonLinSST_MNI_Affine}, 1] \
+-t ${NonLinSST_MNI_InvWarp}.nii.gz \
+-o ${NonLinSST_BrainMask}.nii.gz
+
+fi
+
 ${FSLDIR}/bin/fslmaths ${NonLinSST_BrainMask}.nii.gz -fillh ${NonLinSST_BrainMask}.nii.gz
-${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -mas ${NonLinSST_BrainMask}.nii.gz ${NonLinSSTDirImg}_brain.nii.gz
-#skull
-${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -sub ${NonLinSSTDirImg}_brain.nii.gz ${NonLinSSTDirImg}_skull.nii.gz
-echo "*************************************************************"
+
+# brain extracted
+${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -mas ${NonLinSST_BrainMask}.nii.gz ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz
+# get the skull out
+${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -sub ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain.nii.gz ${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_skull.nii.gz
 
 ####
 echo "++++++Now sort out the masks...."
 echo ""
 
+v_cnt=0;
 # Get subject specific brain masks
-for v_cnt in $(seq 0 $(($NumSes-1)))
+for SesID in ${SesIDList[@]}
 do
-	SesID=${SesIDList[v_cnt]}
+#	SesID=${SesIDList[v_cnt]}
 
 	echo "============================================================"
 	echo "** StudyID: ${StudyID}, SubID: ${SubID}, SesID: ${SesID}"
@@ -277,11 +289,13 @@ do
 
 	#Moving Image
 	FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
-	Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
-	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
-	LinearSSTBrainMask=${SST_Dir}/sub-${SubID}_ses-${SesID}_BrainMaskLinearSST
-	#rm -f ${LinearSSTBrainMask}.nii.gz
+	Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}1InverseWarp
+	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}0GenericAffine
+	#Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
+	#Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
+
+	LinearSSTBrainMask=${SST_Dir}/sub-${SubID}_ses-${SesID}_BE${seglab}-REG${reglab}_BrainMaskLinearSST
 
 	echo "*************************************************************"
 	echo "--Session ID: ${SesID}, ${v_cnt}/${NumSes}"
@@ -302,24 +316,21 @@ do
 	echo "Brain Extraction on nu of each subject, in Linear SST"
 	${FSLDIR}/bin/fslmaths ${LinearSSTBrainMask}.nii.gz -thr ${MaskThr} -bin ${LinearSSTBrainMask}.nii.gz
 	${FSLDIR}/bin/fslmaths ${LinearSSTBrainMask}.nii.gz -fillh ${LinearSSTBrainMask}.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -mas ${LinearSSTBrainMask}.nii.gz ${FreeSurferVol_SubInMedian}_brain.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -mas ${LinearSSTBrainMask}.nii.gz ${FreeSurferVol_SubInMedian}_BE${seglab}-REG${reglab}_brain.nii.gz
 	#skull
-	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -sub ${FreeSurferVol_SubInMedian}_brain.nii.gz ${FreeSurferVol_SubInMedian}_skull.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -sub ${FreeSurferVol_SubInMedian}_BE${seglab}-REG${reglab}_brain.nii.gz ${FreeSurferVol_SubInMedian}_BE${seglab}-REG${reglab}_skull.nii.gz
 	echo "*************************************************************"
 
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	echo "Nonlinear SST > Linear SST : DONE"
-	${FSLDIR}/bin/fslinfo ${LinearSSTBrainMask}.nii.gz
-	${FSLDIR}/bin/fslhd ${LinearSSTBrainMask}.nii.gz | grep sform
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	# Get inverse of LTA
 	LTA_FILE=${SST_Dir}/sub-${SubID}_ses-${SesID}_norm_xforms.lta
 	INV_LTA_FILE=${SST_Dir}/sub-${SubID}_ses-${SesID}_norm_xforms_inv.lta # Inverse LTA
 	lta_convert --inlta ${LTA_FILE} --outlta ${INV_LTA_FILE} --invert # Convert the LTAs
 
-	SubjBrainMaskFS=${SST_Dir}/sub-${SubID}_ses-${SesID}_BrainMaskFS
-	#rm -f ${SubjBrainMaskFS}.nii.gz
+
+	SubjBrainMaskFS=${SST_Dir}/sub-${SubID}_ses-${SesID}_BE${seglab}-REG${reglab}_BrainMaskFS
 
 	# take everything back into the nu.mgz space using inverse LTA
 	mri_vol2vol --lta ${LTA_FILE} \
@@ -334,16 +345,10 @@ do
 	${FSLDIR}/bin/fslmaths ${SubjBrainMaskFS}.nii.gz -thr ${MaskThr} -bin ${SubjBrainMaskFS}.nii.gz
 	${FSLDIR}/bin/fslmaths ${SubjBrainMaskFS}.nii.gz -fillh ${SubjBrainMaskFS}.nii.gz
 	mri_convert ${FreeSurfer_Vol_nuImg}.mgz ${FreeSurfer_Vol_nuImg}.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -mas ${SubjBrainMaskFS}.nii.gz ${FreeSurfer_Vol_nuImg}_brain.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -mas ${SubjBrainMaskFS}.nii.gz ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain.nii.gz
 	#skull
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -sub ${FreeSurfer_Vol_nuImg}_brain.nii.gz ${FreeSurfer_Vol_nuImg}_skull.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -sub ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain.nii.gz ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_skull.nii.gz
 	echo "*************************************************************"
-
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-	echo "Linear SST > 1x1x1 256^3 : DONE"
-	${FSLDIR}/bin/fslinfo ${SubjBrainMaskFS}.nii.gz
-	${FSLDIR}/bin/fslhd ${SubjBrainMaskFS}.nii.gz | grep sform
-	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 	echo ""
 	echo ""
@@ -357,16 +362,17 @@ do
 	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 	# Now take me from 1x1x1 256^3 to the subject space
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz --no-save-reg 
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain_rawavg.nii.gz --no-save-reg
 
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain_rawavg_mask.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_brain_rawavg_mask.nii.gz
 
 	#skull
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_skull_rawavg.nii.gz --no-save-reg
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_BE${seglab}-REG${reglab}_skull_rawavg.nii.gz --no-save-reg
 
+	v_cnt=$((v_cnt+1))
 done
 
 echo "==================================="

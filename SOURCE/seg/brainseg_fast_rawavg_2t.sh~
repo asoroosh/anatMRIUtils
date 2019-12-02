@@ -23,6 +23,8 @@ SesID=$3
 
 OPTAG=BETsREG
 
+tn=3
+
 #---------------------------------
 OrFlag=LIA
 
@@ -325,7 +327,7 @@ if [ $do_seg == 1 ]; then
 
 	echo "" > $SEG_LOG
 
-	${FSLDIR}/bin/fast -n 3 \
+	${FSLDIR}/bin/fast -n ${tn} \
 	-A ${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_gray_${SegOrFlg}_${OPTAG}_rawavg.nii.gz \
 	${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_white_${SegOrFlg}_${OPTAG}_rawavg.nii.gz \
 	${TissuePriors}/sub-${SubID}_ses-${SesID}_avg152T1_csf_${SegOrFlg}_${OPTAG}_rawavg.nii.gz \
@@ -334,7 +336,7 @@ if [ $do_seg == 1 ]; then
 	-b \
 	-B \
 	-g \
-	-o ${PVE_Suboutdir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_${OPTAG}_brain_rawavg_denoised_N4 \
+	-o ${PVE_Suboutdir}/sub-${SubID}_ses-${SesID}_${OpDirSuffix}_${OPTAG}_brain_rawavg_denoised_N4_${tn}tissues \
 	${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised_N4.nii.gz >> ${SEG_LOG}
 
 else
@@ -522,23 +524,19 @@ mri_vol2vol \
 
 GMSegTisFile=${AllSegFile}pve_1
 
-GMPTXTFILENAME=${GMPTXTDIRNAME}/sub-${SubID}_ses-${SesID}_${OPTAG}_UKB-GMAtlas_GMVols
-
+#GMPTXTFILENAME=${GMPTXTDIRNAME}/sub-${SubID}_ses-${SesID}_${OPTAG}_UKB-GMAtlas_GMVols
 #----------------------------------------------------------------
 #-------------- On the rawavg -----------------------------------
 #----------------------------------------------------------------
-
-echo ""
-echo "#### Apply rawavg atlas on rawavg gray matter:"
-echo "-- Atlas: ${SUBSESAtlasPreFix}_rawavg.nii.gz"
-echo "-- PVE: ${GMSegTisFile}.nii.gz"
-echo "-- Results: ${GMPTXTFILENAME}_rawavg.txt"
-echo ""
-
-echo "" > ${GMPTXTFILENAME}_rawavg.txt
-
-${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_rawavg.nii.gz \
-${GMSegTisFile}.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_rawavg.txt
+#echo ""
+#echo "#### Apply rawavg atlas on rawavg gray matter:"
+#echo "-- Atlas: ${SUBSESAtlasPreFix}_rawavg.nii.gz"
+#echo "-- PVE: ${GMSegTisFile}.nii.gz"
+#echo "-- Results: ${GMPTXTFILENAME}_rawavg.txt"
+#echo ""
+#echo "" > ${GMPTXTFILENAME}_rawavg.txt
+#${FSLDIR}/bin/fslstats -K ${SUBSESAtlasPreFix}_rawavg.nii.gz \
+#${GMSegTisFile}.nii.gz -m -v | xargs -n 3 | awk '{print "("$1"*"$2")"}' | bc >> ${GMPTXTFILENAME}_rawavg.txt
 
 #----------------------------------------------------------------
 #-------------- On the nu ---------------------------------------

@@ -100,18 +100,18 @@ def write_html(imgs: List, outpath: Path, subjects: List, n_cols, i, study_name)
 
         [tmp_path,tmp_file] = os.path.split(subject)
 
-#        print(tmp_file)
+        print(tmp_file)
 
-        SubID=tmp_file.split("_")[1]
-        SesID=tmp_file.split("_")[2]
+        #SubID=tmp_file.split("_")[1]
+        #SesID=tmp_file.split("_")[2]
 
-        subjectcap=SubID+"_"+SesID
+        subjectcap=tmp_file
 
         h.append("""
                  <figure>
                  <img src='{}' height=300px>
                  <figcaption>{}</figcaption>
-                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="fail" tabIndex="-1">FAILED</a> | <a href="#" class="func" data-type="negative" tabIndex="-1">TENTATIVE</a> | <a href="#" class="func" data-type="positive" tabIndex="-1">CHECK</a></div>
+                 <div><a href="#" class="func" data-type="pass">PASSED</a> | <a href="#" class="func" data-type="fail" tabIndex="-1">FAILED SST</a> | <a href="#" class="func" data-type="negative" tabIndex="-1">FAILED RAW</a> | <a href="#" class="func" data-type="positive" tabIndex="-1">CHECK</a></div>
                  </figure>
                 """.format(imgs[counter], subjectcap)) 
         counter = counter + 1
@@ -294,9 +294,9 @@ def get_js(i,study_name):
                 parent.appendChild(container);
 
                 printArrays(pass, '%s_%s_PASSED.csv');
-                printArrays(fail, '%s_%s_FAILED.csv');
+                printArrays(fail, '%s_%s_FAILED-SST.csv');
+                printArrays(negative, '%s_%s_FAILED-RAW.csv');
                 printArrays(positive, '%s_%s_CHECK.csv');
-                printArrays(negative, '%s_%s_TENTATIVE.csv');
 
                 saveAll.style.display = 'inline-block';
             });

@@ -3,15 +3,16 @@
 #ml Perl
 #source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
 
+#module load fsl
+#module load freesurfer
+#module load ANTs
 
-module load fsl
-module load freesurfer
-module load ANTs
+source setpathinanalytics
 
 set -e
 
 do_reg=10
-do_bex=0
+do_bex=1
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
@@ -20,10 +21,6 @@ do_bex=0
 
 StudyID=$1
 SubID=$2
-
-#StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-#StudyIDwoE=$(echo ${StudyID} | awk -F"E" '{print $1}')
-#SubTag=sub-${StudyID}
 
 NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 
@@ -38,12 +35,12 @@ echo "** StudyID: ${StudyID}, SubID: ${SubID}"
 echo "======================================="
 echo "======================================="
 
-DataDir=/well/nvs-mri-temp/data/ms/processed/MetaData
+#DataDir=/well/nvs-mri-temp/data/ms/processed/MetaData
 SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 
 while read SessionPathsFiles
 do
-	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $9}')
+	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" -v i=$VisitIDX '{print $i}')
 	SesID_tmp=$(echo $ses_SesID_tmp | awk -F"-" '{print $2}');
 	SesIDList="${SesIDList} $SesID_tmp"
 	echo ${SesIDList}
@@ -58,14 +55,14 @@ LogitudinalDirSuffix=nuws_mrirobusttemplate
 # ------
 
 #------------= Main paths
-PRSD_DIR="/well/nvs-mri-temp/data/ms/processed"
+#PRSD_DIR="/well/nvs-mri-temp/data/ms/processed"
 PRSD_SUBDIR=${PRSD_DIR}/${StudyID}/sub-${SubID}
 
 #-------------= X Sectional paths
 SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
 
 #--------------= Unprocessed paths
-UPRSD_DIR="/well/nvs-mri-temp/data/ms/unprocessed"
+#UPRSD_DIR="/well/nvs-mri-temp/data/ms/unprocessed"
 UnprocessedDir=${UPRSD_DIR}/${StudyID}
 
 #--------------= Path to SST templates
@@ -79,7 +76,7 @@ VoxRes=2
 MaskThr=0.5
 OrFlag=LIA
 
-NVSHOME=/well/nvs-mri-temp/users/scf915
+#NVSHOME=/well/nvs-mri-temp/users/scf915
 MNITMP_DIR=${NVSHOME}/NVROXBOX/AUX/MNItemplates/${OrFlag}
 MNIImg_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_${OrFlag}
 MaskInMNI_FS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_mask_${OrFlag}
@@ -96,11 +93,11 @@ echo "*************************************************************"
 # ------- Path inistialisations --------------------------------------------------------
 
 #register to MNI
-antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-ABE-
+antsRegOutputPrefix=${NonLinSSTDirImg}_MNI-${VoxRes}mm-BET-
 NonLinSST_MNI=${antsRegOutputPrefix}Warped_Brain
 NonLinSST_MNI_InvWarp=${antsRegOutputPrefix}1InverseWarp
 NonLinSST_MNI_Affine=${antsRegOutputPrefix}0GenericAffine.mat
-REG_LOG=${NonLinSSTDirImg}_ABE_Brain_MNI.log
+REG_LOG=${NonLinSSTDirImg}_BET_Brain_MNI.log
 
 
 if [ $do_reg == 1 ] || [ $do_reg == 10 ]; then
@@ -115,18 +112,21 @@ fi
 
 if [ $do_bex == 1 ]; then
 
-	echo "Do the Brain Extraction..."
 
+	$NVSSOURCE/reg/
+
+	#bet ${NonLinSSTDirImg}.nii.gz ${NonLinSSTDirImg}_BET_brain.nii.gz -R -m
+
+	#echo "Do the Brain Extraction..."
 	#${NonLinSSTDirImg}_Brain_ABE_BrainExtractionMask.nii.gz
 	#${NonLinSSTDirImg}_Brain_ABE_BrainExtractionBrain.nii.gz
-	OasisTemplates=${NVSHOME}/NVROXBOX/AUX/Oasis
-
-	antsBrainExtraction.sh \
-	-d 3 \
-	-a ${NonLinSSTDirImg}.nii.gz \
-	-e ${OasisTemplates}/T_template0.nii.gz \
-	-m ${OasisTemplates}/T_template0_BrainCerebellumProbabilityMask.nii.gz \
-	-o ${NonLinSSTDirImg}_Brain_ABE_
+	#OasisTemplates=${NVSHOME}/NVROXBOX/AUX/Oasis
+	#antsBrainExtraction.sh \
+	#-d 3 \
+	#-a ${NonLinSSTDirImg}.nii.gz \
+	#-e ${OasisTemplates}/T_template0.nii.gz \
+	#-m ${OasisTemplates}/T_template0_BrainCerebellumProbabilityMask.nii.gz \
+	#-o ${NonLinSSTDirImg}_Brain_ABE_
 
 else
 	echo "****No Brain Extraction is done!"
@@ -134,16 +134,16 @@ else
 fi
 
 # copy the extracted brain
-cp ${NonLinSSTDirImg}_Brain_ABE_BrainExtractionBrain.nii.gz ${NonLinSSTDirImg}_ABE_brain.nii.gz
+#cp ${NonLinSSTDirImg}_Brain_BET_BrainExtractionBrain.nii.gz ${NonLinSSTDirImg}_BET_brain.nii.gz
 
 # copy the mask and fill the holes
-NonLinSST_BrainMask=${SST_Dir}/sub-${SubID}_NonLinearSST_ABE_BrainMask
-cp ${NonLinSSTDirImg}_Brain_ABE_BrainExtractionMask.nii.gz ${NonLinSST_BrainMask}.nii.gz
+NonLinSST_BrainMask=${SST_Dir}/sub-${SubID}_NonLinearSST_BET_BrainMask
+cp ${NonLinSSTDirImg}_BET_brain_mask.nii.gz ${NonLinSST_BrainMask}.nii.gz
+
 ${FSLDIR}/bin/fslmaths ${NonLinSST_BrainMask}.nii.gz -fillh ${NonLinSST_BrainMask}.nii.gz
 
 # get the skull out
-${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -sub ${NonLinSSTDirImg}_ABE_brain.nii.gz ${NonLinSSTDirImg}_ABE_skull.nii.gz
-
+${FSLDIR}/bin/fslmaths ${NonLinSSTDirImg}.nii.gz -sub ${NonLinSSTDirImg}_BET_brain.nii.gz ${NonLinSSTDirImg}_BET_skull.nii.gz
 
 
 # ------- Do the job ---------------------------------------------------------------------
@@ -179,19 +179,19 @@ antsRegistration \
 --interpolation Linear \
 --use-histogram-matching 1 \
 --winsorize-image-intensities [0.005,0.995] \
---initial-moving-transform [${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_ABE_brain.nii.gz,1] \
+--initial-moving-transform [${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BET_brain.nii.gz,1] \
 --transform Rigid[0.1] \
---metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_ABE_brain.nii.gz,1,32,Regular,0.25] \
+--metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BET_brain.nii.gz,1,32,Regular,0.25] \
 --convergence [${ItrNum},1e-6,10] \
 --shrink-factors ${ShrnkFctrs} \
 --smoothing-sigmas ${SmthFctrs} \
 --transform Affine[0.1] \
---metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_ABE_brain.nii.gz,1,32,Regular,0.25] \
+--metric MI[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BET_brain.nii.gz,1,32,Regular,0.25] \
 --convergence [${ItrNum},1e-6,10] \
 --shrink-factors ${ShrnkFctrs} \
 --smoothing-sigmas ${SmthFctrs} \
 --transform SyN[0.1,3,0] \
---metric CC[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_ABE_brain.nii.gz,1,4] \
+--metric CC[${MNIImg_RAS_Brain}.nii.gz,${NonLinSSTDirImg}_BET_brain.nii.gz,1,4] \
 --convergence [${ItrNum},1e-6,10] \
 --shrink-factors ${ShrnkFctrs} \
 --smoothing-sigmas ${SmthFctrs} >> ${REG_LOG}
@@ -208,9 +208,9 @@ echo "--Run antsRegistrationSyN"
 #------ TESTS
 antsRegistrationSyN.sh -d 3 \
 -f ${MNIImg_RAS_Brain}.nii.gz \
--m ${NonLinSSTDirImg}_Brain_ABE_BrainExtractionBrain.nii.gz \
+-m ${NonLinSSTDirImg}_BET_brain.nii.gz \
 -t s \
--x ${NonLinSSTDirImg_mask}.nii.gz \
+-x ${NonLinSST_BrainMask}.nii.gz \
 -o ${antsRegOutputPrefix}
 
 
@@ -259,7 +259,7 @@ do
 	#Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
 	#Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
-	LinearSSTBrainMask=${SST_Dir}/sub-${SubID}_ses-${SesID}_ABE_BrainMaskLinearSST
+	LinearSSTBrainMask=${SST_Dir}/sub-${SubID}_ses-${SesID}_BET_BrainMaskLinearSST
 
 	echo "*************************************************************"
 	echo "--Session ID: ${SesID}, ${v_cnt}/${NumSes}"
@@ -280,9 +280,9 @@ do
 	echo "Brain Extraction on nu of each subject, in Linear SST"
 	${FSLDIR}/bin/fslmaths ${LinearSSTBrainMask}.nii.gz -thr ${MaskThr} -bin ${LinearSSTBrainMask}.nii.gz
 	${FSLDIR}/bin/fslmaths ${LinearSSTBrainMask}.nii.gz -fillh ${LinearSSTBrainMask}.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -mas ${LinearSSTBrainMask}.nii.gz ${FreeSurferVol_SubInMedian}_ABE_brain.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -mas ${LinearSSTBrainMask}.nii.gz ${FreeSurferVol_SubInMedian}_BET_brain.nii.gz
 	#skull
-	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -sub ${FreeSurferVol_SubInMedian}_ABE_brain.nii.gz ${FreeSurferVol_SubInMedian}_ABE_skull.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurferVol_SubInMedian}.nii.gz -sub ${FreeSurferVol_SubInMedian}_BET_brain.nii.gz ${FreeSurferVol_SubInMedian}_BET_skull.nii.gz
 	echo "*************************************************************"
 
 	echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -294,7 +294,7 @@ do
 	lta_convert --inlta ${LTA_FILE} --outlta ${INV_LTA_FILE} --invert # Convert the LTAs
 
 
-	SubjBrainMaskFS=${SST_Dir}/sub-${SubID}_ses-${SesID}_ABE_BrainMaskFS
+	SubjBrainMaskFS=${SST_Dir}/sub-${SubID}_ses-${SesID}_BET_BrainMaskFS
 
 	# take everything back into the nu.mgz space using inverse LTA
 	mri_vol2vol --lta ${LTA_FILE} \
@@ -309,9 +309,9 @@ do
 	${FSLDIR}/bin/fslmaths ${SubjBrainMaskFS}.nii.gz -thr ${MaskThr} -bin ${SubjBrainMaskFS}.nii.gz
 	${FSLDIR}/bin/fslmaths ${SubjBrainMaskFS}.nii.gz -fillh ${SubjBrainMaskFS}.nii.gz
 	mri_convert ${FreeSurfer_Vol_nuImg}.mgz ${FreeSurfer_Vol_nuImg}.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -mas ${SubjBrainMaskFS}.nii.gz ${FreeSurfer_Vol_nuImg}_ABE_brain.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -mas ${SubjBrainMaskFS}.nii.gz ${FreeSurfer_Vol_nuImg}_BET_brain.nii.gz
 	#skull
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -sub ${FreeSurfer_Vol_nuImg}_ABE_brain.nii.gz ${FreeSurfer_Vol_nuImg}_ABE_skull.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}.nii.gz -sub ${FreeSurfer_Vol_nuImg}_BET_brain.nii.gz ${FreeSurfer_Vol_nuImg}_BET_skull.nii.gz
 	echo "*************************************************************"
 
 	echo ""
@@ -326,19 +326,17 @@ do
 	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 	# Now take me from 1x1x1 256^3 to the subject space
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_ABE_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_ABE_brain_rawavg.nii.gz --no-save-reg
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg.nii.gz --no-save-reg
 
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_ABE_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_ABE_brain_rawavg_mask.nii.gz
-	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_ABE_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_ABE_brain_rawavg_mask.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz
+	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz
 
 	#skull
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_ABE_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_ABE_skull_rawavg.nii.gz --no-save-reg
-
+mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+--o ${FreeSurfer_Vol_nuImg}_BET_skull_rawavg.nii.gz --no-save-reg
 
 	v_cnt=$((v_cnt+1))
-
 done
 
 echo "==================================="

@@ -1,0 +1,22 @@
+ml ANTs
+ml FreeSurfer
+ml Perl
+source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh 
+
+#processed dir
+PRSD_DIR=/rescompdata/ms/unprocessed/RESCOMP
+
+#unprocessed dir
+UPRSD_DIR=/data/ms/unprocessed/mri/relabelled/sesVISITYYYYMMDD
+
+#HomeDir
+NVSHOME=$HOME
+
+#Data Directory
+DataDir=/rescompdata/ms/unprocessed/RESCOMP/MetaData
+StudyIDX=7
+SubIDX=8
+VisitIDX=9
+
+NVSSOURCE=${HOME}/NVROXBOX/SOURCE/
+RCSOURSE=/rescomp/scf915

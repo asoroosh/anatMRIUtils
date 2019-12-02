@@ -1,10 +1,9 @@
 set -e
 
 #+++++++= What are we going to use, here?
-ml ANTs
-ml FreeSurfer
-ml Perl
-source /apps/eb/software/FreeSurfer/6.0.1-centos6_x86_64/FreeSurferEnv.sh
+module load freesurfer
+module load ANTs
+module load fsl
 
 do_seg=1
 
@@ -14,11 +13,8 @@ do_seg=1
 #SubID=CFTY720D2324.0217.00001
 #SubTag=sub-${StudyID} #this is what the antsMultivariateTemplate uses
 
-StudyID_Date=$1
+StudyID=$1
 SubID=$2
-
-StudyID=$(echo ${StudyID_Date} | awk -F"." '{print $1}')
-SubTag=sub-${StudyID}
 
 echo "StudyID: ${StudyID}, SubID: ${SubID}"
 
@@ -27,14 +23,14 @@ NonLinTempImgName=sub-${SubID}_ants_temp_med_nutemplate0
 #--------------------------------------------------------------------
 
 VoxRes=2
-
-SessionsFileName=${HOME}/NVROXBOX/Data/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
+DataDir=/well/nvs-mri-temp/data/ms/processed/MetaData
+SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 while read SessionPathsFiles
 do
-	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $8}')
+	ses_SesID_tmp=$(echo $SessionPathsFiles | awk -F"/" '{print $9}')
 	SesID_tmp=$(echo $ses_SesID_tmp | awk -F"-" '{print $2}')
 	SesIDList="${SesIDList} $SesID_tmp"
-#	echo ${SesIDList}
+	echo ${SesIDList}
 done<${SessionsFileName}
 
 echo ${SesIDList}
@@ -47,37 +43,39 @@ echo "# of sessions available: ${NumSes}"
 #-----------------------------------------------
 OpDirSuffix=fast # Name of the Segmentation operation
 
-SegOrFlg=RAS #Segmentation Orientations
-MNIOrientationFlag=RAS #MNI Template Orientation
-AtOrFlg=RAS # Atlas Orientation
-PrOrFlg=RAS # Prior Orientation
+SegOrFlg=LIA #Segmentation Orientations
+MNIOrientationFlag=LIA #MNI Template Orientation
+AtOrFlg=LIA # Atlas Orientation
+PrOrFlg=LIA # Prior Orientation
 
 PriorIntepMethod=Linear # prior interpolation method
 AtlasIntepMethod=NearestNeighbor # atlas interpolation method
 
+NVSHOME=/well/nvs-mri-temp/users/scf915
 #++++++++= MNI TISSUE PRIORS
-MNI_tissuep=${HOME}/NVROXBOX/AUX/tissuepriors/
+MNI_tissuep=${NVSHOME}/NVROXBOX/AUX/tissuepriors/${MNIOrientationFlag}
 
 #+++++++++= MNI TEMPLATE
 
-MNITMP_DIR=${HOME}/NVROXBOX/AUX/MNItemplates
+MNITMP_DIR=${NVSHOME}/NVROXBOX/AUX/MNItemplates/${MNIOrientationFlag}
 
 # head --
-MNIImg_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_RAS
+MNIImg_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_${MNIOrientationFlag}
 
 # brain --
-MNIImgBrain_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_RAS
+MNIImgBrain_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_brain_${MNIOrientationFlag}
 
 # skull --
-MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_RAS
+MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_${MNIOrientationFlag}
 
 # strucseg priph/vent
-GMSEG_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_RAS_NoCereb_bin
-SEGPRIPH_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_periph_RAS
-SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_RAS_Vent
+GMSEG_MNI=${MNITMP_DIR}/MNI152_T1_2mm_strucseg_${MNIOrientationFlag}_NoCereb_bin
+SEGPRIPH_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_periph_${MNIOrientationFlag}
+SEGVENT_MNI=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_strucseg_${MNIOrientationFlag}_Vent
 
+NVSHOME=/well/nvs-mri-temp/users/scf915
 #++++++++= Harvard Oxford Atlas
-ATLASMNI_RAS=${HOME}/NVROXBOX/AUX/atlas/GMatlas/RAS/GMatlas_${VoxRes}mm_RAS
+ATLASMNI_RAS=${NVSHOME}/NVROXBOX/AUX/atlas/GMatlas/${MNIOrientationFlag}/GMatlas_${VoxRes}mm_${MNIOrientationFlag}
 
 #--------------------------------------------------------------------------------------
 ImgTyp=T12D
@@ -86,15 +84,15 @@ LogitudinalDirSuffix=nuws_mrirobusttemplate
 # ------
 
 #------------= Main paths
-PRSD_DIR="/data/ms/processed/mri"
-PRSD_SUBDIR=${PRSD_DIR}/${StudyID_Date}/sub-${SubID}
+PRSD_DIR="/well/nvs-mri-temp/data/ms/processed"
+PRSD_SUBDIR=${PRSD_DIR}/${StudyID}/sub-${SubID}
 
 #-------------= X Sectional paths
 SST_Dir=${PRSD_SUBDIR}/${ImgTyp}.${XSectionalDirSuffix}.${LogitudinalDirSuffix}
 
 #--------------= Unprocessed paths
-UPRSD_DIR="/data/ms/unprocessed/mri"
-UnprocessedDir=${UPRSD_DIR}/${StudyID_Date}
+UPRSD_DIR="/well/nvs-mri-temp/data/ms/unprocessed"
+UnprocessedDir=${UPRSD_DIR}/${StudyID}
 
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
 
@@ -140,8 +138,8 @@ NonLinSST_MNI_Affine=${antsRegOutputPrefix}0GenericAffine
 PriorLabels=1
 for TissueType in gray white csf brain
 do
-	echo "-- Convert the gray matter prior from LAS orientation (FSL) to RAS orientation (FS)."
-	mri_convert --in_orientation LAS --out_orientation RAS ${MNI_tissuep}/avg152T1_${TissueType}.nii.gz ${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}.nii.gz
+	echo "-- Convert the gray matter prior from LAS orientation (FSL) to ${MNIOrientationFlag} orientation (FS)."
+	mri_convert --in_orientation LAS --out_orientation ${MNIOrientationFlag} ${MNI_tissuep}/avg152T1_${TissueType}.nii.gz ${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}.nii.gz
 
 	PriorRASMNI=${TissuePriors}/avg152T1_${TissueType}_${PrOrFlg}
 	NLSSTPriorPreFix=${TissuePriors}/sub-${SubID}_avg152T1_${TissueType}_${PrOrFlg}
@@ -232,7 +230,7 @@ OutputFiletype_List=("pve" "seg")
 #        do
 #		NLSST_SegTisFile=${NonLinSSTAllSegFile}${segfiletype}_${tissue_cnt}
 #
-#                echo "#### Non Linear SST >> MNI Space (RAS)  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
+#                echo "#### Non Linear SST >> MNI Space (${MNIOrientationFlag})  ---- Tissue Count: ${tissue_cnt}, Segmentation File: ${segfiletype}, Interpolation Method: ${InterpMeth}"
 #		echo "-- Moving Image: ${NLSST_SegTisFile}.nii.gz"
 #		echo "-- Reference Image: ${MNIImgBrain_RAS}.nii.gz"
 #		echo "-- FWD Warp: ${NonLinSST_MNI_Warp}.nii.gz"
@@ -314,9 +312,10 @@ antsApplyTransforms \
 -o ${NLSST_GMSEG_PreFix}_NonLinearSST.nii.gz
 
 
-for v_cnt in $(seq 0 $((${NumSes}-1)))
+v_cnt=0
+for SesID in ${SesIDList[@]}
 do
-	SesID=${SesIDList[$v_cnt]}
+#	SesID=${SesIDList[$v_cnt]}
 
 echo " "
 echo "                ========================================================================"
@@ -328,9 +327,14 @@ echo "                ==========================================================
 	FreeSurfer_Vol_nuImg=${FreeSurfer_Vol_Dir}/nu
 
 	FreeSurferVol_SubInMedian=${SST_Dir}/sub-${SubID}_ses-${SesID}_nu_2_median_nu
-	Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
-	Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
-	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
+
+	Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}1InverseWarp
+	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}0GenericAffine
+	Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nusub-${SubID}_ses-${SesID}_nu_2_median_nu${v_cnt}1Warp
+
+#	Sub2NonLinSST_WarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1Warp
+#	Sub2NonLinSST_InvWarpFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}1InverseWarp
+#	Sub2NonLinSST_AffineFile=${SST_Dir}/sub-${SubID}_ants_temp_med_nu${SubTag}${v_cnt}0GenericAffine
 
 	#-----------------------------------------------------------------------------------------------------------------------
 	# Take Segmentation files from Nonlinear SST >> Linear SST -------------------------------------------------------------
@@ -440,7 +444,7 @@ echo "                ==========================================================
 
 	SIENAXFILENAME=${SIENAXDIRNAME}/sub-${SubID}_ses-${SesID}_Sienax
 
-	T12MNIlinear_RAS=${SIENAXFILENAME}_T12MNI_RAS
+	T12MNIlinear_RAS=${SIENAXFILENAME}_T12MNI_${MNIOrientationFlag}
 	report_sienax=${SIENAXFILENAME}_Report
 
 	SUBSES_GMSEG_PreFix=${TMPLDir}/sub-${SubID}_ses-${SesID}_${AtOrFlg}_strucseg_nocereb
@@ -622,6 +626,8 @@ echo "                ==========================================================
 	ubrain=`echo "2 k $uwhite $ugrey + 1 / p" | dc -`
 	nbrain=`echo "2 k $nwhite $ngrey + 1 / p" | dc -`
 	echo "BRAIN              $nbrain $ubrain" >> ${report_sienax}
+
+	v_cnt=$((v_cnt+1))
 
 done
 
