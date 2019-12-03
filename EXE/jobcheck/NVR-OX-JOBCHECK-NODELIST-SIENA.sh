@@ -1,7 +1,7 @@
 # Check the jobs and possibly resubmit them
 
 StudyID=$1
-DirSuffix=siena
+DirSuffix=sienax
 ImgTyp=T12D # Here we only use T13D and T12D
 
 NUMJB_INPT=
@@ -47,9 +47,12 @@ DataDir="${HOME}/NVROXBOX/Data/RELAB"
 
 	failedjobstxtfileDir=${HOME}/NVROXBOX/EXE/jobcheck/failedjobs/${StudyID}
 	failedjobstxtfile=${failedjobstxtfileDir}/${StudyID}_${DirSuffix}.failedjobs.txt
+	failedsubjects=${failedjobstxtfileDir}/${StudyID}_${DirSuffix}_failedsubjects.txt
+
 	mkdir -p ${failedjobstxtfileDir}
 	rm -f ${failedjobstxtfile}
 
+	f_cnt=0
 	for i_NUMJB in `seq 1 ${NUMJB}`
 	do
 		Path2StatPerFile=${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_*_${i_NUMJB}.stat
@@ -59,9 +62,15 @@ DataDir="${HOME}/NVROXBOX/Data/RELAB"
 #			echo ${Path2StatPerFile}
 			FileName=$(basename $Path2StatPerFile .stat)
 			JOBID="$(cut -d'_' -f4 <<<"$FileName")"
+
+                        echo "Stat:${JBSTAT}, JobNumb:${i_NUMJB}, JobID:${JOBID}"
+                        echo $(cat ${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_${JOBIDSTR}_${i_NUMJB}.out | grep "Subject:" | awk '{print $2}') >> ${failedsubjects}
+
 			echo "Stat:${JBSTAT}, JobNumb:${i_NUMJB}, JobID:${JOBID}" >> ${failedjobstxtfile}
 			cat ${WhereTheStatFilesAre}/${StudyID}_${DirSuffix}_${NUMJB}_${JOBID}_${i_NUMJB}.err >> ${failedjobstxtfile}
 			#sacct --format=Nodelist -j ${JOBID}_${i_NUMJB} >> ${failedjobstxtfile}
+			f_cnt=$((f_cnt+1))
+
 		fi
 	done
 
