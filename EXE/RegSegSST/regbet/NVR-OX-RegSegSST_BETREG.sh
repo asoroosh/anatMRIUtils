@@ -11,7 +11,7 @@ SLURMSUBMIT=$4
 Mem=8G
 Time="2-23:59:00"
 DirSuffix="regseg"
-LT_DirSuffix="betsreg"
+LT_DirSuffix="betsreg-fixed"
 
 #NVSHOME=/well/nvs-mri-temp/users/scf915
 #NVSHOME=${HOME}/NVROXBOX/SOURCE/
@@ -67,6 +67,8 @@ mkdir -p ${ImgTypOpLog}
 
 JobName=${StudyID}_${LT_DirSuffix}_${DirSuffix}_${NUMJB}
 SubmitterFileName="${ImgTypOp}/SubmitMe_${JobName}.sh"
+
+echo "check ${ImgTypOp}"
 
 cat > $SubmitterFileName << EOF
 #!/bin/bash
