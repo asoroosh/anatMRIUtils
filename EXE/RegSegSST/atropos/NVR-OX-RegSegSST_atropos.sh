@@ -11,7 +11,7 @@ SLURMSUBMIT=$4
 Mem=8G
 Time="2-23:59:00"
 DirSuffix="betsreg"
-LT_DirSuffix="atropos"
+LT_DirSuffix="atropos-fixed"
 
 #NVSHOME=/well/nvs-mri-temp/users/scf915
 #NVSHOME=${HOME}/NVROXBOX/SOURCE/

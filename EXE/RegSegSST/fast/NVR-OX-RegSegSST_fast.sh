@@ -11,7 +11,7 @@ SLURMSUBMIT=$4
 Mem=8G
 Time="2-23:59:00"
 DirSuffix="betsreg"
-LT_DirSuffix="fast2t"
+LT_DirSuffix="fast-fixed"
 
 #NVSHOME=/well/nvs-mri-temp/users/scf915
 #NVSHOME=${HOME}/NVROXBOX/SOURCE/
@@ -151,7 +151,6 @@ echo ""
 #############################################################################
 #############################################################################
 
-
 #--------------------------------------------------
 #--------------------------------------------------
 # Run the Segmentation on rawavg #-----------------
@@ -167,8 +166,7 @@ do
 	echo "Running segmentation -- FAST and ATROPOS -- on the each sessions:"
 	echo "We are on session ${StudyID} \${SubID} \${SesID} "
 
-#	sh ${SRC_SEG_DIR}/brainseg_atropos_rawavg.sh ${StudyID} \${SubID} \${SesID}
-	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg_2t.sh ${StudyID} \${SubID} \${SesID}
+	sh ${SRC_SEG_DIR}/brainseg_fast_rawavg.sh ${StudyID} \${SubID} \${SesID}
 done
 
 
