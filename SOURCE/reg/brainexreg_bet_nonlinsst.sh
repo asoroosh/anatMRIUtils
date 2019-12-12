@@ -9,8 +9,11 @@ module load ANTs
 
 set -e
 
-do_reg=10
-do_bex=1
+#do_reg=10
+#do_bex=1
+
+do_reg=0
+do_bex=0
 
 #--------- SubID, StudyID, info from ANTs SST -----------------------------------------
 # comes from the user:
@@ -326,15 +329,23 @@ do
 	UnprocessedImg=${UnprocessedDir}/sub-${SubID}/ses-${SesID}/anat/sub-${SubID}_ses-${SesID}_run-1_T1w
 
 	# Now take me from 1x1x1 256^3 to the subject space
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg.nii.gz --no-save-reg
+	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_brain.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+	--o ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg.nii.gz --no-save-reg
 
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg.nii.gz -bin ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz
 	${FSLDIR}/bin/fslmaths ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz -fillh ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask.nii.gz
 
 	#skull
-mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
---o ${FreeSurfer_Vol_nuImg}_BET_skull_rawavg.nii.gz --no-save-reg
+	mri_vol2vol --mov ${FreeSurfer_Vol_nuImg}_BET_skull.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+	--o ${FreeSurfer_Vol_nuImg}_BET_skull_rawavg.nii.gz --no-save-reg
+
+	# Now take the mask from 1x1x1 256^3 to the raw space
+	# -- BRAIN --
+	mri_vol2vol --mov ${SubjBrainMaskFS}.nii.gz --targ ${UnprocessedImg}.nii.gz --regheader \
+	--o ${FreeSurfer_Vol_nuImg}_BET_brain_rawavg_mask_test.nii.gz --nearest --no-save-reg
+
+	# -- SKULL --
+
 
 	v_cnt=$((v_cnt+1))
 done

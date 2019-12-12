@@ -166,6 +166,8 @@ antsRegistration \
 --convergence [100x100x70x50x20,1e-6,10] \
 --shrink-factors 10x6x4x2x1 \
 --smoothing-sigmas 6x4x2x1x0vox
+
+
 #--masks [NULL,${NonLinSSTDirImg}_BE${seglab}-REG${reglab}_brain_mask_dil1.nii.gz] #>> ${REG_LOG}
 
 # Old call------------------------------------------------------

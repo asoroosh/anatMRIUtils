@@ -1,5 +1,4 @@
 
-
 #CFTY720D2309 CFTY720D2309x0507x00007 V8x20081211
 
 set -e
@@ -94,7 +93,6 @@ MNIImgSkull_RAS=${MNITMP_DIR}/MNI152_T1_${VoxRes}mm_skull_${MNIOrientationFlag}
 #++++++++= Harvard Oxford Atlas
 ATLASMNI_RAS=${NVSHOME}/NVROXBOX/AUX/atlas/GMatlas/${MNIOrientationFlag}/GMatlas_${VoxRes}mm_${MNIOrientationFlag}
 
-
 #+++++++++++++++++++++++++++++++++++++= PROCESSED DATA ++++
 XSectionalDirSuffix=autorecon12ws
 LogitudinalDirSuffix=nuws_mrirobusttemplate
@@ -169,10 +167,19 @@ echo ""
 echo ""
 echo "==================================================================================="
 echo "Perform Denoising on: ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz"
+echo "mask: ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz"
+echo "output: ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised.nii.gz "
+
+
+fslreorient2std ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz
+fslreorient2std ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
+CopyImageHeaderInformation ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz 1 1 1
+
 DenoiseImage -d 3 \
 -i ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz \
 -n Gaussian \
 -x ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz \
+-v \
 -o ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised.nii.gz
 
 echo "Image Denoising Perfomed: ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised.nii.gz "
@@ -186,6 +193,7 @@ echo "Perfome N4biasfieldcorrection on: ${FreeSurfer_Vol_nuImg}_brain_rawavg_den
 N4BiasFieldCorrection -d 3 \
 -i ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised.nii.gz \
 -x ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz \
+-v \
 -o ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised_N4.nii.gz
 
 echo "N4 Bias Corrected Image: ${FreeSurfer_Vol_nuImg}_brain_rawavg_denoised_N4.nii.gz"

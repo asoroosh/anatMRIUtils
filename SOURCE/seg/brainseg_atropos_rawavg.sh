@@ -150,6 +150,18 @@ SIENAXDIRNAME=${PVE_Suboutdir}/IDPs/SIENAX
 mkdir -p ${GMPTXTDIRNAME}
 mkdir -p ${SIENAXDIRNAME}
 
+
+echo "++++ Sort out the ITK bug ++++"
+
+fslreorient2std ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz
+fslreorient2std ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz
+
+echo "+++ Copy headers ++++"
+
+CopyImageHeaderInformation ${FreeSurfer_Vol_nuImg}_brain_rawavg.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz ${FreeSurfer_Vol_nuImg}_brain_rawavg_mask.nii.gz 1 1 1
+
+echo "bug fix done."
+
 #-----------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------
 #------------------------------------- Take the priors back into the native space --------------------------------------
