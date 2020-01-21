@@ -1,6 +1,11 @@
-# find the scans closes to the timeline seperated every 5 years. 
-#timestamps=np.array(['20110602','20110805','20110204','20101202','20111130','20101126','20101123','20101122','20101116'])
-#ses-V10x20041002  ses-V2x20040328  ses-V5x20040430  ses-V6x20040605  ses-V7x20040711  ses-V8x20040812  ses-V9x20040905
+#find the scans closesest to the 5 evenly paced milestones. 
+# Example:
+#[dfgtyk@bdivdi.local@frontend001 mis]$ ml Python 
+#[dfgtyk@bdivdi.local@frontend001 mis]$ python3 datepace.py ses-V10x20040918  ses-V17x20060309  ses-V1jM1x20150207  ses-V27x20090228  ses-V31x20100318  ses-V6x20040515    ses-V7x20040610  ses-V9x20040819 ses-V15x20050307  ses-V19x20070308  ses-V23x20080310    ses-V2x20040304   ses-V5x20040417   ses-V778x20110217  ses-V8x20040715
+# ses-V2x20040304 ses-V19x20070308 ses-V27x20090228 ses-V778x20110217 ses-V1jM1x20150207 (this is list of session we will be sending to nonlinear SST)
+# ses-V10x20040417 ses-V15x20040515 ses-V17x20040610 ses-V23x20040715 ses-V31x20040819 ses-V5x20040918 ses-V6x20050307 ses-V7x20060309 ses-V8x20080310 ses-V9x20100318 (these are what we will be registrating to the SST later)
+#
+# PYTHON 3.6
 
 from datetime import datetime
 import numpy as np
