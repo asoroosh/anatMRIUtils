@@ -10,5 +10,7 @@
 *.lta
 *.png
 core.*
-EXE/jobcheck/failedjobs/
-
+*.failedjobs.txt
+EXE/proc50/MetaData/
+EXE/proc50/conversiontextfiles/
+EXE/subtemplates/subsamplingtests/qc
