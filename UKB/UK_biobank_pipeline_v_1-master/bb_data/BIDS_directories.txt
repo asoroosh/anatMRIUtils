@@ -1,7 +1,0 @@
-{
-    "BIDS",
-    "BIDS/sub-@SUBJECT@",   
-    "BIDS/sub-@SUBJECT@/anat",
-    "BIDS/sub-@SUBJECT@/func",
-    "BIDS/sub-@SUBJECT@/dwi"
-}
