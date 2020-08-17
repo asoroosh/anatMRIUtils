@@ -12,9 +12,7 @@ SubID=$2
 
 BEOP="_BETFNIRT"
 
-#CFTY720D2201 sub-CFTY720D2201x0030x00006 _BETFNIRT
-
-DataDir=/rescompdata/ms/unprocessed/RESCOMP/MetaData
+DataDir=/XX/XX/XXX/MetaData
 SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 
 while read SessionPathsFiles
@@ -34,7 +32,7 @@ SST_IMG=${SST_DIR}/sub-${SubID}_ants_temp_med_nutemplate0.nii.gz
 SST_BRAIN_IMG=${SST_DIR}/sub-${SubID}_ants_temp_med_nutemplate0${BEOP}_brain.nii.gz
 SSTMNI_IMG=${SST_DIR}/BETFNIRT/sub-${SubID}_ants_temp_med_nutemplate0_MNI-FNIRT-2mm-warped.nii.gz
 
-OutputDIR=/rescompdata/ms/unprocessed/RESCOMP/QC/SST-BE${BEOP}/${StudyID}
+OutputDIR=/XXX/XXX/XXX/XXX/QC/SST-BE${BEOP}/${StudyID}
 
 rubbishbin=$(mktemp -d /tmp/slicerdir.XXXXXXXXX)
 

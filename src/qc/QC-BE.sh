@@ -1,3 +1,5 @@
+# /bin/bash
+
 set -e
 
 StudyID=$1
@@ -5,7 +7,7 @@ SubID=$2
 
 BEOP=$3
 
-DataDir=/rescompdata/ms/unprocessed/RESCOMP/MetaData
+DataDir=/XXX/XXX/XXX
 SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 
 while read SessionPathsFiles
@@ -19,10 +21,10 @@ done<${SessionsFileName}
 SesIDList=(${SesIDList})
 NumSes=${#SesIDList[@]}
 
-processed_dir=/data/ms/processed/mri/${StudyID}
-unprocessed_dir=/data/ms/unprocessed/mri/relabelled/sesVISITYYYYMMDD
+processed_dir=/data/XX/XX/XX/${StudyID}
+unprocessed_dir=/data/XX/XX/XX/XX/sesVISITYYYYMMDD
 
-OutputDIR=/rescompdata/ms/unprocessed/RESCOMP/QC/BE-${BEOP}/${StudyID}
+OutputDIR=/XXX/XXX/XXX/XXX/QC/BE-${BEOP}/${StudyID}
 rubbishbin=$(mktemp -d /tmp/slicerdir.XXXXXXXXX)
 
 mkdir -p ${OutputDIR}

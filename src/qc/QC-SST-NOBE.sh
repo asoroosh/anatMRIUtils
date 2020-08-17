@@ -1,3 +1,5 @@
+# /bin/bash
+
 set -e
 
 ml ImageMagick
@@ -14,7 +16,7 @@ BEOP=$3
 
 #DataDir=/well/nvs-mri-temp/data/ms/processed/MetaData
 
-DataDir=/rescompdata/ms/unprocessed/RESCOMP/MetaData
+DataDir=/XX/XX/MetaData
 SessionsFileName=${DataDir}/${StudyID}/T12D/Sessions/${StudyID}_sub-${SubID}_T12D.txt
 
 while read SessionPathsFiles
@@ -28,14 +30,14 @@ done<${SessionsFileName}
 SesIDList=(${SesIDList})
 NumSes=${#SesIDList[@]}
 
-processed_dir=/rescompdata/ms/unprocessed/RESCOMP/${StudyID}
+processed_dir=/XX/XX/XX/${StudyID}
 
 SST_DIR=${processed_dir}/sub-${SubID}/T12D.autorecon12ws.nuws_mrirobusttemplate
 SST_IMG=${SST_DIR}/sub-${SubID}_ants_temp_med_nutemplate0.nii.gz
 SST_BRAIN_IMG=${SST_DIR}/sub-${SubID}_ants_temp_med_nutemplate0${BEOP}_brain.nii.gz
 SSTMNI_IMG=${SST_DIR}/sub-${SubID}_ants_temp_med_nutemplate0_MNI-2mm-Warped.nii.gz
 
-OutputDIR=/rescompdata/ms/unprocessed/RESCOMP/QC/SST-BE${BEOP}/${StudyID}
+OutputDIR=/XX/XX/XX/QC/SST-BE${BEOP}/${StudyID}
 rubbishbin=$(mktemp -d /tmp/slicerdir.XXXXXXXXX)
 
 #rm -rf ${OutputDIR}
