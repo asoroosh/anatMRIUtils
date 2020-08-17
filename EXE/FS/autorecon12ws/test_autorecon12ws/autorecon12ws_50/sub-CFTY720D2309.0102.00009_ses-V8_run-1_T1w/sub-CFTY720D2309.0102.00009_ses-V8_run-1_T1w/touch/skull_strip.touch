@@ -1,1 +1,0 @@
-mri_watershed -rusage /home/bdivdi.local/dfgtyk/NVROXBOX/EXE/FS/autorecon12ws/test_autorecon12ws/autorecon12ws_50/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/sub-CFTY720D2309.0102.00009_ses-V8_run-1_T1w/touch/rusage.mri_watershed.dat -T1 -h 50 T1.mgz brainmask.auto.mgz
