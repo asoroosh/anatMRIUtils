@@ -1,0 +1,18 @@
+
+# Generate subject level VBM images
+# 
+
+GM_file=$1
+templ=$2
+VBM_dir=$3
+
+echo "Template is here: ${templ}"
+echo "VBM results: ${VBM_dir}"
+echo "GM file: ${GM_file}"
+
+mkdir -p ${VBM_dir}
+
+echo "running fsl_reg"
+${FSLDIR}/bin/fsl_reg ${GM_file} ${templ} ${VBM_dir}/T1_GM_to_template_GM -fnirt "--config=GM_2_MNI152GM_2mm.cnf --jout=${VBM_dir}/T1_GM_JAC_nl --logout=${VBM_dir}/NVROX_vbm_fnirt.log"
+echo "making the VBM images"
+${FSLDIR}/bin/fslmaths ${VBM_dir}/T1_GM_to_template_GM -mul ${VBM_dir}/T1_GM_JAC_nl ${VBM_dir}/T1_GM_to_template_GM_mod -odt float
